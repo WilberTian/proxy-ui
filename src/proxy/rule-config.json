@@ -1,0 +1,42 @@
+[
+  {
+    "guid": "2",
+    "enabled": true,
+    "type": "request",
+    "matcher": "includes",
+    "pattern": "act.5ing.com",
+    "header": "",
+    "body": ""
+  },
+  {
+    "guid": "3",
+    "enabled": true,
+    "type": "mock",
+    "matcher": "includes",
+    "pattern": "act.52ping.com",
+    "bodyType": "string",
+    "bodyContent": "this is mock content",
+    "bodyPath": "",
+    "response": {
+      "statusCode": 200,
+      "header": {
+        "content-type": "text/html"
+      }
+    }
+  },
+  {
+    "guid": "5",
+    "enabled": true,
+    "type": "response",
+    "matcher": "includes",
+    "pattern": "act.5ing.com",
+    "bodyType": "file",
+    "response": {
+      "statusCode": 200,
+      "header": {
+        "content-type": "text/html"
+      },
+      "body": "this is mock content"
+    }
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "port": 8001,
+  "rule": {},
+  "webInterface": {
+    "enable": true,
+    "webPort": 8002
+  },
+  "throttle": 10000,
+  "forceProxyHttps": false,
+  "wsIntercept": false,
+  "silent": true
+}
