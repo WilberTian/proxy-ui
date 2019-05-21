@@ -1,5 +1,6 @@
 <template>
   <el-form
+    class="rule-config-setting"
     :model="ruleConfigData"
     :rules="validators"
     ref="ruleConfigForm"
@@ -50,7 +51,12 @@
         :value="JSONtoStr(ruleConfigData.header)"
         @input="
           (val) => {
-            ruleConfigData.header = this.strToJSON(val)
+            ruleConfigData.header = val
+          }
+        "
+         @blur="
+          (e) => {
+            ruleConfigData.header = this.strToJSON(e.target.value)
           }
         "
       ></el-input>
@@ -65,7 +71,12 @@
         :value="JSONtoStr(ruleConfigData.body)"
         @input="
           (val) => {
-            ruleConfigData.body = this.strToJSON(val)
+            ruleConfigData.body = val
+          }
+        "
+        @blur="
+          (e) => {
+            ruleConfigData.body = this.strToJSON(e.target.value)
           }
         "
       ></el-input>
@@ -87,7 +98,12 @@
         :value="JSONtoStr(ruleConfigData.response.header)"
         @input="
           (val) => {
-            ruleConfigData.response.header = this.strToJSON(val)
+            ruleConfigData.response.header = val
+          }
+        "
+        @blur="
+          (e) => {
+            ruleConfigData.response.header = this.strToJSON(e.target.value)
           }
         "
       ></el-input>
@@ -102,7 +118,7 @@
       </el-radio-group>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'mock' && ruleConfigData.bodyType === 'string'"
+      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'string'"
       label="响应内容"
       prop="bodyContent"
     >
@@ -112,12 +128,12 @@
       ></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'mock' && ruleConfigData.bodyType === 'file'"
+      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'file'"
       label="响应内容"
       prop="bodyPath"
     >
       {{ruleConfigData.bodyPath}}
-      <el-button @click="selectResponseFile">选择文件</el-button>
+      <el-button @click="selectResponseFile" size="mini" icon="el-icon-upload2" circle></el-button>
     </el-form-item>
     <el-form-item>
       <el-button
@@ -141,24 +157,23 @@ export default {
       type: Object
     }
   },
-  // watch: {
-  //   ruleConfig: {
-  //     handler (val) {
-  //       this.ruleConfigData = this.ruleConfig ? JSON.parse(JSON.stringify(this.ruleConfig)) : {}
-  //     },
-  //     immediate: true,
-  //     deep: true
-  //   }
-  // },
   beforeCreate () {
     this.matchers = this.$proxyApi.getMatchers()
   },
   data () {
     const isValidJSON = (rule, value, callback) => {
-      if (typeof value === 'string' && value.trim() !== '') {
+      try {
+        if (typeof value === 'string' && value.trim() === '') {
+          callback()
+        } else if (typeof value === 'object') {
+          callback()
+        } else {
+          JSON.parse(value)
+          callback()
+        }
+      } catch (e) {
         callback(new Error('请输入合法的JSON字符串'))
       }
-      callback()
     }
     const isValidHTTPCode = (rule, value, callback) => {
       if (!value) {

@@ -1,0 +1,125 @@
+<template>
+  <div
+    class="rule-config-list"
+    v-masonry
+    transition-duration="0.2s"
+    item-selector=".rule-config-item"
+  >
+    <div
+      v-masonry-tile
+      class="rule-config-item"
+      v-for="ruleConfig in ruleConfigs"
+      :key="ruleConfig.guid"
+    >
+      <div class="rule-config-type">{{ruleConfig.type}}</div>
+      <div class="rule-config-info">
+        <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
+        <div class="rule-config-pattern">{{ruleConfig.pattern}}</div>
+      </div>
+      <div class="rule-config-operation">
+        <i
+          class="el-icon-edit"
+          @click="handleEditRuleConfig(ruleConfig)"
+        ></i>
+        <i
+          class="el-icon-document-copy"
+          @click="handleCloneRuleConfig(ruleConfig)"
+        ></i>
+        <i
+          class="el-icon-document-delete"
+          @click="handleDeleteRuleConfig(ruleConfig)"
+        ></i>
+        <preview-icon
+          :value="ruleConfig.enabled"
+          @input="(status) => { updateRuleConfigStatus(ruleConfig, status) }"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import Vue from 'vue'
+import { VueMasonryPlugin } from 'vue-masonry/dist/vue-masonry-plugin-umd'
+import PreviewIcon from './preview-icon'
+
+Vue.use(VueMasonryPlugin)
+
+export default {
+  props: {
+    ruleConfigs: {
+      type: Array
+    }
+  },
+  data () {
+    return {
+      selectedRuleConfig: null
+    }
+  },
+  methods: {
+    handleEditRuleConfig (selectedRuleConfig) {
+      this.selectedRuleConfig = selectedRuleConfig
+      this.$emit('editRuleConfig', selectedRuleConfig)
+    },
+    handleDeleteRuleConfig (ruleConfig) {
+      this.$confirm('确认删除规则?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          this.$store.commit('deleteRuleConfig', ruleConfig.guid)
+        })
+        .catch(() => {
+          //
+        })
+    },
+    handleCloneRuleConfig (ruleConifg) {
+      //
+    },
+    updateRuleConfigStatus (ruleConfig, status) {
+      this.$store.commit('updateRuleConfig', {
+        ...ruleConfig,
+        enabled: status
+      })
+    }
+  },
+  components: {
+    PreviewIcon
+  }
+}
+</script>
+
+<style scoped>
+.rule-config-list .rule-config-item {
+  position: relative;
+  width: 200px;
+  margin: 12px;
+  box-shadow: 1px 1px 8px 1px #999;
+}
+
+.rule-config-list .rule-config-item .rule-config-operation {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #efefef;
+}
+.rule-config-list .rule-config-item .rule-config-operation i {
+  cursor: pointer;
+  padding: 4px;
+}
+.rule-config-list .rule-config-item .rule-config-type {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #409eff;
+  color: #fff;
+  height: 24px;
+  line-height: 24px;
+  width: 80px;
+  text-align: center;
+  border-bottom-left-radius: 4px;
+}
+.rule-config-list .rule-config-item .rule-config-info {
+  padding: 32px 0 12px 0;
+}
+</style>

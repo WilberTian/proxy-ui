@@ -2,6 +2,7 @@ import Vue from 'vue'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
+import VueSVGIcon from 'vue-svgicon'
 
 import App from './App'
 import router from './router'
@@ -12,6 +13,7 @@ Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)
+Vue.use(VueSVGIcon)
 Vue.use({
   install (Vue, options) {
     Vue.prototype.$proxyApi = global.proxyApi

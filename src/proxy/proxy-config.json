@@ -6,7 +6,7 @@
     "webPort": 8002
   },
   "throttle": 10000,
-  "forceProxyHttps": false,
+  "forceProxyHttps": true,
   "wsIntercept": false,
-  "silent": true
+  "silent": false
 }

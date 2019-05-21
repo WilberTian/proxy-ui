@@ -1,35 +1,42 @@
 const fs = require('fs')
 const path = require('path')
+const exec = require('child_process').exec
 const AnyProxy = require('anyproxy')
 const matchers = require('./matchers')
 
 const RULE_CONFIG_FILE = 'rule-config.json'
 const PROXY_CONFIG_FILE = 'proxy-config.json'
+const requestHookTypes = ['request', 'mock']
+const responseHookTypes = ['response']
 
 let proxyServer
 
 const responseFileCache = {}
 
-const getResponseFile = (responseFilePath) => {
+const getResponseFile = responseFilePath => {
   try {
     if (responseFilePath in responseFileCache) {
       return responseFileCache.responseFilePath
     }
 
-    const responseFileContent = fs.readFileSync(responseFilePath, {encoding: 'utf8'})
+    const responseFileContent = fs.readFileSync(responseFilePath, {
+      encoding: 'utf8'
+    })
     responseFileCache.responseFilePath = responseFileContent
     return responseFileContent
   } catch (e) {
-    return responseFilePath
+    return `Can not found file ${responseFilePath}`
   }
 }
 
-const proxyRuleCreator = (ruleConfig) => {
+const proxyRuleCreator = ruleConfig => {
   return {
     *beforeSendRequest (requestDetail) {
       const requestUrl = requestDetail.url
 
-      const requestHooks = ruleConfig.requestHooks
+      const requestHooks = ruleConfig.filter(item => {
+        return requestHookTypes.includes(item.type) && item.enabled
+      })
       for (let requestHook of requestHooks) {
         const matcher = matchers[requestHook.matcher]
 
@@ -72,8 +79,9 @@ const proxyRuleCreator = (ruleConfig) => {
     },
     *beforeSendResponse (requestDetail, responseDetail) {
       const requestUrl = requestDetail.url
-
-      const responseHooks = ruleConfig.responseHooks
+      const responseHooks = ruleConfig.filter(item => {
+        return responseHookTypes.includes(item.type) && item.enabled
+      })
       for (let responseHook of responseHooks) {
         const matcher = matchers[responseHook.matcher]
 
@@ -82,18 +90,20 @@ const proxyRuleCreator = (ruleConfig) => {
             case 'bypass':
               return null
             case 'response':
-              let responseHookResponse = responseHook.response
               if (responseHook.bodyType === 'file') {
-                responseHookResponse.body = getResponseFile(responseHookResponse.body)
+                return {
+                  response: {
+                    ...responseHook.response,
+                    body: getResponseFile(responseHook.bodyPath)
+                  }
+                }
               }
 
-              const response = Object.assign(
-                {},
-                responseDetail.response,
-                responseHookResponse
-              )
               return {
-                response
+                response: {
+                  ...responseHook.response,
+                  body: responseHook.bodyContent
+                }
               }
             default:
               return null
@@ -162,9 +172,12 @@ export default {
   },
   readRuleConfig: function () {
     try {
-      const ruleConfig = fs.readFileSync(path.resolve(__dirname, RULE_CONFIG_FILE), {
-        encoding: 'utf8'
-      })
+      const ruleConfig = fs.readFileSync(
+        path.resolve(__dirname, RULE_CONFIG_FILE),
+        {
+          encoding: 'utf8'
+        }
+      )
       if (ruleConfig) {
         return JSON.parse(ruleConfig)
       }
@@ -195,9 +208,12 @@ export default {
   },
   readProxyConfig: function () {
     try {
-      const proxyConfig = fs.readFileSync(path.resolve(__dirname, PROXY_CONFIG_FILE), {
-        encoding: 'utf8'
-      })
+      const proxyConfig = fs.readFileSync(
+        path.resolve(__dirname, PROXY_CONFIG_FILE),
+        {
+          encoding: 'utf8'
+        }
+      )
       if (proxyConfig) {
         return JSON.parse(proxyConfig)
       }
@@ -219,5 +235,33 @@ export default {
   },
   getMatchers: function () {
     return Object.keys(matchers)
+  },
+  generateRootCA (successCb, errorCb) {
+    const isWin = /^win/.test(process.platform)
+    if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
+      AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
+        if (!error) {
+          const certDir = path.dirname(keyPath)
+          console.log('The cert is generated at ', certDir)
+          if (isWin) {
+            exec('start .', { cwd: certDir })
+          } else {
+            exec('open .', { cwd: certDir })
+          }
+          successCb && successCb(certDir)
+        } else {
+          errorCb && errorCb(error)
+        }
+      })
+    } else {
+      const rootPath = AnyProxy.utils.getAnyProxyPath('certificates')
+      if (!rootPath) return
+      if (isWin) {
+        exec('start .', { cwd: rootPath })
+      } else {
+        exec('open .', { cwd: rootPath })
+      }
+      successCb && successCb(rootPath)
+    }
   }
 }

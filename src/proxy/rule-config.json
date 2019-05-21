@@ -4,7 +4,7 @@
     "enabled": true,
     "type": "request",
     "matcher": "includes",
-    "pattern": "act.5ing.com",
+    "pattern": "www.proxy-ui.com",
     "header": "",
     "body": ""
   },
@@ -13,7 +13,7 @@
     "enabled": true,
     "type": "mock",
     "matcher": "includes",
-    "pattern": "act.52ping.com",
+    "pattern": "www.proxy-ui.com",
     "bodyType": "string",
     "bodyContent": "this is mock content",
     "bodyPath": "",
@@ -29,14 +29,15 @@
     "enabled": true,
     "type": "response",
     "matcher": "includes",
-    "pattern": "act.5ing.com",
+    "pattern": "1.2.26.min.js",
     "bodyType": "file",
+    "bodyContent": "this is mock content",
+    "bodyPath": "/Users/litian/Will/WorkSpace/shamrock-page/dist/1.2.26.min.js",
     "response": {
       "statusCode": 200,
       "header": {
-        "content-type": "text/html"
-      },
-      "body": "this is mock content"
+        "content-type": "application/javascript"
+      }
     }
   }
 ]

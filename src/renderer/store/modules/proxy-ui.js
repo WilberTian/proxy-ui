@@ -6,6 +6,8 @@ const state = {
   proxyConfig: {}
 }
 
+window.state = state
+
 const getters = {
   getSelectedMenuId (state) {
     return state.selectedMenuId

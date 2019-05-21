@@ -1,64 +1,31 @@
 <template>
   <div class="rule-config">
-    <el-button
-      class="create-rule-btn"
-      icon="el-icon-plus"
-      size="mini"
-      @click="createConfigRule"
-    >创建规则</el-button>
-    <div
-      class="rule-config-list"
-      v-if="ruleConfigs.length > 0"
-    >
+    <div class="rule-config-list-wrapper" v-if="!ruleSettingVisible">
       <div
-        class="rule-config-item"
-        v-for="ruleConfig in ruleConfigs"
-        :key="ruleConfig.guid"
-      >
-        <div class="rule-config-operation">
-          <i
-            class="el-icon-setting"
-            @click="showRuleSettingDialog(ruleConfig)"
-          ></i>
-          <i
-            class="el-icon-document-copy"
-            @click="handleCloneRuleConfig(ruleConfig)"
-          ></i>
-          <i
-            class="el-icon-document-delete"
-            @click="handleDeleteRuleConfig(ruleConfig)"
-          ></i>
-          <preview-icon
-            :value="ruleConfig.enabled"
-            @input="(status) => { updateRuleConfigStatus(ruleConfig, status) }"
-          />
-        </div>
-        <div class="rule-config-type">{{ruleConfig.type}}</div>
-        <div class="rule-config-filter">
-          <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
-          <div class="rule-config-pattern">{{ruleConfig.pattern}}</div>
-        </div>
-      </div>
-    </div>
-    <div v-else>没有规则！</div>
-    <el-dialog
-      title="规则设置"
-      :visible.sync="ruleSettingDialogVisible"
-      width="60%"
-    >
-      <rule-config-setting
-        :operation="operation"
-        :ruleConfig="selectedRuleConfig"
-        @submitRuleConfig="handleSubmitRuleConfig"
-        @cancelRuleConfig="ruleSettingDialogVisible = false"
+        class="create-rule-btn"
+        @click="handleCreateConfigRule"
+        circle
+      >+</div>
+      <rule-config-list
+        v-if="ruleConfigs.length > 0"
+        :ruleConfigs="ruleConfigs"
+        @editRuleConfig="handleEditRuleConfig"
       />
-    </el-dialog>
+      <div v-else>没有规则！</div>
+    </div>
+    <rule-config-setting
+      v-if="ruleSettingVisible"
+      :operation="operation"
+      :ruleConfig="selectedRuleConfig"
+      @submitRuleConfig="handleSubmitRuleConfig"
+      @cancelRuleConfig="ruleSettingVisible = false"
+    />
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import PreviewIcon from './preview-icon'
+import RuleConfigList from './rule-config-list'
 import RuleConfigSetting from './rule-config-setting'
 import creatGUID from '@/utils/uuidv4'
 import { defaultRuleConfigs } from '@/configs/constants'
@@ -71,7 +38,7 @@ export default {
   },
   data () {
     return {
-      ruleSettingDialogVisible: false,
+      ruleSettingVisible: false,
       selectedRuleConfig: null,
       operation: null
     }
@@ -81,13 +48,8 @@ export default {
     this.$store.commit('setRuleConfigs', ruleConfig)
   },
   methods: {
-    showRuleSettingDialog (selectedRuleConfig) {
-      this.selectedRuleConfig = selectedRuleConfig
-      this.ruleSettingDialogVisible = true
-      this.operation = 'edit'
-    },
     handleSubmitRuleConfig (ruleConfig) {
-      this.ruleSettingDialogVisible = false
+      this.ruleSettingVisible = false
       this.selectedRuleConfig = null
       if ('guid' in ruleConfig) {
         this.$store.commit('updateRuleConfig', ruleConfig)
@@ -99,77 +61,48 @@ export default {
         this.$store.commit('addRuleConfig', ruleConfigToAdd)
       }
     },
-    handleDeleteRuleConfig (ruleConfig) {
-      this.$confirm('确认删除规则?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.$store.commit('deleteRuleConfig', ruleConfig.guid)
-        })
-        .catch(() => {
-          //
-        })
+    handleEditRuleConfig (selectedRuleConfig) {
+      this.selectedRuleConfig = selectedRuleConfig
+      this.operation = 'edit'
+      this.ruleSettingVisible = true
     },
-    handleCloneRuleConfig (ruleConifg) {
-      //
-    },
-    updateRuleConfigStatus (ruleConfig, status) {
-      this.$store.commit('updateRuleConfig', {
-        ...ruleConfig,
-        enabled: status
-      })
-    },
-    createConfigRule () {
+    handleCreateConfigRule () {
       this.selectedRuleConfig = defaultRuleConfigs.mock
       this.operation = 'create'
-      this.ruleSettingDialogVisible = true
+      this.ruleSettingVisible = true
     }
   },
   components: {
-    PreviewIcon,
+    RuleConfigList,
     RuleConfigSetting
   }
 }
 </script>
 
 <style scoped>
-.rule-config-list .rule-config-item {
+.rule-config .rule-config-list-wrapper {
   position: relative;
-  border-bottom: 1px solid #333;
-  padding-top: 32px;
 }
-
-.rule-config-list .rule-config-item .rule-config-operation {
+.rule-config .rule-config-list-wrapper .create-rule-btn {
   position: absolute;
-  top: 0;
-  right: 110px;
-}
-.rule-config-list .rule-config-item .rule-config-operation i {
-  cursor: pointer;
-  padding: 4px;
-}
-.rule-config-list .rule-config-item .rule-config-type {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: #409eff;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  height: 32px;
+  width: 32px;
+  line-height: 32px;
+  text-align: center;
+  border-radius: 50%;
+  background: #409eff;
   color: #fff;
-  height: 24px;
-  line-height: 24px;
-  width: 80px;
-  text-align: center;
-  border-bottom-left-radius: 4px;
+  font-weight: bold;
+  font-size: 24px;
+  cursor: pointer;
 }
-.rule-config-list .rule-config-item .rule-config-filter {
-  display: flex;
+.rule-config-list {
+  padding-top: 40px;
 }
-.rule-config-list .rule-config-item .rule-config-filter .rule-config-matcher {
-  width: 90px;
-  text-align: center;
-}
-.rule-config-list .rule-config-item .rule-config-filter .rule-config-pattern {
-  flex: 1;
+.rule-config-setting {
+  padding: 20px;
 }
 </style>

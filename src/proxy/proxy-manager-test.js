@@ -1,19 +1,11 @@
-const proxyManager = require('./proxy-manager')
+require('babel-register')({
+  presets: ['env', 'stage-0']
+})
+const proxyManager = require('./proxy-manager').default
 
-const options = {
-  port: 8001,
-  rule: proxyManager.generateProxyRule(),
-  webInterface: {
-    enable: true,
-    webPort: 8002
-  },
-  throttle: 10000,
-  forceProxyHttps: false,
-  wsIntercept: false,
-  silent: false
-}
+const proxyConfig = proxyManager.generateProxyConfig()
 
-proxyManager.startProxyServer(options).then(
+proxyManager.startProxyServer(proxyConfig).then(
   function () {
     console.log('success')
   },
@@ -22,13 +14,13 @@ proxyManager.startProxyServer(options).then(
   }
 )
 
-setTimeout(() => {
-  proxyManager.startProxyServer(options).then(
-    function () {
-      console.log('success')
-    },
-    e => {
-      console.log('asdf')
-    }
-  )
-}, 3000)
+// setTimeout(() => {
+//   proxyManager.startProxyServer(proxyConfig).then(
+//     function () {
+//       console.log('success')
+//     },
+//     e => {
+//       console.log('asdf')
+//     }
+//   )
+// }, 3000)
