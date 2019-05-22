@@ -25,21 +25,50 @@
       class="settings-icon"
       icon="settings"
       width="24" height="24" color="#333"
+      @click="showProxyConfigSetting = true"
     ></svgicon>
+    <svgicon
+      v-if="proxyServerStatus === 0"
+      class="certificate-icon"
+      icon="certificate"
+      width="22" height="22" color="#333"
+      @click="getRootCA"
+    ></svgicon>
+    <el-dialog
+      title="代理服务器配置"
+      :visible.sync="showProxyConfigSetting"
+      width="60%"
+     >
+      <proxy-config :proxyConfig="proxyConfig" @submitProxyConfig="handleSubmitProxyConfig"
+      @cancelProxyConfig="showProxyConfigSetting = false"/>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import '@/assets/icons/start'
 import '@/assets/icons/stop'
 import '@/assets/icons/restart'
 import '@/assets/icons/settings'
+import '@/assets/icons/certificate'
+import ProxyConfig from './proxy-config'
 
 export default {
   data () {
     return {
-      proxyServerStatus: 0 // 0 stands for stop, 1 stands for running
+      showProxyConfigSetting: false
     }
+  },
+  computed: {
+    ...mapGetters({
+      proxyServerStatus: 'getProxyServerStatus',
+      proxyConfig: 'getProxyConfig'
+    })
+  },
+  mounted () {
+    const proxyConfig = this.$proxyApi.readProxyConfig()
+    this.$store.commit('setProxyConfig', proxyConfig)
   },
   methods: {
     startProxyServer () {
@@ -50,14 +79,14 @@ export default {
           message: data.msg,
           type: 'success'
         })
-        this.proxyServerStatus = 1
+        this.$store.commit('setProxyServerStatus', 1)
       }, (e) => {
         this.$notify({
           title: '错误信息',
           message: e.message,
           type: 'error'
         })
-        this.proxyServerStatus = 0
+        this.$store.commit('setProxyServerStatus', 0)
       })
     },
     stopProxyServer () {
@@ -67,7 +96,7 @@ export default {
           message: data.msg,
           type: 'success'
         })
-        this.proxyServerStatus = 0
+        this.$store.commit('setProxyServerStatus', 0)
       })
     },
     restartProxyServer () {
@@ -78,9 +107,18 @@ export default {
           message: data.msg,
           type: 'success'
         })
-        this.proxyServerStatus = 1
+        this.$store.commit('setProxyServerStatus', 1)
       })
+    },
+    handleSubmitProxyConfig (proxyConfig) {
+      this.$store.commit('setProxyConfig', proxyConfig)
+    },
+    getRootCA () {
+      this.$proxyApi.getRootCA()
     }
+  },
+  components: {
+    ProxyConfig
   }
 }
 </script>

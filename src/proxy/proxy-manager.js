@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const exec = require('child_process').exec
 const AnyProxy = require('anyproxy')
+const AnyProxyUtils = require('anyproxy/lib/util')
 const matchers = require('./matchers')
 
 const RULE_CONFIG_FILE = 'rule-config.json'
@@ -118,6 +119,16 @@ const proxyServerCreator = options => {
   return proxyServer || new AnyProxy.ProxyServer(options)
 }
 
+const generateRootCA = (successCb, errorCb) => {
+  AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
+    if (!error) {
+      successCb && successCb()
+    } else {
+      errorCb && errorCb(new Error('HTTPS证书生成失败'))
+    }
+  })
+}
+
 const proxyServerManager = (action = 'start', options = {}) => {
   return new Promise((resolve, reject) => {
     if (action === 'start') {
@@ -126,17 +137,28 @@ const proxyServerManager = (action = 'start', options = {}) => {
           msg: '代理服务器已经开启'
         })
       } else {
-        proxyServer = proxyServerCreator(options)
-        proxyServer.on('ready', () => {
-          resolve({
-            msg: '代理服务器启动成功'
+        const createProxyServer = () => {
+          proxyServer = proxyServerCreator(options)
+          proxyServer.on('ready', () => {
+            resolve({
+              msg: '代理服务器启动成功'
+            })
           })
-        })
-        proxyServer.on('error', e => {
-          proxyServer = null
-          reject(e)
-        })
-        proxyServer.start()
+          proxyServer.on('error', e => {
+            proxyServer = null
+            reject(e)
+          })
+          proxyServer.start()
+        }
+        if (options.forceProxyHttps && !AnyProxy.utils.certMgr.ifRootCAFileExists()) {
+          generateRootCA((rootCA) => {
+            createProxyServer()
+          }, (e) => {
+            reject(e)
+          })
+        } else {
+          createProxyServer()
+        }
       }
     } else if (action === 'stop') {
       if (!proxyServer) {
@@ -236,32 +258,18 @@ export default {
   getMatchers: function () {
     return Object.keys(matchers)
   },
-  generateRootCA (successCb, errorCb) {
+  getRootCA: function () {
     const isWin = /^win/.test(process.platform)
-    if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
-      AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
-        if (!error) {
-          const certDir = path.dirname(keyPath)
-          console.log('The cert is generated at ', certDir)
-          if (isWin) {
-            exec('start .', { cwd: certDir })
-          } else {
-            exec('open .', { cwd: certDir })
-          }
-          successCb && successCb(certDir)
-        } else {
-          errorCb && errorCb(error)
-        }
-      })
+    const rootPath = AnyProxyUtils.getAnyProxyPath('certificates')
+    if (!rootPath) return
+    if (isWin) {
+      exec('start .', { cwd: rootPath })
     } else {
-      const rootPath = AnyProxy.utils.getAnyProxyPath('certificates')
-      if (!rootPath) return
-      if (isWin) {
-        exec('start .', { cwd: rootPath })
-      } else {
-        exec('open .', { cwd: rootPath })
-      }
-      successCb && successCb(rootPath)
+      exec('open .', { cwd: rootPath })
     }
+  },
+  getRootCAPath: function () {
+    const rootPath = AnyProxyUtils.getAnyProxyPath('certificates')
+    return rootPath
   }
 }

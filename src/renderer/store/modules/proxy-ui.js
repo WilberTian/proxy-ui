@@ -3,7 +3,8 @@ import Vue from 'vue'
 const state = {
   selectedMenuId: 1,
   ruleConfigs: {},
-  proxyConfig: {}
+  proxyConfig: {},
+  proxyServerStatus: 0
 }
 
 window.state = state
@@ -17,6 +18,9 @@ const getters = {
   },
   getProxyConfig (state) {
     return state.proxyConfig
+  },
+  getProxyServerStatus (state) {
+    return state.proxyServerStatus
   }
 }
 
@@ -45,6 +49,9 @@ const mutations = {
   },
   setProxyConfig (state, proxyConfig) {
     state.proxyConfig = proxyConfig
+  },
+  setProxyServerStatus (state, status) {
+    state.proxyServerStatus = status
   }
 }
 
