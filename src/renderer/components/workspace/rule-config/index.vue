@@ -1,14 +1,15 @@
 <template>
   <div class="rule-config">
     <div class="rule-config-list-wrapper" v-if="!ruleSettingVisible">
+      <rule-config-filter :tags="tags" @filterChange="handleFilterChange" />
       <div
         class="create-rule-btn"
         @click="handleCreateConfigRule"
         circle
       >+</div>
       <rule-config-list
-        v-if="ruleConfigs.length > 0"
-        :ruleConfigs="ruleConfigs"
+        v-if="filteredRuleConfigs.length > 0"
+        :ruleConfigs="filteredRuleConfigs"
         @editRuleConfig="handleEditRuleConfig"
       />
       <div v-else>没有规则！</div>
@@ -25,6 +26,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import RuleConfigFilter from './rule-config-filter'
 import RuleConfigList from './rule-config-list'
 import RuleConfigSetting from './rule-config-setting'
 import creatGUID from '@/utils/uuidv4'
@@ -34,13 +36,50 @@ export default {
   computed: {
     ...mapGetters({
       ruleConfigs: 'getRuleConfigs'
-    })
+    }),
+    filteredRuleConfigs () {
+      let result = []
+      if (this.ruleConfigs.length > 0) {
+        result = this.ruleConfigs.filter((ruleConfig) => {
+          if (this.filterData) {
+            if (this.filterData.selectedType && this.filterData.selectedType !== ruleConfig.type) {
+              return false
+            }
+            if (this.filterData.enableStatus && this.filterData.enableStatus !== ruleConfig.enabled) {
+              return false
+            }
+            if (this.filterData.selectedTags && this.filterData.selectedTags.length > 0) {
+              const hasTags = this.filterData.selectedTags.filter((v) => {
+                return ruleConfig.tags.indexOf(v) !== -1
+              })
+              if (hasTags.length === 0) {
+                return false
+              }
+            }
+          }
+          return true
+        })
+      }
+      return result
+    },
+    tags () {
+      let tags = []
+      if (this.filteredRuleConfigs.length > 0) {
+        let temp = []
+        this.filteredRuleConfigs.forEach((ruleConfig) => {
+          Array.prototype.push.apply(temp, ruleConfig.tags)
+        })
+        tags = Array.from(new Set(temp))
+      }
+      return tags
+    }
   },
   data () {
     return {
       ruleSettingVisible: false,
       selectedRuleConfig: null,
-      operation: null
+      operation: null,
+      filterData: null
     }
   },
   mounted () {
@@ -48,6 +87,9 @@ export default {
     this.$store.commit('setRuleConfigs', ruleConfig)
   },
   methods: {
+    handleFilterChange (filterData) {
+      this.filterData = filterData
+    },
     handleSubmitRuleConfig (ruleConfig) {
       this.ruleSettingVisible = false
       this.selectedRuleConfig = null
@@ -74,7 +116,8 @@ export default {
   },
   components: {
     RuleConfigList,
-    RuleConfigSetting
+    RuleConfigSetting,
+    RuleConfigFilter
   }
 }
 </script>
