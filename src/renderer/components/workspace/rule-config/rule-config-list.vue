@@ -7,7 +7,7 @@
   >
     <div
       v-masonry-tile
-      class="rule-config-item"
+      :class="{'rule-config-item': true, 'disabled': !ruleConfig.enabled}"
       v-for="ruleConfig in ruleConfigs"
       :key="ruleConfig.guid"
     >
@@ -15,6 +15,11 @@
       <div class="rule-config-info">
         <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
         <div class="rule-config-pattern">{{ruleConfig.pattern}}</div>
+      </div>
+      <div class="rule-config-tags">
+        <div class="rule-config-tag" v-for="(tag, idx) in ruleConfig.tags" :key="idx">
+          {{tag}}
+        </div>
       </div>
       <div class="rule-config-operation">
         <i
@@ -96,12 +101,15 @@ export default {
   width: 200px;
   margin: 12px;
   box-shadow: 1px 1px 8px 1px #999;
+  padding-top: 30px;
 }
-
+.rule-config-list .rule-config-item.disabled {
+  background-color: #efefef;
+}
 .rule-config-list .rule-config-item .rule-config-operation {
   display: flex;
   justify-content: space-around;
-  border-top: 1px solid #efefef;
+  border-top: 1px solid #d7d7d7;
 }
 .rule-config-list .rule-config-item .rule-config-operation i {
   cursor: pointer;
@@ -118,8 +126,25 @@ export default {
   width: 80px;
   text-align: center;
   border-bottom-left-radius: 4px;
+  font-size: 14px;
 }
 .rule-config-list .rule-config-item .rule-config-info {
-  padding: 32px 0 12px 0;
+  padding: 12px 8px;
+  line-height: 24px;
+}
+.rule-config-list .rule-config-item .rule-config-tags {
+  padding: 0 4px;
+}
+.rule-config-list .rule-config-item .rule-config-tags .rule-config-tag {
+  display: inline-block;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 8px;
+  margin: 4px;
+  background: #909399;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
 }
 </style>

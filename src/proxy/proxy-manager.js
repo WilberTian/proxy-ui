@@ -11,8 +11,8 @@ const requestHookTypes = ['request', 'mock']
 const responseHookTypes = ['response']
 
 let proxyServer
-
 const responseFileCache = {}
+const hookData = {}
 
 const getResponseFile = responseFilePath => {
   try {
@@ -30,6 +30,18 @@ const getResponseFile = responseFilePath => {
   }
 }
 
+const updateHookData = (ruleConfig, data) => {
+  if (ruleConfig.guid in hookData) {
+    hookData[ruleConfig.guid].count += 1
+  } else {
+    hookData[ruleConfig.guid] = {
+      ruleConfig,
+      count: 1,
+      data
+    }
+  }
+}
+
 const proxyRuleCreator = ruleConfig => {
   return {
     *beforeSendRequest (requestDetail) {
@@ -44,18 +56,19 @@ const proxyRuleCreator = ruleConfig => {
         let _options
         if (matcher(requestUrl, requestHook.pattern)) {
           switch (requestHook.type) {
-            case 'bypass':
-              return null
             case 'request':
               _options = Object.assign(
                 {},
                 requestDetail.requestOptions,
                 requestHook.header || {}
               )
-              return {
+              const updatedRequest = {
                 requestOptions: _options,
                 requestData: requestHook.body
               }
+
+              updateHookData(requestHook, updatedRequest)
+              return updatedRequest
             case 'mock':
               if (requestHook.bodyType === 'file') {
                 return {
@@ -65,13 +78,15 @@ const proxyRuleCreator = ruleConfig => {
                   }
                 }
               }
-
-              return {
+              const mockResponse = {
                 response: {
                   ...requestHook.response,
                   body: requestHook.bodyContent
                 }
               }
+
+              updateHookData(requestHook, mockResponse)
+              return mockResponse
             default:
               return null
           }
@@ -80,6 +95,7 @@ const proxyRuleCreator = ruleConfig => {
     },
     *beforeSendResponse (requestDetail, responseDetail) {
       const requestUrl = requestDetail.url
+
       const responseHooks = ruleConfig.filter(item => {
         return responseHookTypes.includes(item.type) && item.enabled
       })
@@ -88,24 +104,26 @@ const proxyRuleCreator = ruleConfig => {
 
         if (matcher(requestUrl, responseHook.pattern)) {
           switch (responseHook.type) {
-            case 'bypass':
-              return null
             case 'response':
               if (responseHook.bodyType === 'file') {
                 return {
                   response: {
+                    ...responseDetail.response,
                     ...responseHook.response,
                     body: getResponseFile(responseHook.bodyPath)
                   }
                 }
               }
-
-              return {
+              const updatedResponse = {
                 response: {
+                  ...responseDetail.response,
                   ...responseHook.response,
                   body: responseHook.bodyContent
                 }
               }
+
+              updateHookData(responseHook, updatedResponse.response)
+              return updatedResponse
             default:
               return null
           }
@@ -140,6 +158,11 @@ const proxyServerManager = (action = 'start', options = {}) => {
         const createProxyServer = () => {
           proxyServer = proxyServerCreator(options)
           proxyServer.on('ready', () => {
+            if (options.forceProxyHttps) {
+              AnyProxy.utils.systemProxyMgr.enableGlobalProxy('127.0.0.1', options.port, 'https')
+            }
+            AnyProxy.utils.systemProxyMgr.enableGlobalProxy('127.0.0.1', options.port, 'http')
+
             resolve({
               msg: '代理服务器启动成功'
             })
@@ -168,6 +191,8 @@ const proxyServerManager = (action = 'start', options = {}) => {
       } else {
         proxyServer.close()
         proxyServer = null
+        AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
+        AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
         resolve({
           msg: '代理服务器关闭成功'
         })
@@ -189,8 +214,8 @@ export default {
     })
   },
   generateProxyRule: function (ruleConfig) {
-    const defaultRuleConfig = this.readRuleConfig()
-    return proxyRuleCreator(ruleConfig || defaultRuleConfig)
+    const _ruleConfig = this.readRuleConfig()
+    return proxyRuleCreator(ruleConfig || _ruleConfig)
   },
   readRuleConfig: function () {
     try {
@@ -219,13 +244,14 @@ export default {
       return false
     }
   },
-  generateProxyConfig: function () {
-    const proxyConfig = this.readProxyConfig()
+  generateProxyConfig: function (proxyConfig) {
+    const _proxyConfig = this.readProxyConfig()
     const proxyRuleConfig = this.generateProxyRule()
 
     return {
-      ...proxyConfig,
-      rule: proxyRuleConfig
+      ..._proxyConfig,
+      rule: proxyRuleConfig,
+      ...proxyConfig
     }
   },
   readProxyConfig: function () {
@@ -271,5 +297,8 @@ export default {
   getRootCAPath: function () {
     const rootPath = AnyProxyUtils.getAnyProxyPath('certificates')
     return rootPath
+  },
+  getHookData: function () {
+    return hookData
   }
 }

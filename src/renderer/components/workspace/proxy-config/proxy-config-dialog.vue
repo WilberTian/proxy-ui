@@ -1,6 +1,6 @@
 <template>
   <el-form
-    class="proxy-config"
+    class="proxy-config-form"
     :model="proxyConfigData"
     :rules="validators"
     ref="proxyConfigForm"
@@ -11,7 +11,7 @@
       label="代理服务器端口"
       prop="port"
     >
-      <el-input v-model="proxyConfigData.port"></el-input>
+      <el-input v-model.number="proxyConfigData.port"></el-input>
     </el-form-item>
     <el-form-item
       label="开启HTTPS"
@@ -26,13 +26,13 @@
       label="网络速度"
       prop="throttle"
     >
-      <el-input v-model="proxyConfigData.throttle"></el-input>
+      <el-input v-model.number="proxyConfigData.throttle"></el-input>
     </el-form-item>
     <el-form-item
       label="数据web端口"
       prop="webInterface.webPort"
     >
-      <el-input v-model="proxyConfigData.webInterface.webPort"></el-input>
+      <el-input v-model.number="proxyConfigData.webInterface.webPort"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button

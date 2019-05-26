@@ -1,23 +1,27 @@
 <template>
   <div class="workspace-container">
-    <workspace-sidebar />
-    <div class="workspace-wrapper">
-      <workspace-header />
-      <workspace />
-    </div>
+    <workspace-header />
+    <workspace />
+    <workspace-footer v-if="workspaceFooterVisible" />
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import WorkspaceHeader from './workspace-header'
-import WorkspaceSidebar from './workspace-sidebar'
+import WorkspaceFooter from './workspace-footer'
 import Workspace from './workspace'
 
 export default {
+  computed: {
+    ...mapGetters({
+      workspaceFooterVisible: 'getWorkspaceFooterVisible'
+    })
+  },
   components: {
     WorkspaceHeader,
-    WorkspaceSidebar,
-    Workspace
+    Workspace,
+    WorkspaceFooter
   }
 }
 </script>
@@ -26,16 +30,9 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-}
-.workspace-container .workspace-wrapper {
-  flex: 1;
-  display: flex;
   flex-direction: column;
 }
-.workspace-container .workspace-wrapper .workspace-header {
-  border-bottom: 1px solid #333;
-}
-.workspace-container .workspace-wrapper .workspace {
+.workspace-container .workspace {
   flex: 1;
 }
 </style>

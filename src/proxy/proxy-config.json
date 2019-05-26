@@ -8,5 +8,5 @@
   "throttle": 10000,
   "forceProxyHttps": true,
   "wsIntercept": false,
-  "silent": false
+  "silent": true
 }

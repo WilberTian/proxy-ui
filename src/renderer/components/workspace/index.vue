@@ -1,27 +1,38 @@
 <template>
   <div class="workspace">
-    <rule-config v-show="selectedMenuId === 1" />
-    <network  v-show="selectedMenuId === 2" />
+    <rule-config v-show="currentStep === 1" />
+    <proxy-config  v-show="currentStep === 2" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import RuleConfig from './rule-config'
+import ProxyConfig from './proxy-config'
 import Network from './network'
 
 export default {
   computed: {
     ...mapGetters({
-      selectedMenuId: 'getSelectedMenuId'
+      currentStep: 'getCurrentStep'
     })
   },
   components: {
     RuleConfig,
+    ProxyConfig,
     Network
   }
 }
 </script>
 
 <style scoped>
+.workspace {
+  display: flex;
+}
+.rule-config {
+  flex: 1;
+}
+.proxy-config {
+  flex: 1;
+}
 </style>

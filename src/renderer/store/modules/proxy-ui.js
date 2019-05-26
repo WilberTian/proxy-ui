@@ -1,17 +1,18 @@
 import Vue from 'vue'
 
 const state = {
-  selectedMenuId: 1,
+  currentStep: 1,
   ruleConfigs: {},
   proxyConfig: {},
-  proxyServerStatus: 0
+  proxyServerStatus: 0,
+  workspaceFooterVisible: true
 }
 
 window.state = state
 
 const getters = {
-  getSelectedMenuId (state) {
-    return state.selectedMenuId
+  getCurrentStep (state) {
+    return state.currentStep
   },
   getRuleConfigs (state) {
     return state.ruleConfigs
@@ -21,12 +22,15 @@ const getters = {
   },
   getProxyServerStatus (state) {
     return state.proxyServerStatus
+  },
+  getWorkspaceFooterVisible (state) {
+    return state.workspaceFooterVisible
   }
 }
 
 const mutations = {
-  setSelectedMenuId (state, selectedMenuId) {
-    state.selectedMenuId = selectedMenuId
+  setCurrentStep (state, currentStep) {
+    state.currentStep = currentStep
   },
   setRuleConfigs (state, ruleConfigs) {
     state.ruleConfigs = ruleConfigs
@@ -52,6 +56,9 @@ const mutations = {
   },
   setProxyServerStatus (state, status) {
     state.proxyServerStatus = status
+  },
+  setWorkspaceFooterVisible (state, workspaceFooterVisible) {
+    state.workspaceFooterVisible = workspaceFooterVisible
   }
 }
 

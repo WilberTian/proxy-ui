@@ -6,7 +6,7 @@
       </div>
       <div class="filter-item-content">
         <el-radio-group v-model="selectedType" @change="changeSelectedType">
-          <el-radio label="">all</el-radio>
+          <el-radio label="all">all</el-radio>
           <el-radio label="mock">mock</el-radio>
           <el-radio label="response">response</el-radio>
           <el-radio label="request">request</el-radio>
@@ -80,6 +80,7 @@ export default {
       if (this.selectedTags.length > 0) {
         filterData.selectedTags = this.selectedTags
       }
+
       this.$emit('filterChange', filterData)
     }
   }
@@ -89,7 +90,9 @@ export default {
 .filter-item {
   display: flex;
   align-content: center;
-  margin: 12px 0;
+  margin: 10px 0;
+  height: 24px;
+  line-height: 24px;
 }
 .filter-item .filter-item-label {
   width: 100px;
@@ -97,9 +100,15 @@ export default {
 }
 .filter-item .filter-item-content .tag-item {
   display: inline-block;
+  height: 24px;
+  line-height: 24px;
   border-radius: 4px;
   color: #333;
-  padding: 4px 8px;
+  font-size: 14px;
+  padding: 0 8px;
+  border: 1px solid #efefef;
+  margin-right: 8px;
+  cursor: pointer;
 }
 .filter-item .filter-item-content .tag-item.selected {
   color: #fff;
