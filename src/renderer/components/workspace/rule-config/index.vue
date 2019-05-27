@@ -74,6 +74,14 @@ export default {
       return tags
     }
   },
+  watch: {
+    ruleConfigs: {
+      deep: true,
+      handler (val) {
+        this.$proxyApi.writeRuleConfig(val)
+      }
+    }
+  },
   data () {
     return {
       ruleSettingVisible: false,
@@ -83,8 +91,8 @@ export default {
     }
   },
   mounted () {
-    const ruleConfig = this.$proxyApi.readRuleConfig()
-    this.$store.commit('setRuleConfigs', ruleConfig)
+    const ruleConfigs = this.$proxyApi.readRuleConfigs()
+    this.$store.commit('setRuleConfigs', ruleConfigs)
   },
   methods: {
     handleFilterChange (filterData) {

@@ -1,3 +1,6 @@
+import { defaultProxyConfig, defaultRuleConfigs } from './constatns'
+import { app } from 'electron'
+
 const fs = require('fs')
 const path = require('path')
 const exec = require('child_process').exec
@@ -9,6 +12,8 @@ const RULE_CONFIG_FILE = 'rule-config.json'
 const PROXY_CONFIG_FILE = 'proxy-config.json'
 const requestHookTypes = ['request', 'mock']
 const responseHookTypes = ['response']
+
+const userDataPath = app.getPath('userData')
 
 let proxyServer
 const responseFileCache = {}
@@ -159,9 +164,17 @@ const proxyServerManager = (action = 'start', options = {}) => {
           proxyServer = proxyServerCreator(options)
           proxyServer.on('ready', () => {
             if (options.forceProxyHttps) {
-              AnyProxy.utils.systemProxyMgr.enableGlobalProxy('127.0.0.1', options.port, 'https')
+              AnyProxy.utils.systemProxyMgr.enableGlobalProxy(
+                '127.0.0.1',
+                options.port,
+                'https'
+              )
             }
-            AnyProxy.utils.systemProxyMgr.enableGlobalProxy('127.0.0.1', options.port, 'http')
+            AnyProxy.utils.systemProxyMgr.enableGlobalProxy(
+              '127.0.0.1',
+              options.port,
+              'http'
+            )
 
             resolve({
               msg: '代理服务器启动成功'
@@ -173,12 +186,18 @@ const proxyServerManager = (action = 'start', options = {}) => {
           })
           proxyServer.start()
         }
-        if (options.forceProxyHttps && !AnyProxy.utils.certMgr.ifRootCAFileExists()) {
-          generateRootCA((rootCA) => {
-            createProxyServer()
-          }, (e) => {
-            reject(e)
-          })
+        if (
+          options.forceProxyHttps &&
+          !AnyProxy.utils.certMgr.ifRootCAFileExists()
+        ) {
+          generateRootCA(
+            rootCA => {
+              createProxyServer()
+            },
+            e => {
+              reject(e)
+            }
+          )
         } else {
           createProxyServer()
         }
@@ -213,34 +232,39 @@ export default {
       return proxyServerManager('start', options)
     })
   },
-  generateProxyRule: function (ruleConfig) {
-    const _ruleConfig = this.readRuleConfig()
-    return proxyRuleCreator(ruleConfig || _ruleConfig)
+  generateProxyRule: function (ruleConfigs) {
+    const _ruleConfigs = this.readRuleConfigs()
+    return proxyRuleCreator(ruleConfigs || _ruleConfigs)
   },
-  readRuleConfig: function () {
+  readRuleConfigs: function () {
     try {
-      const ruleConfig = fs.readFileSync(
-        path.resolve(__dirname, RULE_CONFIG_FILE),
+      const ruleConfigs = fs.readFileSync(
+        path.resolve(userDataPath, RULE_CONFIG_FILE),
         {
           encoding: 'utf8'
         }
       )
-      if (ruleConfig) {
-        return JSON.parse(ruleConfig)
+      if (ruleConfigs) {
+        return JSON.parse(ruleConfigs)
       }
       return {}
     } catch (e) {
+      const result = this.writeRuleConfig(defaultRuleConfigs)
+      if (result) {
+        return defaultRuleConfigs
+      }
       return {}
     }
   },
-  writeRuleConfig: function (ruleConfig) {
+  writeRuleConfig: function (ruleConfigs) {
     try {
       fs.writeFileSync(
-        path.resolve(__dirname, RULE_CONFIG_FILE),
-        JSON.stringify(ruleConfig)
+        path.resolve(userDataPath, RULE_CONFIG_FILE),
+        JSON.stringify(ruleConfigs)
       )
       return true
     } catch (e) {
+      console.log(e)
       return false
     }
   },
@@ -256,28 +280,33 @@ export default {
   },
   readProxyConfig: function () {
     try {
-      const proxyConfig = fs.readFileSync(
-        path.resolve(__dirname, PROXY_CONFIG_FILE),
+      const proxyConfigs = fs.readFileSync(
+        path.resolve(userDataPath, PROXY_CONFIG_FILE),
         {
           encoding: 'utf8'
         }
       )
-      if (proxyConfig) {
-        return JSON.parse(proxyConfig)
+      if (proxyConfigs) {
+        return JSON.parse(proxyConfigs)
       }
       return {}
     } catch (e) {
+      const result = this.writeProxyConfig(defaultProxyConfig)
+      if (result) {
+        return defaultProxyConfig
+      }
       return {}
     }
   },
   writeProxyConfig: function (proxyConfig) {
     try {
       fs.writeFileSync(
-        path.resolve(__dirname, PROXY_CONFIG_FILE),
+        path.resolve(userDataPath, PROXY_CONFIG_FILE),
         JSON.stringify(proxyConfig)
       )
       return true
     } catch (e) {
+      console.log(e)
       return false
     }
   },

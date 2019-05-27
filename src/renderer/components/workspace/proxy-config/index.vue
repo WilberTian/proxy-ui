@@ -115,6 +115,14 @@ export default {
       proxyConfig: 'getProxyConfig'
     })
   },
+  watch: {
+    proxyConfig: {
+      deep: true,
+      handler (val) {
+        this.$proxyApi.writeProxyConfig(val)
+      }
+    }
+  },
   mounted () {
     const proxyConfig = this.$proxyApi.readProxyConfig()
     this.$store.commit('setProxyConfig', proxyConfig)
