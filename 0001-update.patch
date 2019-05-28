@@ -1,0 +1,515 @@
+From 15be82d1562a155f1dc7b25f26f23e07b7afdc70 Mon Sep 17 00:00:00 2001
+From: WilberTian <tianli917@hotmail.com>
+Date: Tue, 28 May 2019 16:15:47 +0800
+Subject: [PATCH] update
+
+---
+ .electron-vue/webpack.renderer.config.js      |   5 +
+ src/index.ejs                                 |   4 +-
+ src/loading.html                              |  92 ++++++++++++++
+ src/main/index.js                             | 114 +++++++++++++-----
+ src/renderer/assets/icons/close.js            |   9 ++
+ src/renderer/assets/icons/maximize.js         |   9 ++
+ src/renderer/assets/icons/minimize.js         |   9 ++
+ .../components/workspace-header/index.vue     |  17 ++-
+ .../workspace-header/window-btn-group.vue     |  71 +++++++++++
+ src/renderer/main.js                          |   1 +
+ 10 files changed, 299 insertions(+), 32 deletions(-)
+ create mode 100644 src/loading.html
+ create mode 100644 src/renderer/assets/icons/close.js
+ create mode 100644 src/renderer/assets/icons/maximize.js
+ create mode 100644 src/renderer/assets/icons/minimize.js
+ create mode 100644 src/renderer/components/workspace-header/window-btn-group.vue
+
+diff --git a/.electron-vue/webpack.renderer.config.js b/.electron-vue/webpack.renderer.config.js
+index e95ac70..6aec9ba 100755
+--- a/.electron-vue/webpack.renderer.config.js
++++ b/.electron-vue/webpack.renderer.config.js
+@@ -134,6 +134,11 @@ let rendererConfig = {
+         ? path.resolve(__dirname, '../node_modules')
+         : false
+     }),
++    new HtmlWebpackPlugin({
++      filename: 'loading.html',
++      template: path.resolve(__dirname, '../src/loading.html'),
++      inject: false
++    }),
+     new webpack.HotModuleReplacementPlugin(),
+     new webpack.NoEmitOnErrorsPlugin()
+   ],
+diff --git a/src/index.ejs b/src/index.ejs
+index ce4af71..4b37944 100755
+--- a/src/index.ejs
++++ b/src/index.ejs
+@@ -2,7 +2,7 @@
+ <html>
+   <head>
+     <meta charset="utf-8" />
+-    <title>proxy-ui</title>
++    <title>Proxy UI</title>
+     <% if (htmlWebpackPlugin.options.nodeModules) { %>
+     <!-- Add `node_modules/` to global paths so `require` works properly in development -->
+     <script>
+@@ -22,12 +22,14 @@
+ 
+       const electron = require("electron");
+       const remote = electron.remote;
++      const ipcRenderer = electron.ipcRenderer
+       const proxyApi = remote.require("./proxy-manager").default;
+       const dialog = remote.dialog;
+ 
+       // only explose these variable
+       global.proxyApi = proxyApi;
+       global.dialog = dialog;
++      global.ipcRenderer = ipcRenderer;
+     </script>
+     <% } %>
+ 
+diff --git a/src/loading.html b/src/loading.html
+new file mode 100644
+index 0000000..207974c
+--- /dev/null
++++ b/src/loading.html
+@@ -0,0 +1,92 @@
++<!DOCTYPE html>
++<html>
++  <head>
++    <meta charset="utf-8" />
++    <title>Proxy UI</title>
++    <style>
++      html, body {
++        user-select: none;
++      }
++      .spinner {
++        margin: 100px auto 30px auto;
++        width: 70px;
++        height: 80px;
++        text-align: center;
++        font-size: 24px;
++      }
++
++      .spinner > div {
++        background-color: #409eff;
++        height: 100%;
++        width: 6px;
++        display: inline-block;
++
++        -webkit-animation: stretchdelay 1.2s infinite ease-in-out;
++        animation: stretchdelay 1.2s infinite ease-in-out;
++      }
++
++      .spinner .rect2 {
++        -webkit-animation-delay: -1.1s;
++        animation-delay: -1.1s;
++      }
++
++      .spinner .rect3 {
++        -webkit-animation-delay: -1s;
++        animation-delay: -1s;
++      }
++
++      .spinner .rect4 {
++        -webkit-animation-delay: -0.9s;
++        animation-delay: -0.9s;
++      }
++
++      .spinner .rect5 {
++        -webkit-animation-delay: -0.8s;
++        animation-delay: -0.8s;
++      }
++
++      @-webkit-keyframes stretchdelay {
++        0%,
++        40%,
++        100% {
++          -webkit-transform: scaleY(0.4);
++        }
++        20% {
++          -webkit-transform: scaleY(1);
++        }
++      }
++
++      @keyframes stretchdelay {
++        0%,
++        40%,
++        100% {
++          transform: scaleY(0.4);
++          -webkit-transform: scaleY(0.4);
++        }
++        20% {
++          transform: scaleY(1);
++          -webkit-transform: scaleY(1);
++        }
++      }
++
++      .loading-info {
++        font-weight: bold;
++        font-size: 16px;
++        color: #409eff;
++        text-align: center;
++      }
++    </style>
++  </head>
++  <body>
++    <div class="spinner">
++      <div class="rect1"></div>
++      <div class="rect2"></div>
++      <div class="rect3"></div>
++      <div class="rect4"></div>
++      <div class="rect5"></div>
++    </div>
++    <div class="loading-info">
++      Proxy UI 启动中
++    </div>
++  </body>
++</html>
+diff --git a/src/main/index.js b/src/main/index.js
+index a1d504f..2cba935 100755
+--- a/src/main/index.js
++++ b/src/main/index.js
+@@ -1,6 +1,6 @@
+ 'use strict'
+ 
+-import { app, BrowserWindow, dialog, Tray, Menu } from 'electron'
++import { app, BrowserWindow, dialog, Tray, Menu, ipcMain } from 'electron'
+ import pkg from '../../package.json'
+ 
+ /**
+@@ -14,6 +14,7 @@ if (process.env.NODE_ENV !== 'development') {
+ }
+ 
+ let mainWindow
++let loadingWindow
+ let tray
+ 
+ const winURL =
+@@ -27,66 +28,119 @@ function createWindow () {
+    */
+   mainWindow = new BrowserWindow({
+     height: 600,
++    frame: false,
+     useContentSize: true,
+-    width: 900
++    width: 900,
++    show: false
+   })
+ 
+   mainWindow.loadURL(winURL)
+ 
++  mainWindow.webContents.on('did-finish-load', () => {
++    setTimeout(() => {
++      mainWindow.show()
++      if (loadingWindow) {
++        loadingWindow.close()
++      }
++    }, 1500)
++  })
++
+   mainWindow.on('closed', () => {
+     mainWindow = null
+   })
+ 
+-  mainWindow.on('close', event => {
++  ipcMain.on('window-close', () => {
+     mainWindow.hide()
+-    mainWindow.setSkipTaskbar(true)
+-    event.preventDefault()
+   })
++  ipcMain.on('window-minimize', () => {
++    mainWindow.minimize()
++  })
++  ipcMain.on('window-maximize', () => {
++    mainWindow.maximize()
++  })
++}
+ 
+-  tray = new Tray(`${__static}/16x16.png`)
+-  const contextMenu = Menu.buildFromTemplate([
+-    {
+-      label: '关于',
+-      click () {
+-        dialog.showMessageBox({
+-          title: 'proxy-ui',
+-          message: 'proxy-ui',
+-          detail: `Version: ${pkg.version}\nAuthor: WilberTian\nGithub: `
+-        })
+-      }
+-    },
++function createMenu () {
++  const menu = Menu.buildFromTemplate([
+     {
+-      label: '退出',
+-      click: () => {
+-        mainWindow.destroy()
+-        app.quit()
+-      }
++      label: 'Proxy UI',
++      submenu: [
++        {
++          label: '关于',
++          click () {
++            dialog.showMessageBox({
++              title: 'Proxy UI',
++              message: 'Proxy UI',
++              detail: `Version: ${pkg.version}\nAuthor: WilberTian\nGithub: `
++            })
++          }
++        },
++        {
++          label: '退出',
++          accelerator: 'Cmd+Q',
++          role: 'quit'
++        }
++      ]
+     }
+   ])
+-  tray.setToolTip('proxy-ui')
+-  tray.on('right-click', () => {
+-    tray.popUpContextMenu(contextMenu)
+-  })
++  Menu.setApplicationMenu(menu)
++}
++
++function createTray () {
++  tray = new Tray(`${__static}/16x16.png`)
+   tray.on('click', () => {
+     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+-    mainWindow.isVisible()
+-      ? mainWindow.setSkipTaskbar(false)
+-      : mainWindow.setSkipTaskbar(true)
+   })
+ }
+ 
+-app.on('ready', createWindow)
++function createLoadingWindow () {
++  loadingWindow = new BrowserWindow(
++    Object.assign({
++      height: 360,
++      frame: false,
++      width: 500,
++      show: false,
++      movable: false,
++      resizable: false
++    })
++  )
++
++  if (process.env.NODE_ENV === 'development') {
++    loadingWindow.loadURL('http://localhost:9080/loading.html')
++  } else {
++    loadingWindow.loadURL(`file://${__dirname}/client/loading.html`)
++  }
++
++  loadingWindow.on('closed', () => (loadingWindow = null))
++  loadingWindow.webContents.on('did-finish-load', () => {
++    loadingWindow.show()
++  })
++}
++
++app.on('ready', () => {
++  createLoadingWindow()
++  createWindow()
++  createMenu()
++  createTray()
++})
+ 
+ app.on('window-all-closed', () => {
+   if (process.platform !== 'darwin') {
+     app.quit()
+   }
++  if (tray) {
++    tray.destroy()
++    tray = null
++  }
+ })
+ 
+ app.on('activate', () => {
+   if (mainWindow === null) {
+     createWindow()
+   }
++  if (!mainWindow.isVisible() && !loadingWindow) {
++    mainWindow.show()
++  }
+ })
+ 
+ /**
+diff --git a/src/renderer/assets/icons/close.js b/src/renderer/assets/icons/close.js
+new file mode 100644
+index 0000000..91ebbc0
+--- /dev/null
++++ b/src/renderer/assets/icons/close.js
+@@ -0,0 +1,9 @@
++const icon = require('vue-svgicon')
++icon.register({
++  'close': {
++    width: 24,
++    height: 24,
++    viewBox: '0 0 1024 1024',
++    data: '<path d="M597.795527 511.488347 813.564755 295.718095c23.833825-23.833825 23.833825-62.47489 0.001023-86.307691-23.832801-23.832801-62.47489-23.833825-86.307691 0L511.487835 425.180656 295.717583 209.410404c-23.833825-23.833825-62.475913-23.833825-86.307691 0-23.832801 23.832801-23.833825 62.47489 0 86.308715l215.769228 215.769228L209.410915 727.258599c-23.833825 23.833825-23.833825 62.47489 0 86.307691 23.832801 23.833825 62.473867 23.833825 86.307691 0l215.768205-215.768205 215.769228 215.769228c23.834848 23.833825 62.475913 23.832801 86.308715 0 23.833825-23.833825 23.833825-62.47489 0-86.307691L597.795527 511.488347z" p-id="2093"></path>'
++  }
++})
+diff --git a/src/renderer/assets/icons/maximize.js b/src/renderer/assets/icons/maximize.js
+new file mode 100644
+index 0000000..04d722b
+--- /dev/null
++++ b/src/renderer/assets/icons/maximize.js
+@@ -0,0 +1,9 @@
++const icon = require('vue-svgicon')
++icon.register({
++  'maximize': {
++    width: 24,
++    height: 24,
++    viewBox: '0 0 1024 1024',
++    data: '<path d="M851.706667 653.166667a21.333333 21.333333 0 0 1-4.62 23.253333l-298.666667 298.666667a21.333333 21.333333 0 0 1-30.173333 0l-298.666667-298.666667A21.333333 21.333333 0 0 1 234.666667 640h597.333333a21.333333 21.333333 0 0 1 19.706667 13.166667zM234.666667 384h597.333333a21.333333 21.333333 0 0 0 15.086667-36.42l-298.666667-298.666667a21.333333 21.333333 0 0 0-30.173333 0l-298.666667 298.666667A21.333333 21.333333 0 0 0 234.666667 384z" fill="#5C5C66" p-id="3834"></path>'
++  }
++})
+diff --git a/src/renderer/assets/icons/minimize.js b/src/renderer/assets/icons/minimize.js
+new file mode 100644
+index 0000000..1a2aa53
+--- /dev/null
++++ b/src/renderer/assets/icons/minimize.js
+@@ -0,0 +1,9 @@
++const icon = require('vue-svgicon')
++icon.register({
++  'minimize': {
++    width: 24,
++    height: 24,
++    viewBox: '0 0 1024 1024',
++    data: '<path d="M192 448l640 0 0 128-640 0 0-128Z" p-id="1975"></path>'
++  }
++})
+diff --git a/src/renderer/components/workspace-header/index.vue b/src/renderer/components/workspace-header/index.vue
+index 586a2c3..78c6336 100755
+--- a/src/renderer/components/workspace-header/index.vue
++++ b/src/renderer/components/workspace-header/index.vue
+@@ -3,23 +3,38 @@
+     <div class="logo">
+       Proxy UI
+     </div>
++    <window-btn-group />
+   </div>
+ </template>
+ 
+ <script>
++import WindowBtnGroup from './window-btn-group'
++
+ export default {
++  components: {
++    WindowBtnGroup
++  }
+ }
+ </script>
+ 
+ <style scoped>
+ .workspace-header {
++  display: flex;
++  align-items: center;
+   height: 48px;
+   line-height: 48px;
+   background: #3f51b5;
++  -webkit-app-region: drag;
++  cursor: move;
+ }
+ .workspace-header .logo {
++  flex: 1;
+   color: #fff;
+   font-weight: bold;
+-  padding: 0 8px;
++  padding: 0 12px;
++  user-select: none;
++}
++.window-btn-group {
++  margin: 0 12px;
+ }
+ </style>
+diff --git a/src/renderer/components/workspace-header/window-btn-group.vue b/src/renderer/components/workspace-header/window-btn-group.vue
+new file mode 100644
+index 0000000..81c4348
+--- /dev/null
++++ b/src/renderer/components/workspace-header/window-btn-group.vue
+@@ -0,0 +1,71 @@
++<template>
++  <div class="window-btn-group">
++    <div class="close-btn" @click="handleClose">
++      <svgicon
++          icon="close"
++          width="12" height="12" color="#333"
++        ></svgicon>
++    </div>
++    <div class="minimize-btn" @click="handleMinimize">
++      <svgicon
++          icon="minimize"
++          width="12" height="12" color="#333"
++        ></svgicon>
++    </div>
++    <div class="maximize-btn"  @click="handleMaximize">
++      <svgicon
++          icon="maximize"
++          width="10" height="10" color="#333"
++        ></svgicon>
++    </div>
++  </div>
++</template>
++  
++<script>
++import '@/assets/icons/close'
++import '@/assets/icons/minimize'
++import '@/assets/icons/maximize'
++
++export default {
++  methods: {
++    handleClose () {
++      this.$ipcRenderer.send('window-close')
++    },
++    handleMinimize () {
++      this.$ipcRenderer.send('window-minimize')
++    },
++    handleMaximize () {
++      this.$ipcRenderer.send('window-maximize')
++    }
++  }
++}
++</script>
++
++<style scoped>
++.window-btn-group {
++  width: 80px;
++  display: flex;
++  justify-content: space-around;
++}
++.close-btn, .minimize-btn, .maximize-btn {
++  border-radius: 50%;
++  height: 14px;
++  width: 14px;
++  line-height: 14px;
++  text-align: center;
++  cursor: pointer;
++}
++.close-btn {
++  background-color: #FF5722;
++}
++.minimize-btn {
++  background-color: #FFEB3B;
++}
++.maximize-btn {
++  background-color: #13ce66;
++  transform: rotate(45deg);
++}
++.maximize-btn svg {
++  padding: 2px;
++}
++</style>
+diff --git a/src/renderer/main.js b/src/renderer/main.js
+index ebbd90a..255804f 100755
+--- a/src/renderer/main.js
++++ b/src/renderer/main.js
+@@ -18,6 +18,7 @@ Vue.use({
+   install (Vue, options) {
+     Vue.prototype.$proxyApi = global.proxyApi
+     Vue.prototype.$dialog = global.dialog
++    Vue.prototype.$ipcRenderer = global.ipcRenderer
+   }
+ })
+ 
+-- 
+2.17.2 (Apple Git-113)
+

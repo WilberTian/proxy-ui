@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>proxy-ui</title>
+    <title>Proxy UI</title>
     <% if (htmlWebpackPlugin.options.nodeModules) { %>
     <!-- Add `node_modules/` to global paths so `require` works properly in development -->
     <script>
@@ -22,12 +22,14 @@
 
       const electron = require("electron");
       const remote = electron.remote;
+      const ipcRenderer = electron.ipcRenderer
       const proxyApi = remote.require("./proxy-manager").default;
       const dialog = remote.dialog;
 
       // only explose these variable
       global.proxyApi = proxyApi;
       global.dialog = dialog;
+      global.ipcRenderer = ipcRenderer;
     </script>
     <% } %>
 

@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, dialog, Tray, Menu } from 'electron'
+import { app, BrowserWindow, dialog, Tray, Menu, ipcMain } from 'electron'
 import pkg from '../../package.json'
 
 /**
@@ -14,6 +14,7 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
+let loadingWindow
 let tray
 
 const winURL =
@@ -27,65 +28,118 @@ function createWindow () {
    */
   mainWindow = new BrowserWindow({
     height: 600,
+    frame: false,
     useContentSize: true,
-    width: 900
+    width: 900,
+    show: false
   })
 
   mainWindow.loadURL(winURL)
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    setTimeout(() => {
+      mainWindow.show()
+      if (loadingWindow) {
+        loadingWindow.close()
+      }
+    }, 1500)
+  })
 
   mainWindow.on('closed', () => {
     mainWindow = null
   })
 
-  mainWindow.on('close', event => {
+  ipcMain.on('window-close', () => {
     mainWindow.hide()
-    mainWindow.setSkipTaskbar(true)
-    event.preventDefault()
   })
-
-  tray = new Tray(`${__static}/16x16.png`)
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: '关于',
-      click () {
-        dialog.showMessageBox({
-          title: 'proxy-ui',
-          message: 'proxy-ui',
-          detail: `Version: ${pkg.version}\nAuthor: WilberTian\nGithub: `
-        })
-      }
-    },
-    {
-      label: '退出',
-      click: () => {
-        mainWindow.destroy()
-        app.quit()
-      }
-    }
-  ])
-  tray.setToolTip('proxy-ui')
-  tray.on('right-click', () => {
-    tray.popUpContextMenu(contextMenu)
+  ipcMain.on('window-minimize', () => {
+    mainWindow.minimize()
   })
-  tray.on('click', () => {
-    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
-    mainWindow.isVisible()
-      ? mainWindow.setSkipTaskbar(false)
-      : mainWindow.setSkipTaskbar(true)
+  ipcMain.on('window-maximize', () => {
+    mainWindow.maximize()
   })
 }
 
-app.on('ready', createWindow)
+function createMenu () {
+  const menu = Menu.buildFromTemplate([
+    {
+      label: 'Proxy UI',
+      submenu: [
+        {
+          label: '关于',
+          click () {
+            dialog.showMessageBox({
+              title: 'Proxy UI',
+              message: 'Proxy UI',
+              detail: `Version: ${pkg.version}\nAuthor: WilberTian\nGithub: `
+            })
+          }
+        },
+        {
+          label: '退出',
+          accelerator: 'Cmd+Q',
+          role: 'quit'
+        }
+      ]
+    }
+  ])
+  Menu.setApplicationMenu(menu)
+}
+
+function createTray () {
+  tray = new Tray(`${__static}/16x16.png`)
+  tray.on('click', () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  })
+}
+
+function createLoadingWindow () {
+  loadingWindow = new BrowserWindow(
+    Object.assign({
+      height: 360,
+      frame: false,
+      width: 500,
+      show: false,
+      movable: false,
+      resizable: false
+    })
+  )
+
+  if (process.env.NODE_ENV === 'development') {
+    loadingWindow.loadURL('http://localhost:9080/loading.html')
+  } else {
+    loadingWindow.loadURL(`file://${__dirname}/client/loading.html`)
+  }
+
+  loadingWindow.on('closed', () => (loadingWindow = null))
+  loadingWindow.webContents.on('did-finish-load', () => {
+    loadingWindow.show()
+  })
+}
+
+app.on('ready', () => {
+  createLoadingWindow()
+  createWindow()
+  createMenu()
+  createTray()
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+  }
+  if (tray) {
+    tray.destroy()
+    tray = null
   }
 })
 
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
+  }
+  if (!mainWindow.isVisible() && !loadingWindow) {
+    mainWindow.show()
   }
 })
 
