@@ -104,6 +104,11 @@ let webConfig = {
       },
       nodeModules: false
     }),
+    new HtmlWebpackPlugin({
+      filename: 'loading.html',
+      template: path.resolve(__dirname, '../src/loading.html'),
+      inject: false
+    }),
     new webpack.DefinePlugin({
       'process.env.IS_WEB': 'true'
     }),

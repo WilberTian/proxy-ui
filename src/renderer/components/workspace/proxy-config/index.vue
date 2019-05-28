@@ -78,6 +78,14 @@
             {{proxyConfig.webInterface && proxyConfig.webInterface.webPort}}
           </div>
         </div>
+        <div class="proxy-config-item">
+          <div class="label">
+            开启全局代理
+          </div>
+          <div class="content">
+            {{proxyConfig.enableGlobalProxy ? '开启' : '未开启'}}
+          </div>
+        </div>
       </div>
       <proxy-server-data v-if="proxyServerStatus === 1" />
     </div>

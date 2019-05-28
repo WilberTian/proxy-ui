@@ -34,6 +34,15 @@
     >
       <el-input v-model.number="proxyConfigData.webInterface.webPort"></el-input>
     </el-form-item>
+    <el-form-item
+      label="开启全局代理"
+      prop="enableGlobalProxy"
+    >
+      <el-radio-group v-model="proxyConfigData.enableGlobalProxy">
+        <el-radio :label="true">开启</el-radio>
+        <el-radio :label="false">不开启</el-radio>
+      </el-radio-group>
+    </el-form-item>
     <el-form-item>
       <el-button
         type="primary"

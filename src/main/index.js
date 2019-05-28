@@ -108,7 +108,7 @@ function createLoadingWindow () {
   if (process.env.NODE_ENV === 'development') {
     loadingWindow.loadURL('http://localhost:9080/loading.html')
   } else {
-    loadingWindow.loadURL(`file://${__dirname}/client/loading.html`)
+    loadingWindow.loadURL(`file://${__dirname}/loading.html`)
   }
 
   loadingWindow.on('closed', () => (loadingWindow = null))

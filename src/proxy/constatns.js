@@ -8,7 +8,8 @@ export const defaultProxyConfig = {
   throttle: 10000,
   forceProxyHttps: true,
   wsIntercept: false,
-  silent: true
+  silent: true,
+  enableGlobalProxy: true
 }
 
 export const defaultRuleConfigs = [

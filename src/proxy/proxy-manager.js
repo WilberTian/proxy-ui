@@ -163,18 +163,20 @@ const proxyServerManager = (action = 'start', options = {}) => {
         const createProxyServer = () => {
           proxyServer = proxyServerCreator(options)
           proxyServer.on('ready', () => {
-            if (options.forceProxyHttps) {
+            if (options.enableGlobalProxy) {
+              if (options.forceProxyHttps) {
+                AnyProxy.utils.systemProxyMgr.enableGlobalProxy(
+                  '127.0.0.1',
+                  options.port,
+                  'https'
+                )
+              }
               AnyProxy.utils.systemProxyMgr.enableGlobalProxy(
                 '127.0.0.1',
                 options.port,
-                'https'
+                'http'
               )
             }
-            AnyProxy.utils.systemProxyMgr.enableGlobalProxy(
-              '127.0.0.1',
-              options.port,
-              'http'
-            )
 
             resolve({
               msg: '代理服务器启动成功'

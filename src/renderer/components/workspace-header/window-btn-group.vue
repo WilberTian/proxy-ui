@@ -1,19 +1,22 @@
 <template>
-  <div class="window-btn-group">
+  <div class="window-btn-group" @mouseenter="setIconVisible(true)" @mouseleave="setIconVisible(false)">
     <div class="close-btn" @click="handleClose">
       <svgicon
+          v-show="iconVisible"
           icon="close"
           width="12" height="12" color="#333"
         ></svgicon>
     </div>
     <div class="minimize-btn" @click="handleMinimize">
       <svgicon
+          v-show="iconVisible"
           icon="minimize"
           width="12" height="12" color="#333"
         ></svgicon>
     </div>
     <div class="maximize-btn"  @click="handleMaximize">
       <svgicon
+          v-show="iconVisible"
           icon="maximize"
           width="10" height="10" color="#333"
         ></svgicon>
@@ -27,6 +30,11 @@ import '@/assets/icons/minimize'
 import '@/assets/icons/maximize'
 
 export default {
+  data () {
+    return {
+      iconVisible: false
+    }
+  },
   methods: {
     handleClose () {
       this.$ipcRenderer.send('window-close')
@@ -36,6 +44,9 @@ export default {
     },
     handleMaximize () {
       this.$ipcRenderer.send('window-maximize')
+    },
+    setIconVisible (visible) {
+      this.iconVisible = visible
     }
   }
 }
