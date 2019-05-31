@@ -1,5 +1,5 @@
 <template>
-  <div class="proxy-config">
+  <div class="proxy-config" v-loading.fullscreen="loading">
     <div class="operation-btn-group">
       <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="startProxyServer">
         <svgicon
@@ -23,6 +23,13 @@
           width="36" height="36" color="red"
         ></svgicon>
         停止服务器
+      </div><div class="icon-wrapper" v-if="proxyServerStatus === 1" @click="openNetworkData">
+        <svgicon
+          class="browser-icon"
+          icon="browser"
+          width="36" height="36" color="#409EFF"
+        ></svgicon>
+        打开网络数据
       </div>
       <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="showProxyConfigSetting = true">
         <svgicon
@@ -108,13 +115,15 @@ import '@/assets/icons/stop'
 import '@/assets/icons/restart'
 import '@/assets/icons/settings'
 import '@/assets/icons/certificate'
+import '@/assets/icons/browser'
 import ProxyConfigDialog from './proxy-config-dialog'
 import ProxyServerData from './proxy-server-data'
 
 export default {
   data () {
     return {
-      showProxyConfigSetting: false
+      showProxyConfigSetting: false,
+      loading: false
     }
   },
   computed: {
@@ -137,6 +146,7 @@ export default {
   },
   methods: {
     startProxyServer () {
+      this.loading = true
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.startProxyServer(proxyConfig).then((data) => {
         this.$notify({
@@ -146,6 +156,7 @@ export default {
         })
         this.$store.commit('setProxyServerStatus', 1)
         this.$store.commit('setWorkspaceFooterVisible', false)
+        this.loading = false
       }, (e) => {
         this.$notify({
           title: '错误信息',
@@ -154,9 +165,11 @@ export default {
         })
         this.$store.commit('setProxyServerStatus', 0)
         this.$store.commit('setWorkspaceFooterVisible', true)
+        this.loading = false
       })
     },
     stopProxyServer () {
+      this.loading = true
       this.$proxyApi.stopProxyServer().then((data) => {
         this.$notify({
           title: '提示',
@@ -165,9 +178,11 @@ export default {
         })
         this.$store.commit('setProxyServerStatus', 0)
         this.$store.commit('setWorkspaceFooterVisible', true)
+        this.loading = false
       })
     },
     restartProxyServer () {
+      this.loading = true
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.restartProxyServer(proxyConfig).then((data) => {
         this.$notify({
@@ -177,6 +192,7 @@ export default {
         })
         this.$store.commit('setProxyServerStatus', 1)
         this.$store.commit('setWorkspaceFooterVisible', false)
+        this.loading = false
       })
     },
     handleSubmitProxyConfig (proxyConfig) {
@@ -185,6 +201,9 @@ export default {
     },
     getRootCA () {
       this.$proxyApi.getRootCA()
+    },
+    openNetworkData () {
+      this.$shell.openExternal(`http://127.0.0.1:${this.proxyConfig.webInterface.webPort}`)
     }
   },
   components: {
@@ -202,6 +221,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  box-shadow: 0 0 4px #444;
 }
 .proxy-config .operation-btn-group .icon-wrapper {
   display: flex;
@@ -222,6 +242,7 @@ export default {
   justify-content: center;
   align-items: center;
   flex: 1;
+  overflow: hidden;
 }
 .proxy-config .info-container .proxy-config-info .title {
   font-size: 24px;

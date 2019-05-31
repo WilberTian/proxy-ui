@@ -15,7 +15,7 @@
               {{hookData[guid].ruleConfig.pattern}}
             </div>
             <div class="hit-data">
-              {{hookData[guid].count}}
+              命中 {{hookData[guid].count}} 次
             </div>
           </template>
           <div>{{hookData[guid].data}}</div>
@@ -71,18 +71,17 @@ export default {
 }
 .el-collapse-item__header .rule-config-pattern {
   flex: 1;
-  margin-right: 40px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-emphasis: ellipse;
+  color: #999;
 }
 .el-collapse-item__header .hit-data {
-  position: absolute;
-  right: 32px;
-  width: 28px;
   height: 28px;
+  padding: 0 8px;
   line-height: 28px;
-  text-align: center;
   border-radius: 50%;
-  background-color: #409eff;
-  color: #fff;
+  color: #444;
 }
 .proxy-server-data .no-data-msg {
   padding-top: 40vh;

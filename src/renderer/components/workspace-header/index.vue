@@ -25,7 +25,6 @@ export default {
   line-height: 48px;
   background: #3f51b5;
   -webkit-app-region: drag;
-  cursor: move;
 }
 .workspace-header .logo {
   flex: 1;

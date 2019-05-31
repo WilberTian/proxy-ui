@@ -111,6 +111,7 @@ const proxyRuleCreator = ruleConfig => {
           switch (responseHook.type) {
             case 'response':
               if (responseHook.bodyType === 'file') {
+                updateHookData(responseHook, responseHook.bodyPath)
                 return {
                   response: {
                     ...responseDetail.response,

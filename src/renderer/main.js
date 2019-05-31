@@ -19,6 +19,7 @@ Vue.use({
     Vue.prototype.$proxyApi = global.proxyApi
     Vue.prototype.$dialog = global.dialog
     Vue.prototype.$ipcRenderer = global.ipcRenderer
+    Vue.prototype.$shell = global.shell
   }
 })
 

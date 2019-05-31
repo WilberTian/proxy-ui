@@ -2,11 +2,6 @@
   <div class="rule-config">
     <div class="rule-config-list-wrapper" v-if="!ruleSettingVisible">
       <rule-config-filter :tags="tags" @filterChange="handleFilterChange" />
-      <div
-        class="create-rule-btn"
-        @click="handleCreateConfigRule"
-        circle
-      >+</div>
       <rule-config-list
         v-if="filteredRuleConfigs.length > 0"
         :ruleConfigs="filteredRuleConfigs"
@@ -31,6 +26,8 @@ import RuleConfigList from './rule-config-list'
 import RuleConfigSetting from './rule-config-setting'
 import creatGUID from '@/utils/uuidv4'
 import { defaultRuleConfigs } from '@/configs/constants'
+import events from '@/configs/events'
+import eventBus from '@/utils/event-bus'
 
 export default {
   computed: {
@@ -93,6 +90,10 @@ export default {
   mounted () {
     const ruleConfigs = this.$proxyApi.readRuleConfigs()
     this.$store.commit('setRuleConfigs', ruleConfigs)
+    eventBus.$on(events.CREATE_RULE_CONFIG, this.handleCreateConfigRule)
+  },
+  beforeDestroy () {
+    eventBus.$off(events.CREATE_RULE_CONFIG, this.handleCreateConfigRule)
   },
   methods: {
     handleFilterChange (filterData) {
@@ -140,21 +141,6 @@ export default {
 <style scoped>
 .rule-config .rule-config-list-wrapper {
   position: relative;
-}
-.rule-config .rule-config-list-wrapper .create-rule-btn {
-  position: absolute;
-  top: 8px;
-  right: 22px;
-  z-index: 1;
-  height: 32px;
-  width: 32px;
-  text-align: center;
-  border-radius: 50%;
-  background: #409eff;
-  color: #fff;
-  font-weight: bold;
-  font-size: 24px;
-  cursor: pointer;
 }
 .rule-config .rule-config-list-wrapper .rule-config-filter {
   margin: 12px;

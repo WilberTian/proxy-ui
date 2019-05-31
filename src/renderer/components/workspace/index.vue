@@ -31,8 +31,10 @@ export default {
 }
 .rule-config {
   flex: 1;
+  overflow: hidden;
 }
 .proxy-config {
   flex: 1;
+  overflow: hidden;
 }
 </style>

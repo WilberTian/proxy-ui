@@ -22,14 +22,17 @@
 
       const electron = require("electron");
       const remote = electron.remote;
-      const ipcRenderer = electron.ipcRenderer
+      const ipcRenderer = electron.ipcRenderer;
+      const shell = electron.shell;
       const proxyApi = remote.require("./proxy-manager").default;
       const dialog = remote.dialog;
+      
 
       // only explose these variable
       global.proxyApi = proxyApi;
       global.dialog = dialog;
       global.ipcRenderer = ipcRenderer;
+      global.shell = shell;
     </script>
     <% } %>
 
