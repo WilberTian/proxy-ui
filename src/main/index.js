@@ -1,6 +1,13 @@
 'use strict'
 
-import { app, BrowserWindow, dialog, Tray, Menu, ipcMain } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  Tray,
+  Menu,
+  ipcMain
+} from 'electron'
 import pkg from '../../package.json'
 
 /**
@@ -56,7 +63,11 @@ function createWindow () {
     mainWindow.minimize()
   })
   ipcMain.on('window-maximize', () => {
-    mainWindow.maximize()
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow.maximize()
+    }
   })
 }
 
@@ -74,6 +85,18 @@ function createMenu () {
               detail: `Version: ${pkg.version}\nAuthor: WilberTian\nGithub: `
             })
           }
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'selectall' }
+          ]
         },
         {
           label: '退出',
