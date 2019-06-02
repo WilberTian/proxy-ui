@@ -5,20 +5,42 @@
 </template>
 
 <script>
-  export default {
-    name: 'proxy-ui'
+export default {
+  name: 'proxy-ui',
+  mounted () {
+    this.disableDragEvent()
+  },
+  methods: {
+    disableDragEvent () {
+      window.addEventListener('dragenter', this.disableDrag, false)
+      window.addEventListener('dragover', this.disableDrag)
+      window.addEventListener('drop', this.disableDrag)
+    },
+    disableDrag (e) {
+      e.preventDefault()
+      e.dataTransfer.effectAllowed = 'none'
+      e.dataTransfer.dropEffect = 'none'
+    }
+  },
+  beforeDestroy () {
+    window.removeEventListener('dragenter', this.disableDrag, false)
+    window.removeEventListener('dragover', this.disableDrag)
+    window.removeEventListener('drop', this.disableDrag)
   }
+}
 </script>
 
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,SimSun,sans-serif;
-    font-weight: 400;
-    -webkit-font-smoothing: antialiased;
-  }
-  #app {
-    height: 100vh;
-  }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
+    Microsoft YaHei, SimSun, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+#app {
+  height: 100vh;
+}
 </style>
