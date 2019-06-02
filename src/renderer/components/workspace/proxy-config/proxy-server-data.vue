@@ -40,12 +40,13 @@ export default {
     }
   },
   mounted () {
-    this.timer = setInterval(() => {
-      this.hookData = JSON.parse(JSON.stringify(this.$proxyApi.getHookData()))
-    }, 1000)
+    this.hookDataListener = () => {
+      this.hookData = JSON.parse(this.$proxyApi.getHookData())
+    }
+    this.$ipcRenderer.on('hook-data-updated', this.hookDataListener)
   },
   beforeDestroy () {
-    clearTimeout(this.timer)
+    this.$ipcRenderer.removeListener('hook-data-updated', this.hookDataListener)
   }
 }
 </script>

@@ -8,6 +8,7 @@ import {
   Menu,
   ipcMain
 } from 'electron'
+import proxyManager from '../proxy/proxy-manager'
 import pkg from '../../package.json'
 
 /**
@@ -40,6 +41,8 @@ function createWindow () {
     width: 900,
     show: false
   })
+
+  global.mainWindow = mainWindow
 
   mainWindow.loadURL(winURL)
 
@@ -155,6 +158,11 @@ app.on('window-all-closed', () => {
     tray.destroy()
     tray = null
   }
+})
+
+app.on('quit', () => {
+  // try to clear global proxy config when quit
+  proxyManager.clearGlobalProxyConfig()
 })
 
 app.on('activate', () => {

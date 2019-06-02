@@ -45,6 +45,9 @@ const updateHookData = (ruleConfig, data) => {
       data
     }
   }
+  if (global.mainWindow) {
+    global.mainWindow.webContents.send('hook-data-updated')
+  }
 }
 
 const proxyRuleCreator = ruleConfig => {
@@ -331,6 +334,10 @@ export default {
     return rootPath
   },
   getHookData: function () {
-    return hookData
+    return JSON.stringify(hookData)
+  },
+  clearGlobalProxyConfig () {
+    AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
+    AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
   }
 }
