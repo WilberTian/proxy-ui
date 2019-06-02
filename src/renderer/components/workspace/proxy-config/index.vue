@@ -222,6 +222,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   box-shadow: 0 0 4px #444;
+  user-select: none;
 }
 .proxy-config .operation-btn-group .icon-wrapper {
   display: flex;
