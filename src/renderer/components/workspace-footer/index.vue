@@ -7,6 +7,16 @@
       <div class="step-info">
         代理拦截规则配置
       </div>
+      <el-popover
+        ref="advanceSettingPopover"
+        placement="top"
+        v-model="advanceSettingVisible"
+        trigger="click"
+      >
+        <div class="advance-setting-item">导出规则配置</div>
+        <div class="advance-setting-item">导入规则配置</div>
+        <div class="advance-setting-item">重置规则配置</div>
+      </el-popover>
       <div
         class="advance-setting-btn"
         v-popover:advanceSettingPopover
@@ -41,15 +51,6 @@
         返回代理规则配置
       </div>
     </div>
-    <el-popover
-      ref="advanceSettingPopover"
-      placement="top"
-      v-model="advanceSettingVisible"
-    >
-      <div class="advance-setting-item">导出规则配置</div>
-      <div class="advance-setting-item">导入规则配置</div>
-      <div class="advance-setting-item">重置规则配置</div>
-    </el-popover>
   </div>
 </template>
 
