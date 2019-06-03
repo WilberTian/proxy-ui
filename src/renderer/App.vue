@@ -43,4 +43,10 @@ body {
 #app {
   height: 100vh;
 }
+.el-dialog__header, .el-dialog__footer {
+  padding: 10px !important;
+}
+.el-dialog__body {
+  padding: 0 10px !important;
+}
 </style>

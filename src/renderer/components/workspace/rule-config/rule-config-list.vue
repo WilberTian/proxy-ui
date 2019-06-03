@@ -47,6 +47,7 @@
 import Vue from 'vue'
 import { VueMasonryPlugin } from 'vue-masonry/dist/vue-masonry-plugin-umd'
 import PreviewIcon from './preview-icon'
+import createGUID from '@/utils/uuidv4'
 
 Vue.use(VueMasonryPlugin)
 
@@ -79,8 +80,20 @@ export default {
           //
         })
     },
-    handleCloneRuleConfig (ruleConifg) {
-      //
+    handleCloneRuleConfig (ruleConfig) {
+      this.$confirm('复制规则?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          const clonedRuleConfig = JSON.parse(JSON.stringify(ruleConfig))
+          clonedRuleConfig.guid = createGUID()
+          this.$store.commit('cloneRuleConfig', clonedRuleConfig)
+        })
+        .catch(() => {
+          //
+        })
     },
     updateRuleConfigStatus (ruleConfig, status) {
       this.$store.commit('updateRuleConfig', {
@@ -100,8 +113,10 @@ export default {
   position: relative;
   width: 200px;
   margin: 12px;
-  box-shadow: 1px 1px 8px 1px #999;
+  box-shadow: 1px 1px 8px 1px #b9b9b9;
   padding-top: 30px;
+  border-radius: 4px;
+  user-select: none;
 }
 .rule-config-list .rule-config-item.disabled {
   background-color: #efefef;
@@ -131,6 +146,7 @@ export default {
 .rule-config-list .rule-config-item .rule-config-info {
   padding: 12px 8px;
   line-height: 24px;
+  user-select: text;
 }
 .rule-config-list .rule-config-item .rule-config-tags {
   padding: 0 4px;
@@ -145,6 +161,5 @@ export default {
   color: #fff;
   border-radius: 4px;
   font-size: 14px;
-  font-weight: bold;
 }
 </style>

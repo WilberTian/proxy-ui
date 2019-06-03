@@ -24,7 +24,7 @@ import { mapGetters } from 'vuex'
 import RuleConfigFilter from './rule-config-filter'
 import RuleConfigList from './rule-config-list'
 import RuleConfigSetting from './rule-config-setting'
-import creatGUID from '@/utils/uuidv4'
+import createGUID from '@/utils/uuidv4'
 import { defaultRuleConfigs } from '@/configs/constants'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
@@ -107,7 +107,7 @@ export default {
       } else {
         const ruleConfigToAdd = {
           ...ruleConfig,
-          guid: creatGUID()
+          guid: createGUID()
         }
         this.$store.commit('addRuleConfig', ruleConfigToAdd)
       }
@@ -145,7 +145,9 @@ export default {
 .rule-config .rule-config-list-wrapper .rule-config-filter {
   margin: 12px;
   padding: 12px;
-  border: 1px solid #d7d7d7;
+  box-shadow: 0px 0px 6px #b1b1b1;
+  border-radius: 4px;
+  user-select: none;
 }
 .no-config-rule-msg {
   padding: 12px;

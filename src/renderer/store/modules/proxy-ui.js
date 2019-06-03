@@ -43,6 +43,9 @@ const mutations = {
       return ruleConfig.guid !== guid
     })
   },
+  cloneRuleConfig (state, ruleConfig) {
+    state.ruleConfigs.push(ruleConfig)
+  },
   updateRuleConfig (state, ruleConfigData) {
     const foundIdx = state.ruleConfigs.findIndex((ruleConfig) => {
       return ruleConfig.guid === ruleConfigData.guid

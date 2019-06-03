@@ -57,6 +57,7 @@
     "axios": "^0.18.0",
     "element-ui": "^2.8.2",
     "vue": "^2.5.16",
+    "vue-clipboard2": "^0.3.0",
     "vue-electron": "^1.0.6",
     "vue-masonry": "^0.11.7",
     "vue-router": "^3.0.1",
@@ -65,7 +66,7 @@
     "vuex-electron": "^1.0.0"
   },
   "devDependencies": {
-    "ajv": "^6.5.0",
+    "ajv": "^6.10.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.4",

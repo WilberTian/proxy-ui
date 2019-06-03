@@ -100,13 +100,13 @@ export default {
 }
 .filter-item .filter-item-content .tag-item {
   display: inline-block;
-  height: 24px;
-  line-height: 24px;
+  height: 20px;
+  line-height: 20px;
   border-radius: 4px;
   color: #333;
   font-size: 14px;
   padding: 0 8px;
-  border: 1px solid #efefef;
+  border: 1px solid #d7d7d7;
   margin-right: 8px;
   cursor: pointer;
 }

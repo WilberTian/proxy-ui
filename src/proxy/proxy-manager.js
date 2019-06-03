@@ -1,4 +1,5 @@
 import { defaultProxyConfig, defaultRuleConfigs } from './constatns'
+import ruleConfigSchema from './rule-config-schema'
 import { app } from 'electron'
 
 const fs = require('fs')
@@ -274,6 +275,9 @@ export default {
       return false
     }
   },
+  getDefaultRuleConfigs: function () {
+    return defaultRuleConfigs
+  },
   generateProxyConfig: function (proxyConfig) {
     const _proxyConfig = this.readProxyConfig()
     const proxyRuleConfig = this.generateProxyRule()
@@ -339,5 +343,8 @@ export default {
   clearGlobalProxyConfig () {
     AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
     AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
+  },
+  getRuleConfigSchema () {
+    return ruleConfigSchema
   }
 }
