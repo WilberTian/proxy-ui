@@ -56,6 +56,7 @@
       :visible.sync="importDialogVisible"
       width="70%"
       :center="true"
+      custom-class="import-dialog"
     >
       <div>
         <el-input
@@ -76,6 +77,7 @@
       :visible.sync="exportDialogVisible"
       width="70%"
       :center="true"
+      custom-class="export-dialog"
     >
       <pre class="exported-content">{{exportedRuleConfigs}}</pre>
       <span slot="footer" class="dialog-footer">

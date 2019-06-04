@@ -43,10 +43,16 @@ body {
 #app {
   height: 100vh;
 }
-.el-dialog__header, .el-dialog__footer {
+.import-dialog .el-dialog__header, .import-dialog .el-dialog__footer {
   padding: 10px !important;
 }
-.el-dialog__body {
+.import-dialog .el-dialog__body {
+  padding: 0 10px !important;
+}
+.export-dialog .el-dialog__header, .export-dialog .el-dialog__footer {
+  padding: 10px !important;
+}
+.export-dialog .el-dialog__body {
   padding: 0 10px !important;
 }
 </style>

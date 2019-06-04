@@ -5,6 +5,7 @@ import { app } from 'electron'
 const fs = require('fs')
 const path = require('path')
 const exec = require('child_process').exec
+const throttle = require('lodash.throttle')
 const AnyProxy = require('anyproxy')
 const AnyProxyUtils = require('anyproxy/lib/util')
 const matchers = require('./matchers')
@@ -36,6 +37,10 @@ const getResponseFile = responseFilePath => {
   }
 }
 
+const emitHookDataUpdatedEvent = throttle((mainWindow) => {
+  mainWindow.webContents.send('hook-data-updated')
+}, 500)
+
 const updateHookData = (ruleConfig, data) => {
   if (ruleConfig.guid in hookData) {
     hookData[ruleConfig.guid].count += 1
@@ -47,7 +52,7 @@ const updateHookData = (ruleConfig, data) => {
     }
   }
   if (global.mainWindow) {
-    global.mainWindow.webContents.send('hook-data-updated')
+    emitHookDataUpdatedEvent(global.mainWindow)
   }
 }
 
