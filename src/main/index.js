@@ -113,7 +113,7 @@ function createMenu () {
 }
 
 function createTray () {
-  tray = new Tray(`${__static}/16x16.png`)
+  tray = new Tray(`${__static}/32x32.png`)
   tray.on('click', () => {
     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
   })

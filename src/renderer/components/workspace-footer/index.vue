@@ -8,7 +8,6 @@
         代理拦截规则配置
       </div>
       <el-popover
-        ref="advanceSettingPopover"
         placement="top"
         v-model="advanceSettingVisible"
         trigger="click"
@@ -16,13 +15,13 @@
         <div class="advance-setting-item" @click="exportDialogVisible = true">导出规则配置</div>
         <div class="advance-setting-item" @click="importDialogVisible = true">导入规则配置</div>
         <div class="advance-setting-item" @click="resetRuleConfig">重置规则配置</div>
+        <div
+          class="advance-setting-btn"
+          slot="reference"
+        >
+          高级
+        </div>
       </el-popover>
-      <div
-        class="advance-setting-btn"
-        v-popover:advanceSettingPopover
-      >
-        高级
-      </div>
       <div
         class="create-rule-config-btn"
         @click="createRuleConfig"
