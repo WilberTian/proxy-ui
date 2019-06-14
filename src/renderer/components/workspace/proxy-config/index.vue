@@ -157,6 +157,7 @@ export default {
         this.$store.commit('setProxyServerStatus', 1)
         this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
+        this.$proxyApi.resetHookData()
       }, (e) => {
         this.$notify({
           title: '错误信息',
@@ -193,6 +194,7 @@ export default {
         this.$store.commit('setProxyServerStatus', 1)
         this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
+        this.$proxyApi.resetHookData()
       })
     },
     handleSubmitProxyConfig (proxyConfig) {

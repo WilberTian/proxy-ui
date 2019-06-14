@@ -345,6 +345,9 @@ export default {
   getHookData: function () {
     return JSON.stringify(hookData)
   },
+  resetHookData: function () {
+    hookData = {}
+  },
   clearGlobalProxyConfig () {
     AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
     AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
