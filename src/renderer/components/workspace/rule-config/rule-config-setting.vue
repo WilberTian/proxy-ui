@@ -95,6 +95,7 @@
     >
       <el-input
         type="textarea"
+        rows="4"
         :value="JSONtoStr(ruleConfigData.response.header)"
         @input="
           (val) => {
@@ -109,6 +110,7 @@
       ></el-input>
     </el-form-item>
     <el-form-item
+      v-if="ruleConfigData.type === 'mock' || ruleConfigData.type === 'response'"
       label="响应内容类型"
       prop="bodyType"
     >
@@ -244,7 +246,7 @@ export default {
       if (typeof val === 'string') {
         return val
       }
-      return JSON.stringify(val)
+      return JSON.stringify(val, null, 4)
     },
     selectResponseFile () {
       this.$dialog.showOpenDialog({

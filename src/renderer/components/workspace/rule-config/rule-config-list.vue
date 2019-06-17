@@ -117,6 +117,7 @@ export default {
   padding-top: 30px;
   border-radius: 4px;
   user-select: none;
+  overflow: hidden;
 }
 .rule-config-list .rule-config-item.disabled {
   background-color: #efefef;
