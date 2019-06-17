@@ -82,14 +82,14 @@
       ></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'mock'"
+      v-if="ruleConfigData.type === 'mock' || ruleConfigData.type === 'response'"
       label="HTTP状态码"
       prop="response.statusCode"
     >
       <el-input v-model="ruleConfigData.response.statusCode"></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'mock'"
+      v-if="ruleConfigData.type === 'mock' || ruleConfigData.type === 'response'"
       label="响应头"
       prop="response.header"
     >

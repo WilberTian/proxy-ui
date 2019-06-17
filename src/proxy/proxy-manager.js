@@ -19,7 +19,7 @@ const userDataPath = app.getPath('userData')
 
 let proxyServer
 const responseFileCache = {}
-const hookData = {}
+let hookData = {}
 
 const getResponseFile = responseFilePath => {
   try {
