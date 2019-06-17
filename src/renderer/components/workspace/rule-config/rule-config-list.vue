@@ -158,9 +158,10 @@ export default {
   line-height: 18px;
   padding: 0 8px;
   margin: 4px;
-  background: #909399;
-  color: #fff;
+  color: #409EFF;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: rgba(64,158,255,.1);
 }
 </style>

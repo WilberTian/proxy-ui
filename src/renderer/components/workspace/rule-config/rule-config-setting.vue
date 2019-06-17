@@ -54,7 +54,7 @@
             ruleConfigData.header = val
           }
         "
-         @blur="
+        @blur="
           (e) => {
             ruleConfigData.header = this.strToJSON(e.target.value)
           }
@@ -135,7 +135,42 @@
       prop="bodyPath"
     >
       {{ruleConfigData.bodyPath}}
-      <el-button @click="selectResponseFile" size="mini" icon="el-icon-upload2" circle></el-button>
+      <el-button
+        @click="selectResponseFile"
+        size="mini"
+        icon="el-icon-upload2"
+        circle
+      ></el-button>
+    </el-form-item>
+    <el-form-item
+      label="标签"
+      prop="tags"
+    >
+      <el-tag
+        :key="tag"
+        v-for="tag in ruleConfigData.tags"
+        closable
+        :disable-transitions="false"
+        @close="handleRemoveTag(tag)"
+      >
+        {{tag}}
+      </el-tag>
+      <el-input
+        class="input-new-tag"
+        v-if="tagInputVisible"
+        v-model="tagInputValue"
+        ref="saveTagInput"
+        size="small"
+        @keyup.enter.native="handleTagConfirm"
+        @blur="handleTagConfirm"
+      >
+      </el-input>
+      <el-button
+        v-else
+        class="button-new-tag"
+        size="small"
+        @click="showTagInput"
+      >+ New Tag</el-button>
     </el-form-item>
     <el-form-item>
       <el-button
@@ -217,7 +252,9 @@ export default {
         'response.header': [
           { validator: isValidJSON, trigger: 'blur' }
         ]
-      }
+      },
+      tagInputVisible: false,
+      tagInputValue: ''
     }
   },
   methods: {
@@ -257,10 +294,55 @@ export default {
           this.ruleConfigData.bodyPath = responseFilePath
         }
       })
+    },
+    handleRemoveTag (tag) {
+      const found = this.ruleConfigData.tags.indexOf(tag)
+      if (found > -1) {
+        this.ruleConfigData.tags.splice(found, 1)
+      }
+    },
+    showTagInput () {
+      this.tagInputVisible = true
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+    handleTagConfirm () {
+      if (this.tagInputValue) {
+        if (this.ruleConfigData.tags.indexOf(this.tagInputValue) === -1) {
+          this.ruleConfigData.tags.push(this.tagInputValue)
+        } else {
+          this.$message({
+            message: '标签已存在',
+            type: 'error'
+          })
+        }
+      } else {
+        this.$message({
+          message: '请输入非空标签',
+          type: 'error'
+        })
+      }
+      this.tagInputVisible = false
+      this.tagInputValue = ''
     }
   }
 }
 </script>
 
 <style scoped>
+.el-tag {
+  margin-right: 8px;
+  font-weight: bold;
+}
+.button-new-tag {
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  vertical-align: bottom;
+}
 </style>
