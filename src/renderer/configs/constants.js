@@ -35,5 +35,12 @@ export const defaultRuleConfigs = {
         'content-type': 'text/html'
       }
     }
+  },
+  customize: {
+    enabled: true,
+    type: 'customize',
+    name: '自定义规则',
+    description: '',
+    customizeRule: ''
   }
 }

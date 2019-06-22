@@ -12,7 +12,7 @@
       label="规则类型"
       prop="type"
     >
-      <el-radio-group v-model="ruleConfigData.type">
+      <el-radio-group v-model="ruleConfigType" @change="selectRuleConfigType">
         <el-radio label="mock">Mock响应数据</el-radio>
         <el-radio label="response">修改响应数据</el-radio>
         <el-radio label="request">修改请求数据</el-radio>
@@ -167,7 +167,7 @@
       prop="customizeRule"
       placeholder="自定义规则"
     >
-      <textarea class="customize-rule-editor" ref="customize-rule-editor" v-model="ruleConfigData.customizeRule"></textarea>
+      <textarea class="customize-rule-editor" ref="customize-rule-editor"></textarea>
     </el-form-item>
     <el-form-item
       label="标签"
@@ -211,6 +211,7 @@
 </template>
 
 <script>
+import { defaultRuleConfigs } from '@/configs/constants'
 import CodeMirror from 'codemirror/lib/codemirror.js'
 import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/lib/codemirror.css'
@@ -232,14 +233,20 @@ export default {
     this.matchers = this.$proxyApi.getMatchers()
   },
   mounted () {
-    CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
-      tabSize: 4,
-      mode: 'text/javascript',
-      theme: 'base16-dark',
-      lineNumbers: true,
-      line: true,
-      styleActiveLine: true
-    })
+    if (this.ruleConfigType === 'customize') {
+      this.customizeRuleEditor = CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
+        tabSize: 4,
+        mode: 'text/javascript',
+        theme: 'base16-dark',
+        lineNumbers: true,
+        line: true,
+        styleActiveLine: true
+      })
+      this.customizeRuleEditor.on('change', (cm) => {
+        this.ruleConfigData.customizeRule = cm.getValue()
+      })
+      this.customizeRuleEditor.setValue(this.ruleConfigData.customizeRule)
+    }
   },
   data () {
     const isValidJSON = (rule, value, callback) => {
@@ -272,8 +279,17 @@ export default {
       }, 500)
     }
 
+    let ruleConfigData
+    let ruleConfigType = 'mock'
+    if (this.ruleConfig) {
+      ruleConfigData = JSON.parse(JSON.stringify(this.ruleConfig))
+      ruleConfigType = ruleConfigData.type
+    } else {
+      ruleConfigData = defaultRuleConfigs[ruleConfigType]
+    }
     return {
-      ruleConfigData: JSON.parse(JSON.stringify(this.ruleConfig)),
+      ruleConfigType,
+      ruleConfigData,
       validators: {
         type: [
           { required: true, message: '请选择规则类型', trigger: 'change' }
@@ -308,6 +324,31 @@ export default {
     }
   },
   methods: {
+    selectRuleConfigType (value) {
+      this.ruleConfigData = defaultRuleConfigs[value]
+      this.$nextTick(() => {
+        if (value === 'customize' && !this.customizeRuleEditor) {
+          this.customizeRuleEditor = CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
+            tabSize: 4,
+            mode: 'text/javascript',
+            theme: 'base16-dark',
+            lineNumbers: true,
+            line: true,
+            styleActiveLine: true
+          })
+          this.customizeRuleEditor.on('change', (cm) => {
+            this.ruleConfigData.customizeRule = cm.getValue()
+          })
+          this.customizeRuleEditor.setValue(this.ruleConfigData.customizeRule)
+        } else {
+          const cmEditorEl = this.$el.querySelector('.CodeMirror')
+          if (cmEditorEl) {
+            cmEditorEl.remove()
+            this.customizeRuleEditor = null
+          }
+        }
+      })
+    },
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {

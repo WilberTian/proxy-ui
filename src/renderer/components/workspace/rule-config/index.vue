@@ -25,7 +25,6 @@ import RuleConfigFilter from './rule-config-filter'
 import RuleConfigList from './rule-config-list'
 import RuleConfigSetting from './rule-config-setting'
 import createGUID from '@/utils/uuidv4'
-import { defaultRuleConfigs } from '@/configs/constants'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 
@@ -136,7 +135,6 @@ export default {
     },
     handleCreateConfigRule () {
       this.$store.commit('setWorkspaceFooterVisible', false)
-      this.selectedRuleConfig = defaultRuleConfigs.mock
       this.operation = 'create'
       this.ruleSettingVisible = true
     }

@@ -12,9 +12,13 @@
       :key="ruleConfig.guid"
     >
       <div class="rule-config-type">{{ruleConfig.type}}</div>
-      <div class="rule-config-info">
+      <div class="rule-config-info" v-if="ruleConfig.type !== 'customize'">
         <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
         <div class="rule-config-pattern">{{ruleConfig.pattern}}</div>
+      </div>
+      <div class="rule-config-info" v-if="ruleConfig.type === 'customize'">
+        <div class="rule-config-name">{{ruleConfig.name}}</div>
+        <div class="rule-config-description">{{ruleConfig.description}}</div>
       </div>
       <div class="rule-config-tags">
         <div class="rule-config-tag" v-for="(tag, idx) in ruleConfig.tags" :key="idx">
