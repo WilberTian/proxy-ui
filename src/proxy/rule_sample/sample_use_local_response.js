@@ -1,5 +1,5 @@
 module.exports = {
-  *beforeSendRequest (requestDetail) {
+  beforeSendRequest (requestDetail) {
     const localResponse = {
       statusCode: 200,
       header: { 'Content-Type': 'application/json' },

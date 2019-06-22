@@ -1,5 +1,5 @@
 module.exports = {
-  *beforeSendResponse (requestDetail, responseDetail) {
+  beforeSendResponse (requestDetail, responseDetail) {
     if (requestDetail.url.indexOf('http://httpbin.org') === 0) {
       const newResponse = responseDetail.response
       newResponse.statusCode = 404

@@ -1,6 +1,7 @@
+import { app } from 'electron'
 import { defaultProxyConfig, defaultRuleConfigs } from './constatns'
 import ruleConfigSchema from './rule-config-schema'
-import { app } from 'electron'
+import vconsoleRule from './vconsole-rule'
 
 const fs = require('fs')
 const path = require('path')
@@ -108,11 +109,16 @@ const updateHookData = (ruleConfig, data) => {
 
 const proxyRuleCreator = ruleConfig => {
   const customizeRuleModules = getCustomizeRuleModules(ruleConfig)
+  customizeRuleModules.push(vconsoleRule)
+
   return {
     *beforeSendRequest (requestDetail) {
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.beforeSendRequest) {
-          yield customizeRuleModule.beforeSendRequest(requestDetail)
+          const result = customizeRuleModule.beforeSendRequest(requestDetail)
+          if (typeof result !== 'undefined') {
+            return result
+          }
         }
       }
 
@@ -121,6 +127,7 @@ const proxyRuleCreator = ruleConfig => {
       const requestHooks = ruleConfig.filter(item => {
         return requestHookTypes.includes(item.type) && item.enabled
       })
+
       for (let requestHook of requestHooks) {
         const matcher = matchers[requestHook.matcher]
 
@@ -167,7 +174,10 @@ const proxyRuleCreator = ruleConfig => {
     *beforeSendResponse (requestDetail, responseDetail) {
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.beforeSendResponse) {
-          yield customizeRuleModule.beforeSendResponse(requestDetail, responseDetail)
+          const result = customizeRuleModule.beforeSendResponse(requestDetail, responseDetail)
+          if (typeof result !== 'undefined') {
+            return result
+          }
         }
       }
       const requestUrl = requestDetail.url
