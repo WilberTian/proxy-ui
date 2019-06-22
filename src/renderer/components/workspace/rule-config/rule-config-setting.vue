@@ -16,9 +16,11 @@
         <el-radio label="mock">Mock响应数据</el-radio>
         <el-radio label="response">修改响应数据</el-radio>
         <el-radio label="request">修改请求数据</el-radio>
+        <el-radio label="customize">自定义规则</el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item
+      v-if="ruleConfigData.type !== 'customize'"
       label="URL匹配规则"
       prop="matcher"
     >
@@ -35,6 +37,7 @@
       </el-select>
     </el-form-item>
     <el-form-item
+      v-if="ruleConfigData.type !== 'customize'"
       label="URL匹配内容"
       prop="pattern"
       placeholder="请选择URL匹配内容"
@@ -42,7 +45,7 @@
       <el-input v-model="ruleConfigData.pattern"></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'request'"
+      v-if="ruleConfigData.type === 'request' && ruleConfigData.type !== 'customize'"
       label="请求头"
       prop="header"
     >
@@ -62,7 +65,7 @@
       ></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'request'"
+      v-if="ruleConfigData.type === 'request' && ruleConfigData.type !== 'customize'"
       label="请求内容"
       prop="body"
     >
@@ -82,14 +85,14 @@
       ></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'mock' || ruleConfigData.type === 'response'"
+      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.type !== 'customize'"
       label="HTTP状态码"
       prop="response.statusCode"
     >
       <el-input v-model="ruleConfigData.response.statusCode"></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'mock' || ruleConfigData.type === 'response'"
+      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.type !== 'customize'"
       label="响应头"
       prop="response.header"
     >
@@ -110,7 +113,7 @@
       ></el-input>
     </el-form-item>
     <el-form-item
-      v-if="ruleConfigData.type === 'mock' || ruleConfigData.type === 'response'"
+      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.type !== 'customize'"
       label="响应内容类型"
       prop="bodyType"
     >
@@ -120,7 +123,7 @@
       </el-radio-group>
     </el-form-item>
     <el-form-item
-      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'string'"
+      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'string' && ruleConfigData.type !== 'customize'"
       label="响应内容"
       prop="bodyContent"
     >
@@ -130,7 +133,7 @@
       ></el-input>
     </el-form-item>
     <el-form-item
-      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'file'"
+      v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'file' && ruleConfigData.type !== 'customize'"
       label="响应内容"
       prop="bodyPath"
     >
@@ -141,6 +144,30 @@
         icon="el-icon-upload2"
         circle
       ></el-button>
+    </el-form-item>
+    <el-form-item
+      v-if="ruleConfigData.type === 'customize'"
+      label="名称"
+      prop="name"
+      placeholder="自定义规则名称"
+    >
+      <el-input v-model="ruleConfigData.name"></el-input>
+    </el-form-item>
+    <el-form-item
+      v-if="ruleConfigData.type === 'customize'"
+      label="描述"
+      prop="description"
+      placeholder="自定义规则描述"
+    >
+      <el-input type="textarea" v-model="ruleConfigData.description"></el-input>
+    </el-form-item>
+    <el-form-item
+      v-if="ruleConfigData.type === 'customize'"
+      label="自定义规则"
+      prop="customizeRule"
+      placeholder="自定义规则"
+    >
+      <textarea class="customize-rule-editor" ref="customize-rule-editor" v-model="ruleConfigData.customizeRule"></textarea>
     </el-form-item>
     <el-form-item
       label="标签"
@@ -184,6 +211,13 @@
 </template>
 
 <script>
+import CodeMirror from 'codemirror/lib/codemirror.js'
+import 'codemirror/mode/javascript/javascript.js'
+import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/base16-dark.css'
+
+import 'codemirror/addon/selection/active-line.js'
+
 export default {
   props: {
     operation: {
@@ -196,6 +230,16 @@ export default {
   },
   beforeCreate () {
     this.matchers = this.$proxyApi.getMatchers()
+  },
+  mounted () {
+    CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
+      tabSize: 4,
+      mode: 'text/javascript',
+      theme: 'base16-dark',
+      lineNumbers: true,
+      line: true,
+      styleActiveLine: true
+    })
   },
   data () {
     const isValidJSON = (rule, value, callback) => {
@@ -239,6 +283,12 @@ export default {
         ],
         pattern: [
           { required: true, message: '请输入URL匹配内容', trigger: 'blur' }
+        ],
+        name: [
+          { required: true, message: '请输入自定义规则名称', trigger: 'blur' }
+        ],
+        customizeRule: [
+          { required: true, message: '请输入自定义规则', trigger: 'blur' }
         ],
         header: [
           { validator: isValidJSON, trigger: 'blur' }

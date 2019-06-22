@@ -14,6 +14,7 @@ const RULE_CONFIG_FILE = 'rule-config.json'
 const PROXY_CONFIG_FILE = 'proxy-config.json'
 const requestHookTypes = ['request', 'mock']
 const responseHookTypes = ['response']
+const customizeHookTypes = ['customize']
 
 const userDataPath = app.getPath('userData')
 
@@ -21,7 +22,7 @@ let proxyServer
 const responseFileCache = {}
 let hookData = {}
 
-const getResponseFile = responseFilePath => {
+const _getResponseFile = responseFilePath => {
   try {
     if (responseFilePath in responseFileCache) {
       return responseFileCache.responseFilePath
@@ -37,7 +38,56 @@ const getResponseFile = responseFilePath => {
   }
 }
 
-const emitHookDataUpdatedEvent = throttle((mainWindow) => {
+const _writeCustomizeRule = (guid, customizeRule) => {
+  try {
+    fs.writeFileSync(
+      path.resolve(userDataPath, `__customize_${guid}.js`),
+      customizeRule,
+      {
+        encoding: 'utf8'
+      }
+    )
+    return true
+  } catch (e) {
+    console.log(e)
+    return false
+  }
+}
+
+const _requireCustomizeRule = (guid, customizeRule = '') => {
+  let customizeRuleModule = null
+  const customizeRuleFileExist = fs.existsSync(path.resolve(userDataPath, `__customize_${guid}.js`))
+  if (!customizeRuleFileExist) {
+    _writeCustomizeRule(guid, customizeRule)
+  }
+  try {
+    /* eslint-disable */
+    const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require
+    delete requireFunc.cache[requireFunc.resolve(path.resolve(userDataPath, `__customize_${guid}.js`))]
+    /* eslint-enable */
+    customizeRuleModule = requireFunc(path.resolve(userDataPath, `__customize_${guid}.js`))
+  } catch (e) {
+    console.log(e)
+  }
+
+  return customizeRuleModule
+}
+
+const getCustomizeRuleModules = (ruleConfig) => {
+  const customizeHooks = ruleConfig.filter(item => {
+    return customizeHookTypes.includes(item.type) && item.enabled
+  })
+  const customizeRuleModules = []
+  customizeHooks.forEach((customizeHook) => {
+    const customizeRuleModule = _requireCustomizeRule(customizeHook.guid, customizeHook.costomizeRule)
+    if (customizeRuleModule) {
+      customizeRuleModules.push(customizeRuleModule)
+    }
+  })
+  return customizeRuleModules
+}
+
+const emitHookDataUpdatedEvent = throttle(mainWindow => {
   mainWindow.webContents.send('hook-data-updated')
 }, 500)
 
@@ -57,8 +107,15 @@ const updateHookData = (ruleConfig, data) => {
 }
 
 const proxyRuleCreator = ruleConfig => {
+  const customizeRuleModules = getCustomizeRuleModules(ruleConfig)
   return {
     *beforeSendRequest (requestDetail) {
+      for (let customizeRuleModule of customizeRuleModules) {
+        if (customizeRuleModule.beforeSendRequest) {
+          yield customizeRuleModule.beforeSendRequest(requestDetail)
+        }
+      }
+
       const requestUrl = requestDetail.url
 
       const requestHooks = ruleConfig.filter(item => {
@@ -88,7 +145,7 @@ const proxyRuleCreator = ruleConfig => {
                 return {
                   response: {
                     ...requestHook.response,
-                    body: getResponseFile(requestHook.bodyPath)
+                    body: _getResponseFile(requestHook.bodyPath)
                   }
                 }
               }
@@ -108,6 +165,11 @@ const proxyRuleCreator = ruleConfig => {
       }
     },
     *beforeSendResponse (requestDetail, responseDetail) {
+      for (let customizeRuleModule of customizeRuleModules) {
+        if (customizeRuleModule.beforeSendResponse) {
+          yield customizeRuleModule.beforeSendResponse(requestDetail, responseDetail)
+        }
+      }
       const requestUrl = requestDetail.url
 
       const responseHooks = ruleConfig.filter(item => {
@@ -125,7 +187,7 @@ const proxyRuleCreator = ruleConfig => {
                   response: {
                     ...responseDetail.response,
                     ...responseHook.response,
-                    body: getResponseFile(responseHook.bodyPath)
+                    body: _getResponseFile(responseHook.bodyPath)
                   }
                 }
               }
@@ -259,13 +321,13 @@ export default {
       if (ruleConfigs) {
         return JSON.parse(ruleConfigs)
       }
-      return {}
+      return []
     } catch (e) {
       const result = this.writeRuleConfig(defaultRuleConfigs)
       if (result) {
         return defaultRuleConfigs
       }
-      return {}
+      return []
     }
   },
   writeRuleConfig: function (ruleConfigs) {
@@ -354,5 +416,110 @@ export default {
   },
   getRuleConfigSchema () {
     return ruleConfigSchema
+  },
+  getSampleRules () {
+    const sampleRuleFiles = [
+      {
+        sampleName: '修改请求数据',
+        fileName: 'sample_modify_request_data.js'
+      }, {
+        sampleName: '修改请求数头',
+        fileName: 'sample_modify_request_header.js'
+      }, {
+        sampleName: '修改请求路径',
+        fileName: 'sample_modify_request_path.js'
+      }, {
+        sampleName: '修改请求协议',
+        fileName: 'sample_modify_request_protocol.js'
+      }, {
+        sampleName: '修改响应数据',
+        fileName: 'sample_modify_response_data.js'
+      }, {
+        sampleName: '修改响应头',
+        fileName: 'sample_modify_response_header.js'
+      }, {
+        sampleName: '修改响应码',
+        fileName: 'sample_modify_response_statuscode.js'
+      }, {
+        sampleName: 'Mock相应数据',
+        fileName: 'sample_use_local_response.js'
+      }
+    ]
+    const sampleRules = []
+    sampleRuleFiles.forEach(sampleRuleFile => {
+      try {
+        const sampleRuleContent = fs.readFileSync(
+          path.resolve(__dirname, 'rule_sample', sampleRuleFile.fileName),
+          {
+            encoding: 'utf8'
+          }
+        )
+        sampleRules.push({
+          sampleName: sampleRuleFile.sampleName,
+          sampleContent: sampleRuleContent
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    })
+    return sampleRules
+  },
+  /*
+  readCustomizeRuleConfigs () {
+    let customizeRuleConfigs = []
+    try {
+      const customizeRuleConfigsStr = fs.readFileSync(
+        path.resolve(userDataPath, CUSTOMIZE_RULE_CONFIG_FILE),
+        {
+          encoding: 'utf8'
+        }
+      )
+      if (customizeRuleConfigsStr) {
+        customizeRuleConfigs = JSON.parse(customizeRuleConfigsStr)
+      }
+    } catch (e) {
+      console.log(e)
+    }
+    return customizeRuleConfigs
+  },
+  writeCustomizeRuleConfigs (customizeRuleConfigs) {
+    try {
+      fs.writeFileSync(
+        path.resolve(userDataPath, CUSTOMIZE_RULE_CONFIG_FILE),
+        JSON.stringify(customizeRuleConfigs)
+      )
+      return true
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  },
+  */
+  readCustomizeRule (guid) {
+    try {
+      const customizeRule = fs.readFileSync(
+        path.resolve(userDataPath, `__customize_${guid}.js`),
+        {
+          encoding: 'utf8'
+        }
+      )
+      return customizeRule
+    } catch (e) {
+      return ''
+    }
+  },
+  writeCustomizeRule (guid, customizeRule) {
+    return _writeCustomizeRule(guid, customizeRule)
+  },
+  deleteCustomizeRule (guid) {
+    const customizeRulePath = path.resolve(userDataPath, `__customize_${guid}.js`)
+    const customizeRuleFileExist = fs.existsSync(customizeRulePath)
+    if (customizeRuleFileExist) {
+      try {
+        fs.unlinkSync(customizeRulePath)
+      } catch (e) {
+        console.log(e)
+      }
+    }
   }
 }

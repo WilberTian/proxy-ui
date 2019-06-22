@@ -55,4 +55,11 @@ body {
 .export-dialog .el-dialog__body {
   padding: 0 10px !important;
 }
+.CodeMirror {
+  font-size: 13px;
+  line-height: 20px;
+}
+.CodeMirror-cursor {
+  height: 20px;
+}
 </style>

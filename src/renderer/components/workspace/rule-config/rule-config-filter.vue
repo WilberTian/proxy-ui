@@ -10,6 +10,7 @@
           <el-radio label="mock">mock</el-radio>
           <el-radio label="response">response</el-radio>
           <el-radio label="request">request</el-radio>
+          <el-radio label="customize">customize</el-radio>
         </el-radio-group>
       </div>
     </div>

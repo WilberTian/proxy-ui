@@ -100,18 +100,29 @@ export default {
       this.filterData = filterData
     },
     handleSubmitRuleConfig (ruleConfig) {
+      let _ruleConfig = ruleConfig
       this.ruleSettingVisible = false
       this.selectedRuleConfig = null
       if ('guid' in ruleConfig) {
         this.$store.commit('updateRuleConfig', ruleConfig)
       } else {
-        const ruleConfigToAdd = {
+        _ruleConfig = {
           ...ruleConfig,
           guid: createGUID()
         }
-        this.$store.commit('addRuleConfig', ruleConfigToAdd)
+        this.$store.commit('addRuleConfig', _ruleConfig)
       }
-      this.$store.commit('setWorkspaceFooterVisible', true)
+
+      if (_ruleConfig.type === 'customize') {
+        const result = this.$proxyApi.writeCustomizeRule(_ruleConfig.guid, _ruleConfig.customizeRule)
+        if (result) {
+          this.$store.commit('setWorkspaceFooterVisible', true)
+        } else {
+          this.$message.error('创建/修改自定义规则失败，请重试')
+        }
+      } else {
+        this.$store.commit('setWorkspaceFooterVisible', true)
+      }
     },
     handleCancelRuleConfig () {
       this.ruleSettingVisible = false
@@ -140,7 +151,8 @@ export default {
 
 <style scoped>
 .rule-config .rule-config-list-wrapper {
-  position: relative;
+  height: 100%;
+  overflow: auto;
 }
 .rule-config .rule-config-list-wrapper .rule-config-filter {
   margin: 12px;
