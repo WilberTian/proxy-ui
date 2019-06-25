@@ -22,6 +22,7 @@ const userDataPath = app.getPath('userData')
 let proxyServer
 const responseFileCache = {}
 let hookData = {}
+const errorLog = []
 
 const _getResponseFile = responseFilePath => {
   try {
@@ -35,7 +36,11 @@ const _getResponseFile = responseFilePath => {
     responseFileCache.responseFilePath = responseFileContent
     return responseFileContent
   } catch (e) {
-    return `Can not found file ${responseFilePath}`
+    errorLog.push({
+      info: `读取相应文件失败：${responseFilePath}`,
+      detail: e.message
+    })
+    return responseFilePath
   }
 }
 
@@ -50,7 +55,10 @@ const _writeCustomizeRule = (guid, customizeRule) => {
     )
     return true
   } catch (e) {
-    console.log(e)
+    errorLog.push({
+      info: '自定义规则写入失败：`__customize_${guid}.js`',
+      detail: customizeRule
+    })
     return false
   }
 }
@@ -68,7 +76,10 @@ const _requireCustomizeRule = (guid, customizeRule = '') => {
     /* eslint-enable */
     customizeRuleModule = requireFunc(path.resolve(userDataPath, `__customize_${guid}.js`))
   } catch (e) {
-    console.log(e)
+    errorLog.push({
+      info: '引入自定义规则写入失败：`__customize_${guid}.js`',
+      detail: customizeRule
+    })
   }
 
   return customizeRuleModule
@@ -348,7 +359,10 @@ export default {
       )
       return true
     } catch (e) {
-      console.log(e)
+      errorLog.push({
+        info: '配置规则写入失败',
+        detail: JSON.stringify(ruleConfigs)
+      })
       return false
     }
   },
@@ -393,7 +407,10 @@ export default {
       )
       return true
     } catch (e) {
-      console.log(e)
+      errorLog.push({
+        info: '代理服务器配置写入失败',
+        detail: JSON.stringify(proxyConfig)
+      })
       return false
     }
   },
@@ -415,7 +432,7 @@ export default {
     return rootPath
   },
   getHookData: function () {
-    return JSON.stringify(hookData)
+    return hookData
   },
   resetHookData: function () {
     hookData = {}
@@ -469,42 +486,14 @@ export default {
           sampleContent: sampleRuleContent
         })
       } catch (e) {
-        console.log(e)
+        errorLog.push({
+          info: '获取自定义规则样例失败',
+          detail: e.message
+        })
       }
     })
     return sampleRules
   },
-  /*
-  readCustomizeRuleConfigs () {
-    let customizeRuleConfigs = []
-    try {
-      const customizeRuleConfigsStr = fs.readFileSync(
-        path.resolve(userDataPath, CUSTOMIZE_RULE_CONFIG_FILE),
-        {
-          encoding: 'utf8'
-        }
-      )
-      if (customizeRuleConfigsStr) {
-        customizeRuleConfigs = JSON.parse(customizeRuleConfigsStr)
-      }
-    } catch (e) {
-      console.log(e)
-    }
-    return customizeRuleConfigs
-  },
-  writeCustomizeRuleConfigs (customizeRuleConfigs) {
-    try {
-      fs.writeFileSync(
-        path.resolve(userDataPath, CUSTOMIZE_RULE_CONFIG_FILE),
-        JSON.stringify(customizeRuleConfigs)
-      )
-      return true
-    } catch (e) {
-      console.log(e)
-      return false
-    }
-  },
-  */
   readCustomizeRule (guid) {
     try {
       const customizeRule = fs.readFileSync(
@@ -528,8 +517,20 @@ export default {
       try {
         fs.unlinkSync(customizeRulePath)
       } catch (e) {
-        console.log(e)
+        errorLog.push({
+          info: '删除自定义规则失败：`__customize_${guid}.js`',
+          detail: e.message
+        })
       }
     }
+  },
+  getErrorLog () {
+    return errorLog
+  },
+  addErrorLog (logItem) {
+    errorLog.push(logItem)
+  },
+  resetErrorLog () {
+    errorLog.length = 0
   }
 }

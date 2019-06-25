@@ -41,7 +41,8 @@ export default {
   },
   mounted () {
     this.hookDataListener = () => {
-      this.hookData = JSON.parse(this.$proxyApi.getHookData())
+      this.hookData = this.$proxyApi.getHookData()
+      this.$forceUpdate()
     }
     this.$ipcRenderer.on('hook-data-updated', this.hookDataListener)
   },
