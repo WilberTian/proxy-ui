@@ -137,13 +137,15 @@
       label="响应内容"
       prop="bodyPath"
     >
-      {{ruleConfigData.bodyPath}}
-      <el-button
-        @click="selectResponseFile"
-        size="mini"
-        icon="el-icon-upload2"
-        circle
-      ></el-button>
+      <div style="display: flex;">
+        <el-input v-model="ruleConfigData.bodyPath"></el-input>
+        <el-button
+          @click="selectResponseFile"
+          size="mini"
+          icon="el-icon-upload2"
+          circle
+        ></el-button>
+      </div>
     </el-form-item>
     <el-form-item
       v-if="ruleConfigData.type === 'customize'"
