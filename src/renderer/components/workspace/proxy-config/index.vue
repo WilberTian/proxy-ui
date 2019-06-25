@@ -94,7 +94,14 @@
           </div>
         </div>
       </div>
-      <proxy-server-data v-if="proxyServerStatus === 1" />
+      <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1">
+        <el-tab-pane label="命中规则数据" name="proxy-server-data">
+          <proxy-server-data />
+        </el-tab-pane>
+        <el-tab-pane label="代理服务器错误" name="proxy-server-error">
+          <proxy-server-error />
+        </el-tab-pane>
+      </el-tabs>
     </div>
     <el-dialog
       title="代理服务器配置"
@@ -118,12 +125,14 @@ import '@/assets/icons/certificate'
 import '@/assets/icons/browser'
 import ProxyConfigDialog from './proxy-config-dialog'
 import ProxyServerData from './proxy-server-data'
+import ProxyServerError from './proxy-server-error'
 
 export default {
   data () {
     return {
       showProxyConfigSetting: false,
-      loading: false
+      loading: false,
+      dataTab: 'proxy-server-data'
     }
   },
   computed: {
@@ -158,6 +167,7 @@ export default {
         this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
         this.$proxyApi.resetHookData()
+        this.$proxyApi.resetErrorLog()
       }, (e) => {
         this.$notify({
           title: '错误信息',
@@ -195,6 +205,7 @@ export default {
         this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
         this.$proxyApi.resetHookData()
+        this.$proxyApi.resetErrorLog()
       })
     },
     handleSubmitProxyConfig (proxyConfig) {
@@ -210,7 +221,8 @@ export default {
   },
   components: {
     ProxyConfigDialog,
-    ProxyServerData
+    ProxyServerData,
+    ProxyServerError
   }
 }
 </script>
@@ -265,9 +277,11 @@ export default {
 .proxy-config .info-container .proxy-config-info .proxy-config-item .content {
   display: inline-block;
 }
-.proxy-config .info-container .proxy-server-data {
+.proxy-config .info-container .proxy-server-data-tab {
   width: 100%;
   height: 100%;
+  margin: 0 4px;
+  overflow: auto;
 }
 .restart-icon {
   margin: -2px;

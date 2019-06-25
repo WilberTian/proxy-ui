@@ -62,4 +62,7 @@ body {
 .CodeMirror-cursor {
   height: 20px;
 }
+::-webkit-scrollbar {
+  width: 0;
+}
 </style>

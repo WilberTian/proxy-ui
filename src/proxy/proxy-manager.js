@@ -36,7 +36,7 @@ const _getResponseFile = responseFilePath => {
     responseFileCache.responseFilePath = responseFileContent
     return responseFileContent
   } catch (e) {
-    errorLog.push({
+    _addErrorLog({
       info: `读取相应文件失败：${responseFilePath}`,
       detail: e.message
     })
@@ -55,8 +55,8 @@ const _writeCustomizeRule = (guid, customizeRule) => {
     )
     return true
   } catch (e) {
-    errorLog.push({
-      info: '自定义规则写入失败：`__customize_${guid}.js`',
+    _addErrorLog({
+      info: `自定义规则写入失败：__customize_${guid}.js`,
       detail: customizeRule
     })
     return false
@@ -76,8 +76,8 @@ const _requireCustomizeRule = (guid, customizeRule = '') => {
     /* eslint-enable */
     customizeRuleModule = requireFunc(path.resolve(userDataPath, `__customize_${guid}.js`))
   } catch (e) {
-    errorLog.push({
-      info: '引入自定义规则写入失败：`__customize_${guid}.js`',
+    _addErrorLog({
+      info: `引入自定义规则写入失败：__customize_${guid}.js`,
       detail: customizeRule
     })
   }
@@ -115,6 +115,17 @@ const updateHookData = (ruleConfig, data) => {
   }
   if (global.mainWindow) {
     emitHookDataUpdatedEvent(global.mainWindow)
+  }
+}
+
+const _emitErrorLogUpdatedEvent = throttle(mainWindow => {
+  mainWindow.webContents.send('error-log-updated')
+}, 500)
+
+const _addErrorLog = (errorLogItem) => {
+  errorLog.push(errorLogItem)
+  if (global.mainWindow) {
+    _emitErrorLogUpdatedEvent(global.mainWindow)
   }
 }
 
@@ -277,6 +288,10 @@ const proxyServerManager = (action = 'start', options = {}) => {
           })
           proxyServer.on('error', e => {
             proxyServer = null
+            _addErrorLog({
+              info: '代理服务器启动失败',
+              detail: e.message
+            })
             reject(e)
           })
           proxyServer.start()
@@ -290,6 +305,10 @@ const proxyServerManager = (action = 'start', options = {}) => {
               createProxyServer()
             },
             e => {
+              _addErrorLog({
+                info: '生成HTTPS证书失败',
+                detail: e.message
+              })
               reject(e)
             }
           )
@@ -359,7 +378,7 @@ export default {
       )
       return true
     } catch (e) {
-      errorLog.push({
+      _addErrorLog({
         info: '配置规则写入失败',
         detail: JSON.stringify(ruleConfigs)
       })
@@ -407,7 +426,7 @@ export default {
       )
       return true
     } catch (e) {
-      errorLog.push({
+      _addErrorLog({
         info: '代理服务器配置写入失败',
         detail: JSON.stringify(proxyConfig)
       })
@@ -486,7 +505,7 @@ export default {
           sampleContent: sampleRuleContent
         })
       } catch (e) {
-        errorLog.push({
+        _addErrorLog({
           info: '获取自定义规则样例失败',
           detail: e.message
         })
@@ -517,8 +536,8 @@ export default {
       try {
         fs.unlinkSync(customizeRulePath)
       } catch (e) {
-        errorLog.push({
-          info: '删除自定义规则失败：`__customize_${guid}.js`',
+        _addErrorLog({
+          info: `删除自定义规则失败：__customize_${guid}.js`,
           detail: e.message
         })
       }
@@ -528,7 +547,7 @@ export default {
     return errorLog
   },
   addErrorLog (logItem) {
-    errorLog.push(logItem)
+    _addErrorLog(logItem)
   },
   resetErrorLog () {
     errorLog.length = 0

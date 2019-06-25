@@ -1,9 +1,6 @@
 <template>
   <div class="proxy-server-data">
     <div class="data-wrapper" v-if="Object.keys(hookData).length > 0">
-      <div class="data-title">
-        当前命中规则数据
-      </div>
       <el-collapse accordion>
         <el-collapse-item v-for="guid in Object.keys(hookData)"
         :key="guid"> 
@@ -54,15 +51,7 @@ export default {
 
 <style scoped>
 .proxy-server-data .data-wrapper {
-  padding: 10px;
-}
-.proxy-server-data .data-wrapper .data-title {
-  height: 32px;
-  line-height: 32px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #999;
-  margin-bottom: 10px;
+  padding: 4px;
 }
 .el-collapse-item__header {
   position: relative;
