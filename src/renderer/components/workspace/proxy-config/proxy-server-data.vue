@@ -42,6 +42,7 @@ export default {
       this.$forceUpdate()
     }
     this.$ipcRenderer.on('hook-data-updated', this.hookDataListener)
+    this.hookDataListener()
   },
   beforeDestroy () {
     this.$ipcRenderer.removeListener('hook-data-updated', this.hookDataListener)

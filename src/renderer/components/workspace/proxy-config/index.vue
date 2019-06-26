@@ -164,6 +164,8 @@ export default {
   methods: {
     startProxyServer () {
       this.loading = true
+      this.$proxyApi.resetHookData()
+      this.$proxyApi.resetErrorLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.startProxyServer(proxyConfig).then((data) => {
         this.$notify({
@@ -174,8 +176,6 @@ export default {
         this.$store.commit('setProxyServerStatus', 1)
         this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
-        this.$proxyApi.resetHookData()
-        this.$proxyApi.resetErrorLog()
       }, (e) => {
         this.$notify({
           title: '错误信息',
@@ -202,6 +202,8 @@ export default {
     },
     restartProxyServer () {
       this.loading = true
+      this.$proxyApi.resetHookData()
+      this.$proxyApi.resetErrorLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.restartProxyServer(proxyConfig).then((data) => {
         this.$notify({
@@ -212,8 +214,6 @@ export default {
         this.$store.commit('setProxyServerStatus', 1)
         this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
-        this.$proxyApi.resetHookData()
-        this.$proxyApi.resetErrorLog()
       })
     },
     handleSubmitProxyConfig (proxyConfig) {

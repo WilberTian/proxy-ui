@@ -31,6 +31,7 @@ export default {
       this.$forceUpdate()
     }
     this.$ipcRenderer.on('error-log-updated', this.errorLogListener)
+    this.errorLogListener()
   },
   beforeDestroy () {
     this.$ipcRenderer.removeListener('error-log-updated', this.errorLogListener)
