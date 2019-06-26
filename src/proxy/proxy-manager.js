@@ -129,9 +129,11 @@ const _addErrorLog = (errorLogItem) => {
   }
 }
 
-const proxyRuleCreator = ruleConfig => {
+const proxyRuleCreator = (ruleConfig, proxyConfig) => {
   const customizeRuleModules = getCustomizeRuleModules(ruleConfig)
-  customizeRuleModules.push(vconsoleRule)
+  if (proxyConfig.injectVConsole) {
+    customizeRuleModules.push(vconsoleRule)
+  }
 
   return {
     *beforeSendRequest (requestDetail) {
@@ -346,10 +348,6 @@ export default {
       return proxyServerManager('start', options)
     })
   },
-  generateProxyRule: function (ruleConfigs) {
-    const _ruleConfigs = this.readRuleConfigs()
-    return proxyRuleCreator(ruleConfigs || _ruleConfigs)
-  },
   readRuleConfigs: function () {
     try {
       const ruleConfigs = fs.readFileSync(
@@ -390,7 +388,8 @@ export default {
   },
   generateProxyConfig: function (proxyConfig) {
     const _proxyConfig = this.readProxyConfig()
-    const proxyRuleConfig = this.generateProxyRule()
+    const _ruleConfigs = this.readRuleConfigs()
+    const proxyRuleConfig = proxyRuleCreator(_ruleConfigs, _proxyConfig)
 
     return {
       ..._proxyConfig,

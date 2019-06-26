@@ -93,6 +93,14 @@
             {{proxyConfig.enableGlobalProxy ? '开启' : '未开启'}}
           </div>
         </div>
+        <div class="proxy-config-item">
+          <div class="label">
+            页面注入vConsole
+          </div>
+          <div class="content">
+            {{proxyConfig.injectVConsole ? '开启' : '未开启'}}
+          </div>
+        </div>
       </div>
       <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1">
         <el-tab-pane label="命中规则数据" name="proxy-server-data">

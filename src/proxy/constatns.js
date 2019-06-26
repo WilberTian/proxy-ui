@@ -9,7 +9,8 @@ export const defaultProxyConfig = {
   forceProxyHttps: true,
   wsIntercept: false,
   silent: true,
-  enableGlobalProxy: true
+  enableGlobalProxy: true,
+  injectVConsole: false
 }
 
 export const defaultRuleConfigs = [
