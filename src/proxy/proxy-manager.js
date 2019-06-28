@@ -61,7 +61,7 @@ const _writeCustomizeRule = (guid, customizeRule) => {
   } catch (e) {
     _addErrorLog({
       info: `自定义规则写入失败：__customize_${guid}.js`,
-      detail: customizeRule
+      detail: `规则内容：${customizeRule}`
     })
     return false
   }
@@ -82,7 +82,7 @@ const _requireCustomizeRule = (guid, customizeRule = '') => {
   } catch (e) {
     _addErrorLog({
       info: `引入自定义规则写入失败：__customize_${guid}.js`,
-      detail: customizeRule
+      detail: `规则内容：${customizeRule}`
     })
   }
 
@@ -95,9 +95,12 @@ const getCustomizeRuleModules = (ruleConfig) => {
   })
   const customizeRuleModules = []
   customizeHooks.forEach((customizeHook) => {
-    const customizeRuleModule = _requireCustomizeRule(customizeHook.guid, customizeHook.costomizeRule)
+    const customizeRuleModule = _requireCustomizeRule(customizeHook.guid, customizeHook.customizeRule)
     if (customizeRuleModule) {
-      customizeRuleModules.push(customizeRuleModule)
+      customizeRuleModules.push({
+        ruleConfig: customizeHook,
+        module: customizeRuleModule
+      })
     }
   })
   return customizeRuleModules
@@ -152,9 +155,14 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
     *beforeSendRequest (requestDetail) {
       _updateRequestCount()
       for (let customizeRuleModule of customizeRuleModules) {
-        if (customizeRuleModule.beforeSendRequest) {
-          const result = customizeRuleModule.beforeSendRequest(requestDetail)
+        if (customizeRuleModule.module.beforeSendRequest) {
+          const result = customizeRuleModule.module.beforeSendRequest(requestDetail)
           if (typeof result !== 'undefined') {
+            if (result.then && typeof result.then === 'function') {
+              result.then(function (data) {
+                _updateEffectiveRule(customizeRuleModule.ruleConfig, data)
+              })
+            }
             return result
           }
         }
@@ -211,9 +219,14 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
     },
     *beforeSendResponse (requestDetail, responseDetail) {
       for (let customizeRuleModule of customizeRuleModules) {
-        if (customizeRuleModule.beforeSendResponse) {
-          const result = customizeRuleModule.beforeSendResponse(requestDetail, responseDetail)
+        if (customizeRuleModule.module.beforeSendResponse) {
+          const result = customizeRuleModule.module.beforeSendResponse(requestDetail, responseDetail)
           if (typeof result !== 'undefined') {
+            if (result.then && typeof result.then === 'function') {
+              result.then(function (data) {
+                _updateEffectiveRule(customizeRuleModule.ruleConfig, data)
+              })
+            }
             return result
           }
         }

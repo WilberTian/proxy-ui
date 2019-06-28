@@ -23,11 +23,14 @@
         <el-collapse-item v-for="guid in Object.keys(effectiveRules)"
         :key="guid"> 
           <template slot="title">
-            <div class="rule-config-matcher">
+            <div class="rule-config-matcher" v-if="effectiveRules[guid].ruleConfig.type !== 'customize'">
               {{effectiveRules[guid].ruleConfig.matcher}}
             </div>
-            <div class="rule-config-pattern">
+            <div class="rule-config-pattern" v-if="effectiveRules[guid].ruleConfig.type !== 'customize'">
               {{effectiveRules[guid].ruleConfig.pattern}}
+            </div>
+            <div class="rule-config-name" v-if="effectiveRules[guid].ruleConfig.type === 'customize'">
+              {{effectiveRules[guid].ruleConfig.name}}
             </div>
             <div class="hit-data">
               命中 {{effectiveRules[guid].count}} 次
@@ -115,6 +118,13 @@ export default {
   white-space: nowrap;
   text-emphasis: ellipse;
   color: #999;
+}
+.el-collapse-item__header .rule-config-name {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-emphasis: ellipse;
+  color: #444;
 }
 .el-collapse-item__header .hit-data {
   height: 28px;
