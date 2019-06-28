@@ -12,17 +12,19 @@
       :key="ruleConfig.guid"
     >
       <div class="rule-config-type">{{ruleConfig.type}}</div>
-      <div class="rule-config-info" v-if="ruleConfig.type !== 'customize'">
-        <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
-        <div class="rule-config-pattern">{{ruleConfig.pattern}}</div>
-      </div>
-      <div class="rule-config-info" v-if="ruleConfig.type === 'customize'">
-        <div class="rule-config-name">{{ruleConfig.name}}</div>
-        <div class="rule-config-description">{{ruleConfig.description}}</div>
-      </div>
-      <div class="rule-config-tags">
-        <div class="rule-config-tag" v-for="(tag, idx) in ruleConfig.tags" :key="idx">
-          {{tag}}
+      <div class="rule-config-info-wrapper">
+        <div class="rule-config-info" v-if="ruleConfig.type !== 'customize'">
+          <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
+          <div class="rule-config-pattern">{{ruleConfig.pattern}}</div>
+        </div>
+        <div class="rule-config-info" v-if="ruleConfig.type === 'customize'">
+          <div class="rule-config-name">{{ruleConfig.name}}</div>
+          <div class="rule-config-description">{{ruleConfig.description}}</div>
+        </div>
+        <div class="rule-config-tags">
+          <div class="rule-config-tag" v-for="(tag, idx) in ruleConfig.tags" :key="idx">
+            {{tag}}
+          </div>
         </div>
       </div>
       <div class="rule-config-operation">
@@ -123,7 +125,10 @@ export default {
 <style scoped>
 .rule-config-list .rule-config-item {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 200px;
+  height: 130px;
   margin: 12px;
   box-shadow: 1px 1px 8px 1px #b9b9b9;
   padding-top: 30px;
@@ -155,6 +160,10 @@ export default {
   text-align: center;
   border-bottom-left-radius: 4px;
   font-size: 14px;
+}
+.rule-config-list .rule-config-item  .rule-config-info-wrapper {
+  flex: 1;
+  overflow: auto;
 }
 .rule-config-list .rule-config-item .rule-config-info {
   padding: 12px 8px;
