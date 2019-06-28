@@ -28,7 +28,6 @@ export default {
   mounted () {
     this.errorLogListener = () => {
       this.errorLog = this.$proxyApi.getErrorLog()
-      this.$forceUpdate()
     }
     this.$ipcRenderer.on('error-log-updated', this.errorLogListener)
     this.errorLogListener()

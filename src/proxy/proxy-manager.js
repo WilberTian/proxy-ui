@@ -21,7 +21,11 @@ const userDataPath = app.getPath('userData')
 
 let proxyServer
 const responseFileCache = {}
-let hookData = {}
+let hookData = {
+  requestCount: 0,
+  hitCount: 0,
+  effectiveRules: {}
+}
 const errorLog = []
 
 const _getResponseFile = responseFilePath => {
@@ -103,16 +107,25 @@ const emitHookDataUpdatedEvent = throttle(mainWindow => {
   mainWindow.webContents.send('hook-data-updated')
 }, 500)
 
-const updateHookData = (ruleConfig, data) => {
-  if (ruleConfig.guid in hookData) {
-    hookData[ruleConfig.guid].count += 1
+const _updateEffectiveRule = (ruleConfig, data) => {
+  const effectiveRules = hookData.effectiveRules
+  hookData.hitCount += 1
+  if (ruleConfig.guid in effectiveRules) {
+    effectiveRules[ruleConfig.guid].count += 1
   } else {
-    hookData[ruleConfig.guid] = {
+    effectiveRules[ruleConfig.guid] = {
       ruleConfig,
       count: 1,
       data
     }
   }
+  if (global.mainWindow) {
+    emitHookDataUpdatedEvent(global.mainWindow)
+  }
+}
+
+const _updateRequestCount = () => {
+  hookData.requestCount += 1
   if (global.mainWindow) {
     emitHookDataUpdatedEvent(global.mainWindow)
   }
@@ -137,6 +150,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
 
   return {
     *beforeSendRequest (requestDetail) {
+      _updateRequestCount()
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.beforeSendRequest) {
           const result = customizeRuleModule.beforeSendRequest(requestDetail)
@@ -169,7 +183,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 requestData: requestHook.body
               }
 
-              updateHookData(requestHook, updatedRequest)
+              _updateEffectiveRule(requestHook, updatedRequest)
               return updatedRequest
             case 'mock':
               if (requestHook.bodyType === 'file') {
@@ -187,7 +201,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 }
               }
 
-              updateHookData(requestHook, mockResponse)
+              _updateEffectiveRule(requestHook, mockResponse)
               return mockResponse
             default:
               return null
@@ -216,7 +230,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
           switch (responseHook.type) {
             case 'response':
               if (responseHook.bodyType === 'file') {
-                updateHookData(responseHook, responseHook.bodyPath)
+                _updateEffectiveRule(responseHook, responseHook.bodyPath)
                 return {
                   response: {
                     ...responseDetail.response,
@@ -233,7 +247,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 }
               }
 
-              updateHookData(responseHook, updatedResponse.response)
+              _updateEffectiveRule(responseHook, updatedResponse.response)
               return updatedResponse
             default:
               return null
@@ -450,10 +464,14 @@ export default {
     return rootPath
   },
   getHookData: function () {
-    return hookData
+    return JSON.parse(JSON.stringify(hookData))
   },
   resetHookData: function () {
-    hookData = {}
+    hookData = {
+      requestCount: 0,
+      hitCount: 0,
+      effectiveRules: {}
+    }
   },
   clearGlobalProxyConfig () {
     AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
@@ -543,7 +561,7 @@ export default {
     }
   },
   getErrorLog () {
-    return errorLog
+    return [...errorLog]
   },
   addErrorLog (logItem) {
     _addErrorLog(logItem)

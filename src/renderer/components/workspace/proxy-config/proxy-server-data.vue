@@ -1,27 +1,45 @@
 <template>
   <div class="proxy-server-data">
-    <div class="data-wrapper" v-if="Object.keys(hookData).length > 0">
+    <div class="request-info-wrapper">
+      <div class="request-info-item">
+          <div class="request-number">
+            {{requestCount}}
+          </div>
+          <div class="request-info">
+            总请求数
+          </div>
+      </div>
+      <div class="request-info-item">
+        <div class="request-number">
+          {{hitCount}}
+        </div>
+        <div class="request-info">
+          命中数
+        </div>
+      </div>
+    </div>
+    <div class="data-wrapper" v-if="Object.keys(effectiveRules).length > 0">
       <el-collapse accordion>
-        <el-collapse-item v-for="guid in Object.keys(hookData)"
+        <el-collapse-item v-for="guid in Object.keys(effectiveRules)"
         :key="guid"> 
           <template slot="title">
             <div class="rule-config-matcher">
-              {{hookData[guid].ruleConfig.matcher}}
+              {{effectiveRules[guid].ruleConfig.matcher}}
             </div>
             <div class="rule-config-pattern">
-              {{hookData[guid].ruleConfig.pattern}}
+              {{effectiveRules[guid].ruleConfig.pattern}}
             </div>
             <div class="hit-data">
-              命中 {{hookData[guid].count}} 次
+              命中 {{effectiveRules[guid].count}} 次
             </div>
           </template>
-          <div>{{hookData[guid].data}}</div>
+          <div>{{effectiveRules[guid].data}}</div>
         </el-collapse-item>
       </el-collapse>
     </div>
     <div
       class="no-data-msg"
-      v-if="Object.keys(hookData).length === 0"
+      v-if="Object.keys(effectiveRules).length === 0"
     >
       当前没有规则命中！
     </div>
@@ -33,13 +51,17 @@
 export default {
   data () {
     return {
-      hookData: {}
+      requestCount: 0,
+      hitCount: 0,
+      effectiveRules: {}
     }
   },
   mounted () {
     this.hookDataListener = () => {
-      this.hookData = this.$proxyApi.getHookData()
-      this.$forceUpdate()
+      const hookData = this.$proxyApi.getHookData()
+      this.requestCount = hookData.requestCount
+      this.hitCount = hookData.hitCount
+      this.effectiveRules = hookData.effectiveRules
     }
     this.$ipcRenderer.on('hook-data-updated', this.hookDataListener)
     this.hookDataListener()
@@ -53,6 +75,32 @@ export default {
 <style scoped>
 .proxy-server-data .data-wrapper {
   padding: 4px;
+}
+.request-info-wrapper {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 4px;
+}
+.request-info-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height:100px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 4px 0px #c0c4cc;
+}
+.request-info-item .request-number {
+  font-size: 24px;
+  padding: 4px;
+  font-weight: bold;
+  color: #3a8ee6;
+}
+.request-info-item .request-info {
+  font-size: 12px;
+  font-weight: bold;
+  color: #444;
 }
 .el-collapse-item__header {
   position: relative;
@@ -76,7 +124,7 @@ export default {
   color: #444;
 }
 .proxy-server-data .no-data-msg {
-  padding-top: 40vh;
+  padding-top: 20vh;
   text-align: center;
   height: 24px;
   line-height: 24px;
