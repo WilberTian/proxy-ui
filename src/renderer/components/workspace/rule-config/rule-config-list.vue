@@ -11,7 +11,7 @@
       v-for="ruleConfig in ruleConfigs"
       :key="ruleConfig.guid"
     >
-      <div class="rule-config-type">{{ruleConfig.type}}</div>
+      <div class="rule-config-type" >{{ruleConfig.type | ruleTypeConvertor}}</div>
       <div class="rule-config-info-wrapper">
         <div class="rule-config-info" v-if="ruleConfig.type !== 'customize'">
           <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
@@ -28,22 +28,30 @@
         </div>
       </div>
       <div class="rule-config-operation">
-        <i
-          class="el-icon-edit"
-          @click="handleEditRuleConfig(ruleConfig)"
-        ></i>
-        <i
-          class="el-icon-document-copy"
-          @click="handleCloneRuleConfig(ruleConfig)"
-        ></i>
-        <i
-          class="el-icon-document-delete"
-          @click="handleDeleteRuleConfig(ruleConfig)"
-        ></i>
-        <preview-icon
-          :value="ruleConfig.enabled"
-          @input="(status) => { updateRuleConfigStatus(ruleConfig, status) }"
-        />
+        <el-tooltip class="item" effect="dark" content="编辑规则" placement="top">
+           <i
+            class="el-icon-edit"
+            @click="handleEditRuleConfig(ruleConfig)"
+          ></i>
+        </el-tooltip>
+        <el-tooltip class="item" effect="dark" content="复制规则" placement="top">
+          <i
+            class="el-icon-document-copy"
+            @click="handleCloneRuleConfig(ruleConfig)"
+          ></i>
+        </el-tooltip>
+        <el-tooltip class="item" effect="dark" content="删除规则" placement="top">
+          <i
+            class="el-icon-document-delete"
+            @click="handleDeleteRuleConfig(ruleConfig)"
+          ></i>
+        </el-tooltip>
+        <el-tooltip class="item" effect="dark" :content="`${ruleConfig.enabled ? '禁用规则' : '启用规则'}`" placement="top">
+          <preview-icon
+            :value="ruleConfig.enabled"
+            @input="(status) => { updateRuleConfigStatus(ruleConfig, status) }"
+          />
+        </el-tooltip>
       </div>
     </div>
   </div>
@@ -131,7 +139,7 @@ export default {
   height: 130px;
   margin: 12px;
   box-shadow: 1px 1px 8px 1px #b9b9b9;
-  padding-top: 30px;
+  padding-top: 24px;
   border-radius: 4px;
   user-select: none;
   overflow: hidden;
@@ -154,12 +162,14 @@ export default {
   right: 0;
   background-color: #409eff;
   color: #fff;
-  height: 24px;
-  line-height: 24px;
+  height: 22px;
+  line-height: 22px;
   width: 80px;
   text-align: center;
   border-bottom-left-radius: 4px;
-  font-size: 14px;
+  border-top-right-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
 }
 .rule-config-list .rule-config-item  .rule-config-info-wrapper {
   flex: 1;

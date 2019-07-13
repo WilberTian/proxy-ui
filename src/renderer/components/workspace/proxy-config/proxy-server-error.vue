@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import events from '@/configs/events'
+import eventBus from '@/utils/event-bus'
 
 export default {
   data () {
@@ -28,6 +30,7 @@ export default {
   mounted () {
     this.errorLogListener = () => {
       this.errorLog = this.$proxyApi.getErrorLog()
+      eventBus.$emit(events.UPDATE_PROXY_ERR_COUNT, this.errorLog.length)
     }
     this.$ipcRenderer.on('error-log-updated', this.errorLogListener)
     this.errorLogListener()

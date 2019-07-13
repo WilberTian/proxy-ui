@@ -154,15 +154,11 @@ export default {
 }
 .rule-config .rule-config-list-wrapper .rule-config-filter {
   margin: 12px;
-  padding: 12px;
-  box-shadow: 0px 0px 6px #b1b1b1;
-  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0px 0px 1px #777;
   user-select: none;
 }
 .no-config-rule-msg {
   padding: 12px;
-}
-.rule-config-setting {
-  padding: 20px;
 }
 </style>

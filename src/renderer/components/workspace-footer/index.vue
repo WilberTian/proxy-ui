@@ -5,7 +5,7 @@
       v-if="currentStep === 1"
     >
       <div class="step-info">
-        代理拦截规则配置
+        代理规则配置
       </div>
       <el-popover
         placement="top"
@@ -47,48 +47,45 @@
         class="operation-btn"
         @click="gotoRuleConfig"
       >
-        返回代理规则配置
+        <i class="el-icon-back"></i>
+        代理规则配置
       </div>
     </div>
     <el-dialog
-      top="10vh"
-      title="导入"
+      title="导入规则"
+      :fullscreen="true"
       :visible.sync="importDialogVisible"
-      width="70%"
-      :center="true"
-      custom-class="import-dialog"
+      custom-class="fullscreen-dialog import-dialog"
     >
-      <div>
-        <el-input
-          type="textarea"
-          :rows="10"
-          placeholder="请输入内容"
-          v-model="contentToImport">
-        </el-input>
-      </div>
+      <el-input
+        type="textarea"
+        resize="none"
+        placeholder="请输入内容"
+        v-model="contentToImport">
+      </el-input>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="importDialogVisible = false" size="small">取消</el-button>
         <el-button type="primary" @click="processImport" size="small" :disabled="contentToImport.trim() === ''">确定</el-button>
+        <el-button @click="importDialogVisible = false" size="small">取消</el-button>
       </span>
     </el-dialog>
     <el-dialog
-      top="10vh"
-      title="导出"
+      title="导出规则"
+      :fullscreen="true"
       :visible.sync="exportDialogVisible"
-      width="70%"
-      :center="true"
-      custom-class="export-dialog"
+      custom-class="fullscreen-dialog"
     >
       <pre class="exported-content">{{exportedRuleConfigs}}</pre>
       <span slot="footer" class="dialog-footer">
-        <span
-          class="clipboard-btn"
-          v-clipboard:copy="exportedRuleConfigs"
-          v-clipboard:success="onCopy"
-          v-clipboard:error="onError"
-        >
-          复制内容
-        </span>
+        <el-button type="primary" size="small">
+          <span
+            v-clipboard:copy="exportedRuleConfigs"
+            v-clipboard:success="onCopy"
+            v-clipboard:error="onError"
+          >
+            复制内容
+          </span>
+        </el-button>
+        <el-button @click="exportDialogVisible = false" size="small">取消</el-button>
       </span>
     </el-dialog>
   </div>
@@ -220,6 +217,9 @@ export default {
   cursor: pointer;
   user-select: none;
 }
+.operation-btn {
+  margin-left: 32px;
+}
 .advance-setting-btn {
   height: 22px;
   line-height: 22px;
@@ -242,21 +242,13 @@ export default {
   user-select: none;
 }
 .exported-content {
+  box-sizing: border-box;
+  height: 100%;
   margin: 0;
-  min-height: 20vh;
-  max-height: 48vh;
+  padding: 0;
   overflow: auto;
   line-height: 1;
   border: 1px solid #999;
   border-radius: 4px;
-}
-.clipboard-btn {
-  color: #2196F3;
-  cursor: pointer;
-  border: 1px solid #2196F3;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 14px;
-  font-weight: 600;
 }
 </style>

@@ -43,17 +43,23 @@ body {
 #app {
   height: 100vh;
 }
-.import-dialog .el-dialog__header, .import-dialog .el-dialog__footer {
+.el-dialog.is-fullscreen {
+  display: flex;
+  flex-direction: column;
+}
+.fullscreen-dialog .el-dialog__footer {
   padding: 10px !important;
 }
-.import-dialog .el-dialog__body {
+.fullscreen-dialog .el-dialog__body {
   padding: 0 10px !important;
+  flex: 1;
+  overflow: auto;
 }
-.export-dialog .el-dialog__header, .export-dialog .el-dialog__footer {
-  padding: 10px !important;
+.import-dialog .el-dialog__body .el-textarea {
+  height: 100%;
 }
-.export-dialog .el-dialog__body {
-  padding: 0 10px !important;
+.import-dialog .el-dialog__body .el-textarea textarea {
+  height: 100%;
 }
 .CodeMirror {
   font-size: 13px;

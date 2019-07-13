@@ -1,6 +1,7 @@
 export const defaultRuleConfigs = {
   request: {
     enabled: true,
+    tags: [],
     type: 'request',
     matcher: 'includes',
     pattern: 'www.proxy-ui.com',
@@ -9,6 +10,7 @@ export const defaultRuleConfigs = {
   },
   response: {
     enabled: true,
+    tags: [],
     type: 'response',
     matcher: 'includes',
     pattern: 'www.proxy-ui.com',
@@ -23,6 +25,7 @@ export const defaultRuleConfigs = {
   },
   mock: {
     enabled: true,
+    tags: [],
     type: 'mock',
     matcher: 'includes',
     pattern: 'www.proxy-ui.com',
@@ -38,9 +41,17 @@ export const defaultRuleConfigs = {
   },
   customize: {
     enabled: true,
+    tags: [],
     type: 'customize',
     name: '自定义规则',
     description: '',
     customizeRule: ''
   }
+}
+
+export const ruleTypeMapper = {
+  mock: 'Mock响应',
+  response: '修改响应',
+  request: '修改请求',
+  customize: '自定义规则'
 }

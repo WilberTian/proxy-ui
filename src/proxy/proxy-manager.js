@@ -496,17 +496,8 @@ export default {
   getSampleRules () {
     const sampleRuleFiles = [
       {
-        sampleName: '修改请求数据',
-        fileName: 'sample_modify_request_data.js'
-      }, {
-        sampleName: '修改请求数头',
-        fileName: 'sample_modify_request_header.js'
-      }, {
-        sampleName: '修改请求路径',
-        fileName: 'sample_modify_request_path.js'
-      }, {
-        sampleName: '修改请求协议',
-        fileName: 'sample_modify_request_protocol.js'
+        sampleName: 'Mock响应数据',
+        fileName: 'sample_use_local_response.js'
       }, {
         sampleName: '修改响应数据',
         fileName: 'sample_modify_response_data.js'
@@ -517,8 +508,17 @@ export default {
         sampleName: '修改响应码',
         fileName: 'sample_modify_response_statuscode.js'
       }, {
-        sampleName: 'Mock相应数据',
-        fileName: 'sample_use_local_response.js'
+        sampleName: '修改请求数据',
+        fileName: 'sample_modify_request_data.js'
+      }, {
+        sampleName: '修改请求头',
+        fileName: 'sample_modify_request_header.js'
+      }, {
+        sampleName: '修改请求路径',
+        fileName: 'sample_modify_request_path.js'
+      }, {
+        sampleName: '修改请求协议',
+        fileName: 'sample_modify_request_protocol.js'
       }
     ]
     const sampleRules = []

@@ -29,7 +29,7 @@
           icon="browser"
           width="36" height="36" color="#409EFF"
         ></svgicon>
-        打开网络数据
+        查看网络数据
       </div>
       <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="showProxyConfigSetting = true">
         <svgicon
@@ -37,7 +37,7 @@
           icon="settings"
           width="38" height="38" color="#606266"
         ></svgicon>
-        修改配置
+        代理配置
       </div>
       <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="getRootCA">
         <svgicon
@@ -106,7 +106,13 @@
         <el-tab-pane label="命中规则数据" name="proxy-server-data">
           <proxy-server-data />
         </el-tab-pane>
-        <el-tab-pane label="代理服务器错误" name="proxy-server-error">
+        <el-tab-pane name="proxy-server-error">
+          <span slot="label" style="display: flex; align-items: center;">
+            代理服务器错误
+            <span class="proxy-server-error-number">
+              {{proxyServerErrorNumber}}
+            </span>
+          </span>
           <proxy-server-error />
         </el-tab-pane>
       </el-tabs>
@@ -134,13 +140,16 @@ import '@/assets/icons/browser'
 import ProxyConfigDialog from './proxy-config-dialog'
 import ProxyServerData from './proxy-server-data'
 import ProxyServerError from './proxy-server-error'
+import events from '@/configs/events'
+import eventBus from '@/utils/event-bus'
 
 export default {
   data () {
     return {
       showProxyConfigSetting: false,
       loading: false,
-      dataTab: 'proxy-server-data'
+      dataTab: 'proxy-server-data',
+      proxyServerErrorNumber: 0
     }
   },
   computed: {
@@ -160,6 +169,12 @@ export default {
   mounted () {
     const proxyConfig = this.$proxyApi.readProxyConfig()
     this.$store.commit('setProxyConfig', proxyConfig)
+    eventBus.$on(events.UPDATE_PROXY_ERR_COUNT, (errNumber) => {
+      this.proxyServerErrorNumber = errNumber
+    })
+  },
+  beforeDestroy () {
+    eventBus.$off(events.UPDATE_PROXY_ERR_COUNT)
   },
   methods: {
     startProxyServer () {
@@ -279,7 +294,7 @@ export default {
 }
 .proxy-config .info-container .proxy-config-info .proxy-config-item .label {
   display: inline-block;
-  width: 160px;
+  width: 180px;
   font-weight: bold;
 }
 .proxy-config .info-container .proxy-config-info .proxy-config-item .content {
@@ -293,5 +308,19 @@ export default {
 }
 .restart-icon {
   margin: -2px;
+}
+.proxy-server-error-number {
+  background-color: #f56c6c;
+  border-radius: 10px;
+  color: #fff;
+  display: inline-block;
+  font-size: 12px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 6px;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid #fff;
+  margin-left: 6px;
 }
 </style>

@@ -7,6 +7,8 @@ import VueSVGIcon from 'vue-svgicon'
 import App from './App'
 import router from './router'
 import store from './store'
+import './filters/rule-type-convertor'
+import VueHighlightJS from 'vue-highlightjs'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
@@ -14,6 +16,7 @@ Vue.config.productionTip = false
 
 Vue.use(ElementUI)
 Vue.use(VueSVGIcon)
+Vue.use(VueHighlightJS)
 Vue.use({
   install (Vue, options) {
     Vue.prototype.$proxyApi = global.proxyApi
