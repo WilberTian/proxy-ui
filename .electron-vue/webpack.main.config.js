@@ -7,6 +7,7 @@ const { dependencies } = require('../package.json')
 const webpack = require('webpack')
 
 const BabiliWebpackPlugin = require('babili-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 let mainConfig = {
   entry: {
@@ -50,7 +51,13 @@ let mainConfig = {
     path: path.join(__dirname, '../dist/electron')
   },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    new CopyWebpackPlugin([
+      {
+        from: path.join(__dirname, '../src/proxy/rule_sample'),
+        to: path.join(__dirname, '../dist/electron/rule_sample')
+      }
+    ])
   ],
   resolve: {
     extensions: ['.js', '.json', '.node']
