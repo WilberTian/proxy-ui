@@ -50,20 +50,9 @@
         label="请求头"
         prop="header"
       >
-        <el-input
-          type="textarea"
-          :value="JSONtoStr(ruleConfigData.header)"
-          @input="
-            (val) => {
-              ruleConfigData.header = val
-            }
-          "
-          @blur="
-            (e) => {
-              ruleConfigData.header = this.strToJSON(e.target.value)
-            }
-          "
-        ></el-input>
+        <http-header-editor :httpHeader="ruleConfigData.header" @change="(val) => {
+          ruleConfigData.header = val
+        }"/>
       </el-form-item>
       <el-form-item
         v-if="ruleConfigData.type === 'request' && ruleConfigData.type !== 'customize'"
@@ -97,21 +86,9 @@
         label="响应头"
         prop="response.header"
       >
-        <el-input
-          type="textarea"
-          rows="4"
-          :value="JSONtoStr(ruleConfigData.response.header)"
-          @input="
-            (val) => {
-              ruleConfigData.response.header = val
-            }
-          "
-          @blur="
-            (e) => {
-              ruleConfigData.response.header = this.strToJSON(e.target.value)
-            }
-          "
-        ></el-input>
+        <http-header-editor :httpHeader="ruleConfigData.response.header" @change="(val) => {
+          ruleConfigData.response.header = val
+        }"/>
       </el-form-item>
       <el-form-item
         v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.type !== 'customize'"
@@ -140,12 +117,16 @@
       >
         <div style="display: flex;">
           <el-input v-model="ruleConfigData.bodyPath"></el-input>
-          <el-button
-            @click="selectResponseFile"
-            size="mini"
-            icon="el-icon-upload2"
-            circle
-          ></el-button>
+          <el-tooltip class="item" effect="dark" content="选择本地文件" placement="left">
+            <el-button
+              type="primary"
+              class="choose-file-btn"
+              @click="selectResponseFile"
+              size="mini"
+              icon="el-icon-upload2"
+              circle
+            ></el-button>
+          </el-tooltip>
         </div>
       </el-form-item>
       <el-form-item
@@ -238,6 +219,7 @@
 
 <script>
 import { defaultRuleConfigs } from '@/configs/constants'
+import HttpHeaderEditor from './http-header-editor'
 import CodeMirror from 'codemirror/lib/codemirror.js'
 import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/lib/codemirror.css'
@@ -333,16 +315,16 @@ export default {
           { required: true, message: '请输入自定义规则', trigger: 'blur' }
         ],
         header: [
-          { validator: isValidJSON, trigger: 'blur' }
+          { validator: isValidJSON, trigger: 'change' }
         ],
         body: [
           { validator: isValidJSON, trigger: 'blur' }
         ],
         'response.statusCode': [
-          { validator: isValidHTTPCode, trigger: 'blur' }
+          { required: true, validator: isValidHTTPCode, trigger: 'blur' }
         ],
         'response.header': [
-          { validator: isValidJSON, trigger: 'blur' }
+          { validator: isValidJSON, trigger: 'change' }
         ]
       },
       tagInputVisible: false,
@@ -450,6 +432,9 @@ export default {
       const currentSampleRule = this.sampleRules[this.activeSampleRuleIdx]
       this.customizeRuleEditor.setValue(currentSampleRule.sampleContent)
     }
+  },
+  components: {
+    HttpHeaderEditor
   }
 }
 </script>
@@ -477,5 +462,8 @@ export default {
 }
 .sample-rule-preview {
   line-height: 20px;
+}
+.choose-file-btn {
+  margin-left: 12px;
 }
 </style>
