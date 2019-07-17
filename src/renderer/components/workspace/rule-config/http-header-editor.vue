@@ -13,24 +13,31 @@
             <el-button type="primary" size="mini" icon="el-icon-plus" circle @click="addHeaderItem"></el-button>
           </div>
         </div>
-        <div v-if="typeof httpHeader === 'string'">
+        <div class="table-msg" v-if="typeof httpHeader === 'string'">
           非法的JSON
+        </div>
+        <div class="table-msg" v-else-if="typeof httpHeader === 'object' && rows.length === 0">
+          没有配置项！
         </div>
         <div v-else>
           <div v-for="(row, idx) in rows" :key="idx" class="table-row">
             <div class="row-item col4">
               <el-autocomplete
                 class="autocomplete-input"
-                v-model="row.key"
+                :value="row.key"
                 :fetch-suggestions="queryHttpHeaderKeys"
-                @blur="triggerChangeEvent"
+                @input="(val) => { handleHeaderItemChange(idx, {
+                  key: val
+                }) }"
               ></el-autocomplete>
             </div>
             <div class="row-item col5">
               <el-input
-                v-model="row.value"
+                :value="row.value"
                 :disabled="row.key === ''"
-                @blur="triggerChangeEvent"
+                @input="(val) => { handleHeaderItemChange(idx, {
+                  value: val
+                }) }"
               ></el-input>
             </div>
             <div class="row-item col1">
@@ -45,7 +52,10 @@
         type="textarea"
         :rows="4"
         :value="formatedHttpHeader"
-        @input="headerTextChange"
+        @input="(val) => {
+          formatedHttpHeader = val
+        }"
+        @blur="headerTextChange"
         @keydown.native="handleTabClick"
       ></el-input>
     </el-tab-pane>
@@ -82,15 +92,10 @@ export default {
                 value: val[key]
               }
             })
-            return
           }
+        } else {
+          this.formatedHttpHeader = val
         }
-
-        this.formatedHttpHeader = val
-        this.rows = [{
-          key: '',
-          value: ''
-        }]
       }
     }
   },
@@ -106,6 +111,10 @@ export default {
         }
       })
       cb(options)
+    },
+    handleHeaderItemChange (idx, item) {
+      this.$set(this.rows, idx, Object.assign({}, this.rows[idx], item))
+      this.triggerChangeEvent()
     },
     addHeaderItem () {
       this.rows.push({
@@ -127,11 +136,12 @@ export default {
 
       this.$emit('change', headerObj)
     },
-    headerTextChange (val) {
+    headerTextChange (e) {
+      const val = e.target.value
       let result
       try {
         result = JSON.parse(val)
-      } catch (e) {
+      } catch (ex) {
         result = val
       }
       this.$emit('change', result)
@@ -170,7 +180,10 @@ export default {
   padding: 4px;
 }
 .header-item, .row-item {
-  padding: 4px 8px;
+  margin: 0 4px;
+}
+.table-msg {
+  padding: 12px 10px;
 }
 .col1 {
   width: 10%;

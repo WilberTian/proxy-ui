@@ -315,7 +315,7 @@ export default {
           { required: true, message: '请输入自定义规则', trigger: 'blur' }
         ],
         header: [
-          { validator: isValidJSON, trigger: 'change' }
+          { validator: isValidJSON, trigger: 'blur' }
         ],
         body: [
           { validator: isValidJSON, trigger: 'blur' }
@@ -324,7 +324,7 @@ export default {
           { required: true, validator: isValidHTTPCode, trigger: 'blur' }
         ],
         'response.header': [
-          { validator: isValidJSON, trigger: 'change' }
+          { validator: isValidJSON, trigger: 'blur' }
         ]
       },
       tagInputVisible: false,
