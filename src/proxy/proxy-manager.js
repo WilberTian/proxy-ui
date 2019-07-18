@@ -162,6 +162,8 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
               result.then(function (data) {
                 _updateEffectiveRule(customizeRuleModule.ruleConfig, data)
               })
+            } else {
+              _updateEffectiveRule(customizeRuleModule.ruleConfig, result)
             }
             return result
           }
@@ -226,6 +228,8 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
               result.then(function (data) {
                 _updateEffectiveRule(customizeRuleModule.ruleConfig, data)
               })
+            } else {
+              _updateEffectiveRule(customizeRuleModule.ruleConfig, result)
             }
             return result
           }
