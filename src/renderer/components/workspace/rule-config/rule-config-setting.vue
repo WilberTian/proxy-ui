@@ -14,9 +14,24 @@
         prop="type"
       >
         <el-radio-group v-model="ruleConfigType" @change="selectRuleConfigType">
-          <el-radio label="mock">{{'mock' | ruleTypeConvertor}}</el-radio>
-          <el-radio label="response">{{'response' | ruleTypeConvertor}}</el-radio>
-          <el-radio label="request">{{'request' | ruleTypeConvertor}}</el-radio>
+          <el-radio label="mock">
+            {{'mock' | ruleTypeConvertor}}
+            <el-tooltip class="item" effect="dark" content="请求不会发送到服务器，代理服务器直接返回Mock响应" placement="bottom">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </el-radio>
+          <el-radio label="response">
+            {{'response' | ruleTypeConvertor}}
+            <el-tooltip class="item" effect="dark" content="请求发送到服务器，代理服务器收到响应数据后进行处理，然后返回" placement="bottom">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </el-radio>
+          <el-radio label="request">
+            {{'request' | ruleTypeConvertor}}
+            <el-tooltip class="item" effect="dark" content="修改请求数据，并发送的服务器" placement="bottom">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </el-radio>
           <el-radio label="customize">{{'customize' | ruleTypeConvertor}}</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -56,17 +71,7 @@
       >
         <el-input
           type="textarea"
-          :value="JSONtoStr(ruleConfigData.body)"
-          @input="
-            (val) => {
-              ruleConfigData.body = val
-            }
-          "
-          @blur="
-            (e) => {
-              ruleConfigData.body = this.strToJSON(e.target.value)
-            }
-          "
+          v-model="ruleConfigData.body"
         ></el-input>
       </el-form-item>
       <el-form-item
@@ -91,8 +96,8 @@
         prop="bodyType"
       >
         <el-radio-group v-model="ruleConfigData.bodyType">
-          <el-radio label="string"></el-radio>
-          <el-radio label="file"></el-radio>
+          <el-radio label="string">文本</el-radio>
+          <el-radio label="file">文件</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item
@@ -111,7 +116,7 @@
         prop="bodyPath"
       >
         <div style="display: flex;">
-          <el-input v-model="ruleConfigData.bodyPath"></el-input>
+          <el-input v-model="ruleConfigData.bodyPath" placeholder="输入文件路径，或者点击按钮选择文件"></el-input>
           <el-tooltip class="item" effect="dark" content="选择本地文件" placement="left">
             <el-button
               type="primary"
@@ -310,9 +315,6 @@ export default {
           { required: true, message: '请输入自定义规则', trigger: 'blur' }
         ],
         header: [
-          { validator: isValidJSON, trigger: 'blur' }
-        ],
-        body: [
           { validator: isValidJSON, trigger: 'blur' }
         ],
         'response.statusCode': [
