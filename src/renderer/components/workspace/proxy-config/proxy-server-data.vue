@@ -11,6 +11,14 @@
       </div>
       <div class="request-info-item">
         <div class="request-number">
+          N/A
+        </div>
+        <div class="request-info">
+          生效规则
+        </div>
+      </div>
+      <div class="request-info-item">
+        <div class="request-number">
           {{hitCount}}
         </div>
         <div class="request-info">
@@ -36,7 +44,7 @@
               命中 {{effectiveRules[guid].count}} 次
             </div>
           </template>
-          <div>{{effectiveRules[guid].data}}</div>
+          <div class="log-item-detail">{{effectiveRules[guid].data}}</div>
         </el-collapse-item>
       </el-collapse>
     </div>
@@ -76,9 +84,6 @@ export default {
 </script>
 
 <style scoped>
-.proxy-server-data .data-wrapper {
-  padding: 4px;
-}
 .request-info-wrapper {
   display: flex;
   justify-content: space-evenly;
@@ -89,14 +94,16 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 100px;
-  height:100px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   box-shadow: 0px 0px 4px 0px #c0c4cc;
+  margin-bottom: 12px;
+  user-select: none;
 }
 .request-info-item .request-number {
-  font-size: 24px;
-  padding: 4px;
+  font-size: 22px;
+  padding: 2px;
   font-weight: bold;
   color: #3a8ee6;
 }
@@ -141,5 +148,11 @@ export default {
   font-size: 20px;
   font-weight: bold;
   color: #999;
+}
+.log-item-detail {
+  padding: 12px;
+  overflow: auto;
+  background-color: #efefef;
+  white-space: pre;
 }
 </style>

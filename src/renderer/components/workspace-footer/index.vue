@@ -5,7 +5,7 @@
       v-if="currentStep === 1"
     >
       <div class="step-info">
-        代理规则配置
+        代理规则配置 （{{ruleConfigs.length}}条）
       </div>
       <el-popover
         placement="top"

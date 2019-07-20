@@ -1,5 +1,5 @@
 <template>
-  <div class="workspace-header">
+  <div class="workspace-header" @dblclick="handleDbClick">
     <div class="logo">
       Proxy UI
     </div>
@@ -11,6 +11,11 @@
 import WindowBtnGroup from './window-btn-group'
 
 export default {
+  methods: {
+    handleDbClick () {
+      this.$ipcRenderer.send('window-maximize')
+    }
+  },
   components: {
     WindowBtnGroup
   }

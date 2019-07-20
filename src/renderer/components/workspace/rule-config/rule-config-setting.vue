@@ -25,25 +25,20 @@
         label="URL匹配规则"
         prop="matcher"
       >
-        <el-select
-          v-model="ruleConfigData.matcher"
-          placeholder="请选择URL匹配规则"
-        >
-          <el-option
-            v-for="matcher in matchers"
-            :key="matcher"
-            :label="matcher"
-            :value="matcher"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item
-        v-if="ruleConfigData.type !== 'customize'"
-        label="URL匹配内容"
-        prop="pattern"
-        placeholder="请选择URL匹配内容"
-      >
-        <el-input v-model="ruleConfigData.pattern"></el-input>
+        <div class="url-pattern-wrapper">
+          <el-select
+            style
+            v-model="ruleConfigData.matcher"
+          >
+            <el-option
+              v-for="matcher in matchers"
+              :key="matcher"
+              :label="matcher"
+              :value="matcher"
+            ></el-option>
+          </el-select>
+          <el-input v-model="ruleConfigData.pattern" placeholder="请输入匹配内容"></el-input>
+        </div>
       </el-form-item>
       <el-form-item
         v-if="ruleConfigData.type === 'request' && ruleConfigData.type !== 'customize'"
@@ -442,6 +437,16 @@ export default {
 <style scoped>
 .rule-config-setting {
   padding: 16px 8px;
+}
+.url-pattern-wrapper {
+  display: flex;
+}
+.url-pattern-wrapper .el-select {
+  width: 120px;
+  margin-right: 12px;
+}
+.url-pattern-wrapper .el-input {
+  flex: 1;
 }
 .el-tag {
   margin-right: 8px;

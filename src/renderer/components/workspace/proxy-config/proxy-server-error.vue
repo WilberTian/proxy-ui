@@ -1,12 +1,11 @@
 <template>
   <div class="proxy-server-error">
     <div class="data-wrapper" v-if="errorLog.length > 0">
-      <div class="error-item" v-for="(err, idx) in errorLog" :key="idx">
-        <div class="error-info">{{err.info}}</div>
-        <el-tooltip class="item" effect="dark" :content="err.detail" placement="left">
-          <i class="el-icon-info"></i>
-        </el-tooltip>
-      </div>
+      <el-collapse accordion>
+        <el-collapse-item v-for="(err, idx) in errorLog" :key="idx" :title="err.info"> 
+          <div class="err-item-detail">{{err.detail}}</div>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <div
       class="no-error-msg"
@@ -42,20 +41,11 @@ export default {
 </script>
 
 <style scoped>
-.proxy-server-error .data-wrapper {
-  padding: 4px;
-}
-.error-item {
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #ccc;
-  padding: 8px;
-}
-.error-item:first-child {
-  border-top: 1px solid #ccc;
-}
-.error-item .error-info {
-  flex: 1;
+.err-item-detail {
+  padding: 12px;
+  overflow: auto;
+  background-color: #efefef;
+  white-space: pre;
 }
 .proxy-server-error .no-error-msg {
   padding-top: 40vh;

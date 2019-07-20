@@ -15,11 +15,11 @@
       <div class="rule-config-info-wrapper">
         <div class="rule-config-info" v-if="ruleConfig.type !== 'customize'">
           <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
-          <div class="rule-config-pattern">{{ruleConfig.pattern}}</div>
+          <tooltip-wrapper :content="ruleConfig.pattern" className="rule-config-pattern" />
         </div>
         <div class="rule-config-info" v-if="ruleConfig.type === 'customize'">
-          <div class="rule-config-name">{{ruleConfig.name}}</div>
-          <div class="rule-config-description">{{ruleConfig.description}}</div>
+          <tooltip-wrapper :content="ruleConfig.name" className="rule-config-name" />
+          <tooltip-wrapper :content="ruleConfig.description" className="rule-config-description" />
         </div>
         <div class="rule-config-tags">
           <div class="rule-config-tag" v-for="(tag, idx) in ruleConfig.tags" :key="idx">
@@ -62,6 +62,7 @@ import Vue from 'vue'
 import { VueMasonryPlugin } from 'vue-masonry/dist/vue-masonry-plugin-umd'
 import PreviewIcon from './preview-icon'
 import createGUID from '@/utils/uuidv4'
+import TooltipWrapper from './tooltip-wrapper'
 
 Vue.use(VueMasonryPlugin)
 
@@ -90,7 +91,7 @@ export default {
         .then(() => {
           this.$store.commit('deleteRuleConfig', ruleConfig.guid)
           if (ruleConfig.type === 'customize') {
-            this.$proxyApi.deleteCustomizeRule(ruleConfig.guid)
+            this.$proxyApi.deleteCustomizeRule(ruleConfig)
           }
         })
         .catch(() => {
@@ -125,7 +126,8 @@ export default {
     }
   },
   components: {
-    PreviewIcon
+    PreviewIcon,
+    TooltipWrapper
   }
 }
 </script>
@@ -136,12 +138,11 @@ export default {
   display: flex;
   flex-direction: column;
   width: 200px;
-  height: 130px;
+  height: 124px;
   margin: 12px;
   box-shadow: 1px 1px 8px 1px #b9b9b9;
   padding-top: 24px;
   border-radius: 4px;
-  user-select: none;
   overflow: hidden;
 }
 .rule-config-list .rule-config-item.disabled {
@@ -151,6 +152,7 @@ export default {
   display: flex;
   justify-content: space-around;
   border-top: 1px solid #d7d7d7;
+  user-select: none;
 }
 .rule-config-list .rule-config-item .rule-config-operation i {
   cursor: pointer;
@@ -173,26 +175,44 @@ export default {
 }
 .rule-config-list .rule-config-item  .rule-config-info-wrapper {
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
 }
 .rule-config-list .rule-config-item .rule-config-info {
-  padding: 12px 8px;
-  line-height: 24px;
-  user-select: text;
+  padding: 4px;
 }
 .rule-config-list .rule-config-item .rule-config-tags {
-  padding: 0 4px;
+  padding: 0;
 }
 .rule-config-list .rule-config-item .rule-config-tags .rule-config-tag {
   display: inline-block;
   height: 18px;
   line-height: 18px;
-  padding: 0 8px;
+  padding: 0 4px;
   margin: 4px;
-  color: #409EFF;
+  color: #fff;
   border-radius: 4px;
   font-size: 12px;
+  background-color: rgba(64,158,255,.6);
+}
+.rule-config-matcher, .rule-config-name {
+  height: 24px;
+  line-height: 24px;
+  font-size: 16px;
   font-weight: bold;
-  background-color: rgba(64,158,255,.1);
+  color: #333;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border-bottom: 1px solid #eee;
+}
+.rule-config-pattern, .rule-config-description {
+  height: 40px;
+  line-height: 20px;
+  font-size: 14px;
+  color: #444;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 </style>

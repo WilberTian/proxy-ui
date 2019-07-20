@@ -48,11 +48,11 @@ const _getResponseFile = responseFilePath => {
   }
 }
 
-const _writeCustomizeRule = (guid, customizeRule) => {
+const _writeCustomizeRule = (ruleConfig) => {
   try {
     fs.writeFileSync(
-      path.resolve(userDataPath, `__customize_${guid}.js`),
-      customizeRule,
+      path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`),
+      ruleConfig.customizeRule,
       {
         encoding: 'utf8'
       }
@@ -60,29 +60,29 @@ const _writeCustomizeRule = (guid, customizeRule) => {
     return true
   } catch (e) {
     _addErrorLog({
-      info: `自定义规则写入失败：__customize_${guid}.js`,
-      detail: `规则内容：${customizeRule}`
+      info: `自定义规则写入失败：${ruleConfig.name}`,
+      detail: `规则内容：${ruleConfig.customizeRule}`
     })
     return false
   }
 }
 
-const _requireCustomizeRule = (guid, customizeRule = '') => {
+const _requireCustomizeRule = (ruleConfig) => {
   let customizeRuleModule = null
-  const customizeRuleFileExist = fs.existsSync(path.resolve(userDataPath, `__customize_${guid}.js`))
+  const customizeRuleFileExist = fs.existsSync(path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`))
   if (!customizeRuleFileExist) {
-    _writeCustomizeRule(guid, customizeRule)
+    _writeCustomizeRule(ruleConfig)
   }
   try {
     /* eslint-disable */
     const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require
-    delete requireFunc.cache[requireFunc.resolve(path.resolve(userDataPath, `__customize_${guid}.js`))]
+    delete requireFunc.cache[requireFunc.resolve(path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`))]
     /* eslint-enable */
-    customizeRuleModule = requireFunc(path.resolve(userDataPath, `__customize_${guid}.js`))
+    customizeRuleModule = requireFunc(path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`))
   } catch (e) {
     _addErrorLog({
-      info: `引入自定义规则写入失败：__customize_${guid}.js`,
-      detail: `规则内容：${customizeRule}`
+      info: `引入自定义规则写入失败：${ruleConfig.name}`,
+      detail: `规则内容：${ruleConfig.customizeRule}`
     })
   }
 
@@ -95,7 +95,7 @@ const getCustomizeRuleModules = (ruleConfig) => {
   })
   const customizeRuleModules = []
   customizeHooks.forEach((customizeHook) => {
-    const customizeRuleModule = _requireCustomizeRule(customizeHook.guid, customizeHook.customizeRule)
+    const customizeRuleModule = _requireCustomizeRule(customizeHook)
     if (customizeRuleModule) {
       customizeRuleModules.push({
         ruleConfig: customizeHook,
@@ -194,22 +194,17 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
               _updateEffectiveRule(requestHook, updatedRequest)
               return updatedRequest
             case 'mock':
-              if (requestHook.bodyType === 'file') {
-                return {
-                  response: {
-                    ...requestHook.response,
-                    body: _getResponseFile(requestHook.bodyPath)
-                  }
-                }
-              }
               const mockResponse = {
                 response: {
                   ...requestHook.response,
                   body: requestHook.bodyContent
                 }
               }
+              if (requestHook.bodyType === 'file') {
+                mockResponse.response.body = _getResponseFile(requestHook.bodyPath)
+              }
 
-              _updateEffectiveRule(requestHook, mockResponse)
+              _updateEffectiveRule(requestHook, mockResponse.response)
               return mockResponse
             default:
               return null
@@ -242,22 +237,15 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
         if (matcher(requestUrl, responseHook.pattern)) {
           switch (responseHook.type) {
             case 'response':
-              if (responseHook.bodyType === 'file') {
-                _updateEffectiveRule(responseHook, responseHook.bodyPath)
-                return {
-                  response: {
-                    ...responseDetail.response,
-                    ...responseHook.response,
-                    body: _getResponseFile(responseHook.bodyPath)
-                  }
-                }
-              }
               const updatedResponse = {
                 response: {
                   ...responseDetail.response,
                   ...responseHook.response,
                   body: responseHook.bodyContent
                 }
+              }
+              if (responseHook.bodyType === 'file') {
+                updatedResponse.response.body = _getResponseFile(responseHook.bodyPath)
               }
 
               _updateEffectiveRule(responseHook, updatedResponse.response)
@@ -559,15 +547,15 @@ export default {
   writeCustomizeRule (guid, customizeRule) {
     return _writeCustomizeRule(guid, customizeRule)
   },
-  deleteCustomizeRule (guid) {
-    const customizeRulePath = path.resolve(userDataPath, `__customize_${guid}.js`)
+  deleteCustomizeRule (ruleConfig) {
+    const customizeRulePath = path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
     const customizeRuleFileExist = fs.existsSync(customizeRulePath)
     if (customizeRuleFileExist) {
       try {
         fs.unlinkSync(customizeRulePath)
       } catch (e) {
         _addErrorLog({
-          info: `删除自定义规则失败：__customize_${guid}.js`,
+          info: `删除自定义规则失败：${ruleConfig.name}`,
           detail: e.message
         })
       }

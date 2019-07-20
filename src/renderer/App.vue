@@ -68,6 +68,12 @@ body {
 .CodeMirror-cursor {
   height: 20px;
 }
+.el-tabs__content {
+  padding: 8px !important;
+}
+.el-collapse-item__content {
+  padding-bottom: 0 !important;
+}
 ::-webkit-scrollbar {
   width: 0;
 }

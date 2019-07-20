@@ -134,9 +134,10 @@ export default {
       this.$store.commit('setWorkspaceFooterVisible', false)
     },
     handleCreateConfigRule () {
-      this.$store.commit('setWorkspaceFooterVisible', false)
+      this.selectedRuleConfig = null
       this.operation = 'create'
       this.ruleSettingVisible = true
+      this.$store.commit('setWorkspaceFooterVisible', false)
     }
   },
   components: {
@@ -150,13 +151,17 @@ export default {
 <style scoped>
 .rule-config .rule-config-list-wrapper {
   height: 100%;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
 }
 .rule-config .rule-config-list-wrapper .rule-config-filter {
-  margin: 12px;
   padding: 10px;
-  box-shadow: 0px 0px 1px #777;
+  box-shadow: 0px 0px 2px 2px #ddd;
   user-select: none;
+}
+.rule-config .rule-config-list-wrapper .rule-config-list {
+  flex: 1;
+  overflow-y: auto;
 }
 .no-config-rule-msg {
   padding: 12px;

@@ -102,7 +102,7 @@
           </div>
         </div>
       </div>
-      <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1">
+      <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1" type="border-card">
         <el-tab-pane label="命中规则数据" name="proxy-server-data">
           <proxy-server-data />
         </el-tab-pane>
@@ -303,8 +303,10 @@ export default {
 .proxy-config .info-container .proxy-server-data-tab {
   width: 100%;
   height: 100%;
-  margin: 0 4px;
-  overflow: auto;
+}
+.proxy-config .info-container .proxy-server-data-tab .el-tabs__content {
+  height: 100%;
+  overflow-y: auto;
 }
 .restart-icon {
   margin: -2px;
