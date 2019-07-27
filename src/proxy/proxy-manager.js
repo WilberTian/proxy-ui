@@ -111,19 +111,21 @@ const emitHookDataUpdatedEvent = throttle(mainWindow => {
 }, 500)
 
 const _updateEffectiveRule = (ruleConfig, data) => {
-  const effectiveRules = hookData.effectiveRules
-  hookData.hitCount += 1
-  if (ruleConfig.guid in effectiveRules) {
-    effectiveRules[ruleConfig.guid].count += 1
-  } else {
-    effectiveRules[ruleConfig.guid] = {
-      ruleConfig,
-      count: 1,
-      data
+  if (ruleConfig) {
+    const effectiveRules = hookData.effectiveRules
+    hookData.hitCount += 1
+    if (ruleConfig.guid in effectiveRules) {
+      effectiveRules[ruleConfig.guid].count += 1
+    } else {
+      effectiveRules[ruleConfig.guid] = {
+        ruleConfig,
+        count: 1,
+        data
+      }
     }
-  }
-  if (global.mainWindow) {
-    emitHookDataUpdatedEvent(global.mainWindow)
+    if (global.mainWindow) {
+      emitHookDataUpdatedEvent(global.mainWindow)
+    }
   }
 }
 
@@ -148,7 +150,9 @@ const _addErrorLog = (errorLogItem) => {
 const proxyRuleCreator = (ruleConfig, proxyConfig) => {
   const customizeRuleModules = getCustomizeRuleModules(ruleConfig)
   if (proxyConfig.injectVConsole) {
-    customizeRuleModules.push(vconsoleRule)
+    customizeRuleModules.push({
+      module: vconsoleRule
+    })
   }
 
   return {
