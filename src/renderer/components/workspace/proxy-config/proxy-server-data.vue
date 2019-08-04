@@ -148,5 +148,7 @@ export default {
   overflow: auto;
   background-color: #efefef;
   white-space: pre;
+  max-height: 240px;
+  overflow-y: auto;
 }
 </style>
