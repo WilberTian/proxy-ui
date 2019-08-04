@@ -20,9 +20,9 @@ const customizeHookTypes = ['customize']
 const userDataPath = app.getPath('userData')
 
 let proxyServer
+let proxyServerRecorder
 const responseFileCache = {}
 let hookData = {
-  requestCount: 0,
   hitCount: 0,
   effectiveRules: {}
 }
@@ -48,7 +48,7 @@ const _getResponseFile = responseFilePath => {
   }
 }
 
-const _writeCustomizeRule = (ruleConfig) => {
+const _writeCustomizeRule = ruleConfig => {
   try {
     fs.writeFileSync(
       path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`),
@@ -67,18 +67,29 @@ const _writeCustomizeRule = (ruleConfig) => {
   }
 }
 
-const _requireCustomizeRule = (ruleConfig) => {
+const _requireCustomizeRule = ruleConfig => {
   let customizeRuleModule = null
-  const customizeRuleFileExist = fs.existsSync(path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`))
+  const customizeRuleFileExist = fs.existsSync(
+    path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
+  )
   if (!customizeRuleFileExist) {
     _writeCustomizeRule(ruleConfig)
   }
   try {
     /* eslint-disable */
-    const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require
-    delete requireFunc.cache[requireFunc.resolve(path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`))]
+    const requireFunc =
+      typeof __webpack_require__ === 'function'
+        ? __non_webpack_require__
+        : require
+    delete requireFunc.cache[
+      requireFunc.resolve(
+        path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
+      )
+    ]
     /* eslint-enable */
-    customizeRuleModule = requireFunc(path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`))
+    customizeRuleModule = requireFunc(
+      path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
+    )
   } catch (e) {
     _addErrorLog({
       info: `引入自定义规则写入失败：${ruleConfig.name}`,
@@ -89,12 +100,12 @@ const _requireCustomizeRule = (ruleConfig) => {
   return customizeRuleModule
 }
 
-const getCustomizeRuleModules = (ruleConfig) => {
+const getCustomizeRuleModules = ruleConfig => {
   const customizeHooks = ruleConfig.filter(item => {
     return customizeHookTypes.includes(item.type) && item.enabled
   })
   const customizeRuleModules = []
-  customizeHooks.forEach((customizeHook) => {
+  customizeHooks.forEach(customizeHook => {
     const customizeRuleModule = _requireCustomizeRule(customizeHook)
     if (customizeRuleModule) {
       customizeRuleModules.push({
@@ -129,18 +140,11 @@ const _updateEffectiveRule = (ruleConfig, data) => {
   }
 }
 
-const _updateRequestCount = () => {
-  hookData.requestCount += 1
-  if (global.mainWindow) {
-    emitHookDataUpdatedEvent(global.mainWindow)
-  }
-}
-
 const _emitErrorLogUpdatedEvent = throttle(mainWindow => {
   mainWindow.webContents.send('error-log-updated')
 }, 500)
 
-const _addErrorLog = (errorLogItem) => {
+const _addErrorLog = errorLogItem => {
   errorLog.push(errorLogItem)
   if (global.mainWindow) {
     _emitErrorLogUpdatedEvent(global.mainWindow)
@@ -157,10 +161,11 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
 
   return {
     *beforeSendRequest (requestDetail) {
-      _updateRequestCount()
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.module.beforeSendRequest) {
-          const result = customizeRuleModule.module.beforeSendRequest(requestDetail)
+          const result = customizeRuleModule.module.beforeSendRequest(
+            requestDetail
+          )
           if (typeof result !== 'undefined') {
             if (result.then && typeof result.then === 'function') {
               result.then(function (data) {
@@ -207,7 +212,9 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 }
               }
               if (requestHook.bodyType === 'file') {
-                mockResponse.response.body = _getResponseFile(requestHook.bodyPath)
+                mockResponse.response.body = _getResponseFile(
+                  requestHook.bodyPath
+                )
               }
 
               _updateEffectiveRule(requestHook, mockResponse.response)
@@ -221,7 +228,10 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
     *beforeSendResponse (requestDetail, responseDetail) {
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.module.beforeSendResponse) {
-          const result = customizeRuleModule.module.beforeSendResponse(requestDetail, responseDetail)
+          const result = customizeRuleModule.module.beforeSendResponse(
+            requestDetail,
+            responseDetail
+          )
           if (typeof result !== 'undefined') {
             if (result.then && typeof result.then === 'function') {
               result.then(function (data) {
@@ -253,7 +263,9 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 }
               }
               if (responseHook.bodyType === 'file') {
-                updatedResponse.response.body = _getResponseFile(responseHook.bodyPath)
+                updatedResponse.response.body = _getResponseFile(
+                  responseHook.bodyPath
+                )
               }
 
               _updateEffectiveRule(responseHook, updatedResponse.response)
@@ -281,6 +293,10 @@ const generateRootCA = (successCb, errorCb) => {
   })
 }
 
+const _emitRecordUpdatedEvent = throttle((mainWindow) => {
+  mainWindow.webContents.send('record-updated')
+}, 500)
+
 const proxyServerManager = (action = 'start', options = {}) => {
   return new Promise((resolve, reject) => {
     if (action === 'start') {
@@ -291,6 +307,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
       } else {
         const createProxyServer = () => {
           proxyServer = proxyServerCreator(options)
+          proxyServerRecorder = proxyServer.recorder
           proxyServer.on('ready', () => {
             if (options.enableGlobalProxy) {
               if (options.forceProxyHttps) {
@@ -313,11 +330,17 @@ const proxyServerManager = (action = 'start', options = {}) => {
           })
           proxyServer.on('error', e => {
             proxyServer = null
+            proxyServerRecorder = null
             _addErrorLog({
               info: '代理服务器启动失败',
               detail: e.message
             })
             reject(e)
+          })
+          proxyServerRecorder.on('update', () => {
+            if (global.mainWindow) {
+              _emitRecordUpdatedEvent(global.mainWindow)
+            }
           })
           proxyServer.start()
         }
@@ -349,6 +372,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
       } else {
         proxyServer.close()
         proxyServer = null
+        proxyServerRecorder = null
         AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
         AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
         resolve({
@@ -477,7 +501,6 @@ export default {
   },
   resetHookData: function () {
     hookData = {
-      requestCount: 0,
       hitCount: 0,
       effectiveRules: {}
     }
@@ -494,25 +517,32 @@ export default {
       {
         sampleName: 'Mock响应数据',
         fileName: 'sample_use_local_response.js'
-      }, {
+      },
+      {
         sampleName: '修改响应数据',
         fileName: 'sample_modify_response_data.js'
-      }, {
+      },
+      {
         sampleName: '修改响应头',
         fileName: 'sample_modify_response_header.js'
-      }, {
+      },
+      {
         sampleName: '修改响应码',
         fileName: 'sample_modify_response_statuscode.js'
-      }, {
+      },
+      {
         sampleName: '修改请求数据',
         fileName: 'sample_modify_request_data.js'
-      }, {
+      },
+      {
         sampleName: '修改请求头',
         fileName: 'sample_modify_request_header.js'
-      }, {
+      },
+      {
         sampleName: '修改请求路径',
         fileName: 'sample_modify_request_path.js'
-      }, {
+      },
+      {
         sampleName: '修改请求协议',
         fileName: 'sample_modify_request_protocol.js'
       }
@@ -552,11 +582,14 @@ export default {
       return ''
     }
   },
-  writeCustomizeRule (guid, customizeRule) {
-    return _writeCustomizeRule(guid, customizeRule)
+  writeCustomizeRule (ruleConfig) {
+    return _writeCustomizeRule(ruleConfig)
   },
   deleteCustomizeRule (ruleConfig) {
-    const customizeRulePath = path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
+    const customizeRulePath = path.resolve(
+      userDataPath,
+      `__customize_${ruleConfig.guid}.js`
+    )
     const customizeRuleFileExist = fs.existsSync(customizeRulePath)
     if (customizeRuleFileExist) {
       try {
@@ -577,5 +610,91 @@ export default {
   },
   resetErrorLog () {
     errorLog.length = 0
+  },
+  getRecordById (id) {
+    return new Promise((resolve, reject) => {
+      if (proxyServerRecorder) {
+        proxyServerRecorder.getSingleRecord(id, (err, data) => {
+          if (err) {
+            reject(err.toString())
+          } else {
+            resolve(data[0])
+          }
+        })
+      } else {
+        reject(new Error('获取记录失败'))
+      }
+    })
+  },
+  getLatestRecords (filterData) {
+    return new Promise((resolve, reject) => {
+      if (proxyServerRecorder) {
+        proxyServerRecorder.getRecords(null, 10000, (err, docs) => {
+          if (err) {
+            reject(err.toString())
+          } else {
+            const { method, host, path } = filterData
+            const filteredRecords = docs.filter((item) => {
+              let passed = true
+              if (method) {
+                passed = (item.method.toLowerCase().indexOf(method.toLowerCase()) > -1) && passed
+                if (!passed) {
+                  return passed
+                }
+              }
+              if (host) {
+                passed = (item.host.toLowerCase().indexOf(host.toLowerCase()) > -1) && passed
+                if (!passed) {
+                  return passed
+                }
+              }
+              if (path) {
+                passed = (item.path.toLowerCase().indexOf(path.toLowerCase()) > -1) && passed
+                if (!passed) {
+                  return passed
+                }
+              }
+              return passed
+            }).map((item) => {
+              return {
+                id: item.id,
+                method: item.method,
+                statusCode: item.statusCode,
+                host: item.host,
+                path: item.path
+              }
+            })
+            resolve(filteredRecords)
+          }
+        })
+      } else {
+        reject(new Error('获取记录失败'))
+      }
+    })
+  },
+  getRecordBody (id) {
+    return new Promise((resolve, reject) => {
+      if (proxyServerRecorder) {
+        proxyServerRecorder.getDecodedBody(id, (err, result) => {
+          if (err || !result || !result.content) {
+            reject(new Error('获取数据失败'))
+          } else if (result.type && result.type === 'image' && result.mime) {
+            resolve({
+              raw: true,
+              type: result.mime,
+              content: result.content
+            })
+          } else {
+            resolve({
+              id: id,
+              type: result.type,
+              content: result.content
+            })
+          }
+        })
+      } else {
+        reject(new Error('获取数据失败'))
+      }
+    })
   }
 }

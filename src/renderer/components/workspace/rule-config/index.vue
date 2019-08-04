@@ -113,7 +113,7 @@ export default {
       }
 
       if (_ruleConfig.type === 'customize') {
-        const result = this.$proxyApi.writeCustomizeRule(_ruleConfig.guid, _ruleConfig.customizeRule)
+        const result = this.$proxyApi.writeCustomizeRule(_ruleConfig)
         if (result) {
           this.$store.commit('setWorkspaceFooterVisible', true)
         } else {

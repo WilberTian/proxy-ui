@@ -41,6 +41,13 @@ export default {
 </script>
 
 <style scoped>
+.proxy-server-error {
+  height: 100%;
+}
+.proxy-server-error .data-wrapper {
+  height: 100%;
+  overflow-y: auto;
+}
 .err-item-detail {
   padding: 12px;
   overflow: auto;

@@ -103,6 +103,9 @@
         </div>
       </div>
       <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1" type="border-card">
+        <el-tab-pane label="网络数据" name="proxy-server-record">
+          <proxy-server-record />
+        </el-tab-pane>
         <el-tab-pane label="命中规则数据" name="proxy-server-data">
           <proxy-server-data />
         </el-tab-pane>
@@ -140,6 +143,7 @@ import '@/assets/icons/browser'
 import ProxyConfigDialog from './proxy-config-dialog'
 import ProxyServerData from './proxy-server-data'
 import ProxyServerError from './proxy-server-error'
+import ProxyServerRecord from './proxy-server-record'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 
@@ -148,7 +152,7 @@ export default {
     return {
       showProxyConfigSetting: false,
       loading: false,
-      dataTab: 'proxy-server-data',
+      dataTab: 'proxy-server-record',
       proxyServerErrorNumber: 0
     }
   },
@@ -245,7 +249,8 @@ export default {
   components: {
     ProxyConfigDialog,
     ProxyServerData,
-    ProxyServerError
+    ProxyServerError,
+    ProxyServerRecord
   }
 }
 </script>
@@ -258,7 +263,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  box-shadow: 0 0 4px #444;
+  border-right: 1px solid #ccc;
   user-select: none;
 }
 .proxy-config .operation-btn-group .icon-wrapper {
@@ -303,10 +308,6 @@ export default {
 .proxy-config .info-container .proxy-server-data-tab {
   width: 100%;
   height: 100%;
-}
-.proxy-config .info-container .proxy-server-data-tab .el-tabs__content {
-  height: 100%;
-  overflow-y: auto;
 }
 .restart-icon {
   margin: -2px;

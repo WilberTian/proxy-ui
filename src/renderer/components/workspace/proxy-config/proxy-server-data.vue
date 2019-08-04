@@ -2,14 +2,6 @@
   <div class="proxy-server-data">
     <div class="request-info-wrapper">
       <div class="request-info-item">
-          <div class="request-number">
-            {{requestCount}}
-          </div>
-          <div class="request-info">
-            总请求数
-          </div>
-      </div>
-      <div class="request-info-item">
         <div class="request-number">
           N/A
         </div>
@@ -62,7 +54,6 @@
 export default {
   data () {
     return {
-      requestCount: 0,
       hitCount: 0,
       effectiveRules: {}
     }
@@ -70,7 +61,6 @@ export default {
   mounted () {
     this.hookDataListener = () => {
       const hookData = this.$proxyApi.getHookData()
-      this.requestCount = hookData.requestCount
       this.hitCount = hookData.hitCount
       this.effectiveRules = hookData.effectiveRules
     }
@@ -84,6 +74,10 @@ export default {
 </script>
 
 <style scoped>
+.proxy-server-data {
+  height: 100%;
+  overflow-y: auto;
+}
 .request-info-wrapper {
   display: flex;
   justify-content: space-evenly;

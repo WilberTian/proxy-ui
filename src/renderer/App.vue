@@ -68,8 +68,15 @@ body {
 .CodeMirror-cursor {
   height: 20px;
 }
+.el-tabs--border-card {
+  border: none;
+}
 .el-tabs__content {
-  padding: 8px !important;
+  padding: 0 !important;
+  height: calc(100% - 40px) !important;
+}
+.el-tabs__content .el-tab-pane {
+  height: 100%;
 }
 .el-collapse-item__content {
   padding-bottom: 0 !important;

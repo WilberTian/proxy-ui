@@ -107,7 +107,7 @@ export default {
         .then(() => {
           const clonedRuleConfig = JSON.parse(JSON.stringify(ruleConfig))
           clonedRuleConfig.guid = createGUID()
-          const result = this.$proxyApi.writeCustomizeRule(clonedRuleConfig.guid, clonedRuleConfig.customizeRule)
+          const result = this.$proxyApi.writeCustomizeRule(clonedRuleConfig)
           if (result) {
             this.$store.commit('cloneRuleConfig', clonedRuleConfig)
           } else {
