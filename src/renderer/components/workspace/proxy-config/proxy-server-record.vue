@@ -110,9 +110,7 @@ export default {
         this.$message.error(err)
       })
     }
-    this.$ipcRenderer.on('record-updated', () => {
-      this.recordUpdateListener()
-    })
+    this.$ipcRenderer.on('record-updated', this.recordUpdateListener())
     this.recordUpdateListener()
   },
   beforeDestroy () {
