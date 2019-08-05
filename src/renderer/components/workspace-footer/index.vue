@@ -217,8 +217,14 @@ export default {
   cursor: pointer;
   user-select: none;
 }
+.create-rule-config-btn i {
+  font-weight: bold;
+}
 .operation-btn {
   margin-left: 32px;
+}
+.operation-btn i {
+  font-weight: bold;
 }
 .advance-setting-btn {
   height: 22px;

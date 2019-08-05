@@ -68,9 +68,6 @@ body {
 .CodeMirror-cursor {
   height: 20px;
 }
-.el-tabs--border-card {
-  border: none;
-}
 .el-tabs__content {
   padding: 0 !important;
   height: calc(100% - 40px) !important;

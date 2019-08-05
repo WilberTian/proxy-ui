@@ -215,5 +215,8 @@ export default {
   white-space: pre-wrap;
   background-color: aliceblue;
   padding: 12px;
+  font-size: 12px;
+  opacity: .8;
+  color: #333;
 }
 </style>

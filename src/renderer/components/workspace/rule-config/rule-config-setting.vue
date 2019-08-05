@@ -119,7 +119,6 @@
           <el-input v-model="ruleConfigData.bodyPath" placeholder="输入文件路径，或者点击按钮选择文件"></el-input>
           <el-tooltip class="item" effect="dark" content="选择本地文件" placement="left">
             <el-button
-              type="primary"
               class="choose-file-btn"
               @click="selectResponseFile"
               size="mini"
@@ -472,5 +471,6 @@ export default {
 }
 .choose-file-btn {
   margin-left: 12px;
+  font-weight: bold;
 }
 </style>

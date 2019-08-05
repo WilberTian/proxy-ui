@@ -1,5 +1,5 @@
 <template>
-  <el-tabs type="border-card">
+  <el-tabs type="border-card" class="http-header-editor">
     <el-tab-pane label="键/值">
       <div class="table-wrapper">
         <div class="table-header">
@@ -166,9 +166,6 @@ export default {
 }
 </script>
 <style scoped>
-.table-wrapper {
-  border: 1px solid #d7d7d7;
-}
 .table-header {
   background-color: #efefef;
   font-size: 14px;
@@ -199,5 +196,13 @@ export default {
 }
 .autocomplete-input {
   width: 100%;
+}
+</style>
+<style>
+.http-header-editor textarea {
+  border-radius: 0 !important;
+}
+.http-header-editor i {
+  font-weight: bold;
 }
 </style>

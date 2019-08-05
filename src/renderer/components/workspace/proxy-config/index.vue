@@ -308,6 +308,7 @@ export default {
 .proxy-config .info-container .proxy-server-data-tab {
   width: 100%;
   height: 100%;
+  border: none;
 }
 .restart-icon {
   margin: -2px;

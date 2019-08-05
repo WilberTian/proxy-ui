@@ -112,6 +112,7 @@ export default {
 }
 .el-collapse-item__header .rule-config-matcher {
   width: 80px;
+  padding-left: 4px;
 }
 .el-collapse-item__header .rule-config-pattern {
   flex: 1;
