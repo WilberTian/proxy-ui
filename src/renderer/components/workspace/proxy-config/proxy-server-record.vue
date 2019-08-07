@@ -1,36 +1,35 @@
 <template>
   <div class="proxy-server-record">
-    <div class="data-wrapper" v-if="filteredRecordLength > 0">
-      <record-filter @filterChange="handleFilterChange" />
-      <div class="list-wrapper">
-        <div class="list-item" v-for="record in pagedRecords" :key="record.id"> 
-          <span class="id-column column" @click="openRecordDetail(record.id)">
-            {{record.id}}
-          </span>
-          <span class="method-column column">
-            {{record.method}}
-          </span>
-          <span class="status-column column">
-            {{record.statusCode}}
-          </span>
-          <span class="host-column column">
-            {{record.host}}
-          </span>
-          <span class="path-column column">
-            {{record.path}}
-          </span>
-        </div>
+    <record-filter @filterChange="handleFilterChange" />
+    <div class="list-wrapper" v-if="filteredRecordLength > 0">
+      <div class="list-item" v-for="record in pagedRecords" :key="record.id"> 
+        <span class="id-column column" @click="openRecordDetail(record.id)">
+          {{record.id}}
+        </span>
+        <span class="method-column column">
+          {{record.method}}
+        </span>
+        <span class="status-column column">
+          {{record.statusCode}}
+        </span>
+        <span class="host-column column">
+          {{record.host}}
+        </span>
+        <span class="path-column column">
+          {{record.path}}
+        </span>
       </div>
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handlePageChange"
-        :current-page="currentPage"
-        :page-sizes="[50, 100, 200, 300]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="filteredRecordLength">
-      </el-pagination>
     </div>
+    <el-pagination
+      v-if="filteredRecordLength > 0"
+      @size-change="handleSizeChange"
+      @current-change="handlePageChange"
+      :current-page="currentPage"
+      :page-sizes="[50, 100, 200, 300]"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="filteredRecordLength">
+    </el-pagination>
     <div
       class="no-record-msg"
       v-if="filteredRecordLength === 0"
@@ -144,9 +143,6 @@ export default {
 <style scoped>
 .proxy-server-record {
   height: 100%;
-}
-.proxy-server-record .data-wrapper {
-  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -206,10 +202,10 @@ export default {
   text-align: center;
 }
 .proxy-server-record .no-record-msg {
-  padding-top: 40vh;
-  text-align: center;
-  height: 24px;
-  line-height: 24px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 20px;
   font-weight: bold;
   color: #999;

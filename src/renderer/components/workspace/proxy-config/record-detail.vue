@@ -6,7 +6,7 @@
     <el-tabs class="record-detail-tab" v-model="selectedTab">
       <el-tab-pane label="请求数据" name="request">
         <div class="data-wrapper">
-          <div class="data-section">
+          <div class="section-data-wrapper">
             <div class="section-title">
               General
             </div>
@@ -29,7 +29,7 @@
               </div>
             </div>
           </div>
-          <div class="data-section">
+          <div class="section-data-wrapper">
             <div class="section-title">
               Header
             </div>
@@ -44,7 +44,7 @@
               </div>
             </div>
           </div>
-          <div class="data-section">
+          <div class="section-data-wrapper">
             <div class="section-title">
               Body
             </div>
@@ -55,7 +55,7 @@
       </el-tab-pane>
       <el-tab-pane label="响应数据" name="response">
         <div class="data-wrapper">
-          <div class="data-section">
+          <div class="section-data-wrapper">
             <div class="section-title">
               General
             </div>
@@ -70,7 +70,7 @@
               </div>
             </div>
           </div>
-          <div class="data-section">
+          <div class="section-data-wrapper">
             <div class="section-title">
               Header
             </div>
@@ -85,11 +85,12 @@
               </div>
             </div>
           </div>
-          <div class="data-section">
+          <div class="section-data-wrapper">
             <div class="section-title">
               Body
             </div>
-            <div class="section-data preview-mode">{{responseBody && responseBody.content.toString()}}</div>
+            <div v-if="isResponseImg" class="section-data" v-html="formatedBody"></div>
+            <div v-else class="section-data preview-mode">{{formatedBody}}</div>
           </div>
         </div>
       </el-tab-pane>
@@ -109,7 +110,23 @@ export default {
       selectedTab: 'request',
       loading: true,
       recordDetail: {},
-      responseBody: null
+      responseBody: null,
+      isResponseImg: false
+    }
+  },
+  computed: {
+    formatedBody () {
+      if (this.responseBody) {
+        const type = this.responseBody.type
+        if (type.match('image')) {
+          this.isResponseImg = true
+          return `<img style="width: 100%;" src="${this.recordDetail.url}">`
+        } else {
+          this.isResponseImg = false
+          return this.responseBody.content
+        }
+      }
+      return ''
     }
   },
   watch: {
@@ -177,9 +194,9 @@ export default {
   height: 100%;
   overflow-y: auto;
 }
-.data-section {
+.section-data-wrapper {
   margin-bottom: 32px;
-  margin-left: 8px;
+  padding: 0 8px;
 }
 .section-title {
   font-size: 16px;
@@ -188,6 +205,9 @@ export default {
   border-left: 3px solid #409EFF;
   padding: 2px 4px;
   margin-bottom: 8px;
+}
+.section-data {
+  margin: 0 8px;
 }
 .section-data-item {
   display: flex;
@@ -198,14 +218,14 @@ export default {
 }
 .section-data-item .label {
   width: 120px;
-  padding: 0 8px;
+  padding-right: 8px;
   font-weight: bold;
   word-wrap: break-word;
   word-break: break-all;
 }
 .section-data-item .value {
   flex: 1;
-  padding: 0 8px;
+  padding-left: 8px;
   word-wrap: break-word;
   word-break: break-all;
   border-left: 1px solid #ccc;

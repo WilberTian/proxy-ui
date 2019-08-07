@@ -76,7 +76,8 @@ export default {
 <style scoped>
 .proxy-server-data {
   height: 100%;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 .request-info-wrapper {
   display: flex;
@@ -105,6 +106,10 @@ export default {
   font-size: 12px;
   font-weight: bold;
   color: #444;
+}
+.data-wrapper {
+  flex: 1;
+  overflow-y: auto;
 }
 .el-collapse-item__header {
   position: relative;
@@ -136,10 +141,10 @@ export default {
   color: #444;
 }
 .proxy-server-data .no-data-msg {
-  padding-top: 20vh;
-  text-align: center;
-  height: 24px;
-  line-height: 24px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 20px;
   font-weight: bold;
   color: #999;

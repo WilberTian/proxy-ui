@@ -55,10 +55,10 @@ export default {
   white-space: pre;
 }
 .proxy-server-error .no-error-msg {
-  padding-top: 40vh;
-  text-align: center;
-  height: 24px;
-  line-height: 24px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 20px;
   font-weight: bold;
   color: #999;
