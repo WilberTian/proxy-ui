@@ -5,7 +5,7 @@ export const defaultProxyConfig = {
     enable: true,
     webPort: 8002
   },
-  throttle: 10000,
+  throttle: 30720,
   forceProxyHttps: true,
   wsIntercept: false,
   silent: true,

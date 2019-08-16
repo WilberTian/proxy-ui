@@ -271,10 +271,10 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 128px;
+  width: 110px;
   height: 60px;
   margin: 12px;
-  padding: 8px;
+  padding: 4px;
   border: 1px solid #d7d7d7;
   border-radius: 4px;
   cursor: pointer;

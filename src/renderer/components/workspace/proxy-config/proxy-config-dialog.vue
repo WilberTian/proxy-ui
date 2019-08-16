@@ -26,7 +26,14 @@
       label="网络速度"
       prop="throttle"
     >
-      <el-input v-model.number="proxyConfigData.throttle"></el-input>
+      <el-select v-model="proxyConfigData.throttle" placeholder="请选择">
+        <el-option
+          v-for="item in networkSpeed"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
     </el-form-item>
     <el-form-item
       label="数据web端口"
@@ -64,11 +71,16 @@
 </template>
 
 <script>
+import { networkSpeed } from '@/configs/constants'
+
 export default {
   props: {
     proxyConfig: {
       type: Object
     }
+  },
+  beforeCreate () {
+    this.networkSpeed = networkSpeed
   },
   data () {
     const isValidPort = (rule, value, callback) => {

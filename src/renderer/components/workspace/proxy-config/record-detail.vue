@@ -166,12 +166,11 @@ export default {
 <style scoped>
 .record-detail {
   position: fixed;
-  top: 48px;
+  top: 0;
   right: 0;
-  height: calc(100% - 48px);
+  height: 100%;
   width: 68vw;
   background-color: #fff;
-  box-shadow: -2px 0 2px #ccc;
   z-index: 999;
 }
 
@@ -179,7 +178,7 @@ export default {
   position: absolute;
   right: 8px;
   top: 6px;
-  color: #409EFF;
+  color: #333;
   font-size: 24px;
   cursor: pointer;
   z-index: 1;
@@ -202,16 +201,16 @@ export default {
   font-size: 16px;
   font-weight: bold;  
   color: #333;
-  border-left: 3px solid #409EFF;
-  padding: 2px 4px;
+  border-bottom: 1px solid #ccc;
+  padding: 8px 4px;
   margin-bottom: 8px;
 }
 .section-data {
-  margin: 0 8px;
+  margin: 0 4px;
 }
 .section-data-item {
   display: flex;
-  font-size: 12px;
+  font-size: 13px;
   margin: 12px 8px;
   opacity: .8;
   color: #333;
@@ -235,8 +234,10 @@ export default {
   white-space: pre-wrap;
   background-color: aliceblue;
   padding: 12px;
-  font-size: 12px;
+  font-size: 13px;
   opacity: .8;
   color: #333;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 </style>

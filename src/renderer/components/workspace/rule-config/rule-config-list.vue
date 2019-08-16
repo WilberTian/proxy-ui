@@ -162,7 +162,8 @@ export default {
   position: absolute;
   top: 0;
   right: 0;
-  background-color: #409eff;
+  background-color: #333;
+  opacity: .7;
   color: #fff;
   height: 22px;
   line-height: 22px;
@@ -214,5 +215,6 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  word-break: break-all;
 }
 </style>

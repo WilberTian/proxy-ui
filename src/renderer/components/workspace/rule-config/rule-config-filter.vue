@@ -41,6 +41,10 @@
             </span>
           </div>
         </div>
+        <div style="float: right; margin-right: 16px;">
+          <el-button size="mini" @click="enableSelectedRules" round>开启选中</el-button>
+          <el-button size="mini" @click="disableSelectedRules" round>禁用选中</el-button>
+        </div>
       </div>
     </transition>
   </div>
@@ -94,6 +98,12 @@ export default {
     },
     toggleFilterItem () {
       this.showFilterItem = !this.showFilterItem
+    },
+    enableSelectedRules () {
+      this.$emit('enableSelected')
+    },
+    disableSelectedRules () {
+      this.$emit('disableSelected')
     }
   }
 }
@@ -132,7 +142,6 @@ export default {
   color: #333;
   font-size: 14px;
   padding: 0 8px;
-  border: 1px solid #d7d7d7;
   margin-right: 8px;
   cursor: pointer;
 }

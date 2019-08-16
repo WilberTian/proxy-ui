@@ -634,7 +634,8 @@ export default {
             reject(err.toString())
           } else {
             const { method, host, path } = filterData
-            const filteredRecords = docs.filter((item) => {
+            const filteredRecords = {}
+            docs.filter((item) => {
               let passed = true
               if (method) {
                 passed = (item.method.toLowerCase().indexOf(method.toLowerCase()) > -1) && passed
@@ -656,12 +657,16 @@ export default {
               }
               return passed
             }).map((item) => {
-              return {
-                id: item.id,
-                method: item.method,
-                statusCode: item.statusCode,
-                host: item.host,
-                path: item.path
+              if (item.host in filteredRecords) {
+                filteredRecords[item.host].push({
+                  id: item.id,
+                  method: item.method,
+                  statusCode: item.statusCode,
+                  host: item.host,
+                  path: item.path
+                })
+              } else {
+                filteredRecords[item.host] = []
               }
             })
             resolve(filteredRecords)

@@ -78,6 +78,18 @@ body {
 .el-collapse-item__content {
   padding-bottom: 0 !important;
 }
+.el-pagination--small .el-select.el-select--mini {
+  height: 22px;
+  line-height: 22px;
+}
+.el-pagination--small .el-select.el-select--mini input {
+  height: 22px;
+  line-height: 22px;
+}
+.el-pagination--small .el-select.el-select--mini i {
+  height: 22px;
+  line-height: 22px;
+}
 ::-webkit-scrollbar {
   width: 0;
 }

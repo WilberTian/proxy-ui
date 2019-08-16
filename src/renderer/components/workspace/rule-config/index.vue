@@ -1,7 +1,11 @@
 <template>
   <div class="rule-config">
     <div class="rule-config-list-wrapper" v-if="!ruleSettingVisible">
-      <rule-config-filter :tags="tags" @filterChange="handleFilterChange" />
+      <rule-config-filter :tags="tags"
+        @filterChange="handleFilterChange"
+        @enableSelected="toggleSelectedRules(true)"
+        @disableSelected="toggleSelectedRules(false)"
+      />
       <rule-config-list
         v-if="filteredRuleConfigs.length > 0"
         :ruleConfigs="filteredRuleConfigs"
@@ -138,6 +142,17 @@ export default {
       this.operation = 'create'
       this.ruleSettingVisible = true
       this.$store.commit('setWorkspaceFooterVisible', false)
+    },
+    toggleSelectedRules (isEnabled) {
+      if (this.filteredRuleConfigs.length > 0) {
+        const filteredRuleConfigs = [...this.filteredRuleConfigs]
+        filteredRuleConfigs.forEach((ruleConfig) => {
+          this.$store.commit('updateRuleConfig', {
+            ...ruleConfig,
+            enabled: isEnabled
+          })
+        })
+      }
     }
   },
   components: {
