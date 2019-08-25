@@ -47,6 +47,14 @@
         ></svgicon>
         HTTPS证书
       </div>
+      <div class="icon-wrapper" @click="showWeinreConfigSetting = true">
+        <svgicon
+          class="weinre-icon"
+          icon="weinre"
+          width="30" height="30" color="#606266"
+        ></svgicon>
+        weinre配置
+      </div>
     </div>
     <div class="info-container">
       <div class="proxy-config-info" v-if="proxyServerStatus === 0">
@@ -124,10 +132,18 @@
       title="代理服务器配置"
       :visible.sync="showProxyConfigSetting"
       :append-to-body="true"
-      width="60%"
+      :fullscreen="true"
      >
       <proxy-config-dialog :proxyConfig="proxyConfig" @submitProxyConfig="handleSubmitProxyConfig"
       @cancelProxyConfig="showProxyConfigSetting = false"/>
+    </el-dialog>
+    <el-dialog
+      title="weinre配置"
+      :visible.sync="showWeinreConfigSetting"
+      :append-to-body="true"
+      :fullscreen="true"
+     >
+      <weinre-config-dialog @cancelWeinreConfig="showWeinreConfigSetting = false" />
     </el-dialog>
   </div>
 </template>
@@ -140,7 +156,9 @@ import '@/assets/icons/restart'
 import '@/assets/icons/settings'
 import '@/assets/icons/certificate'
 import '@/assets/icons/browser'
+import '@/assets/icons/weinre'
 import ProxyConfigDialog from './proxy-config-dialog'
+import WeinreConfigDialog from './weinre-config-dialog'
 import ProxyServerData from './proxy-server-data'
 import ProxyServerError from './proxy-server-error'
 import ProxyServerRecord from './proxy-server-record'
@@ -151,6 +169,7 @@ export default {
   data () {
     return {
       showProxyConfigSetting: false,
+      showWeinreConfigSetting: false,
       loading: false,
       dataTab: 'proxy-server-record',
       proxyServerErrorNumber: 0
@@ -248,6 +267,7 @@ export default {
   },
   components: {
     ProxyConfigDialog,
+    WeinreConfigDialog,
     ProxyServerData,
     ProxyServerError,
     ProxyServerRecord

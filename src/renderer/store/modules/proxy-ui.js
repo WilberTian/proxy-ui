@@ -5,7 +5,8 @@ const state = {
   ruleConfigs: {},
   proxyConfig: {},
   proxyServerStatus: 0,
-  workspaceFooterVisible: true
+  workspaceFooterVisible: true,
+  weinreServerStatus: 0
 }
 
 window.state = state
@@ -25,6 +26,9 @@ const getters = {
   },
   getWorkspaceFooterVisible (state) {
     return state.workspaceFooterVisible
+  },
+  getWeinreServerStatus (state) {
+    return state.weinreServerStatus
   }
 }
 
@@ -62,6 +66,9 @@ const mutations = {
   },
   setWorkspaceFooterVisible (state, workspaceFooterVisible) {
     state.workspaceFooterVisible = workspaceFooterVisible
+  },
+  setWeinreServerStatus (state, status) {
+    state.weinreServerStatus = status
   }
 }
 

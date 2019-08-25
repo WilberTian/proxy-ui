@@ -56,6 +56,10 @@ let mainConfig = {
       {
         from: path.join(__dirname, '../src/proxy/rule_sample'),
         to: path.join(__dirname, '../dist/electron/rule_sample')
+      },
+      {
+        from: path.join(__dirname, '../src/apache-weinre'),
+        to: path.join(__dirname, '../dist/electron/apache-weinre')
       }
     ])
   ],

@@ -2,10 +2,12 @@ import { app } from 'electron'
 import { defaultProxyConfig, defaultRuleConfigs } from './constatns'
 import ruleConfigSchema from './rule-config-schema'
 import vconsoleRule from './vconsole-rule'
+import getWeinreRule from './get-weinre-rule'
 
 const fs = require('fs')
 const path = require('path')
 const exec = require('child_process').exec
+const spawn = require('child_process').spawn
 const throttle = require('lodash.throttle')
 const AnyProxy = require('anyproxy')
 const AnyProxyUtils = require('anyproxy/lib/util')
@@ -158,6 +160,10 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
       module: vconsoleRule
     })
   }
+
+  customizeRuleModules.push({
+    module: getWeinreRule()
+  })
 
   return {
     *beforeSendRequest (requestDetail) {
@@ -701,5 +707,31 @@ export default {
         reject(new Error('获取数据失败'))
       }
     })
+  },
+  startWeinre (options) {
+    return new Promise((resolve, reject) => {
+      if (!global.weinreProcess) {
+        try {
+          const rootPath = path.resolve(__dirname, '../')
+          global.weinreProcess = spawn('node', [`${rootPath}/apache-weinre/weinre`, '--boundHost', '-all-', '--httpPort', '8787'], { detached: true })
+          global.weinreProcess.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`)
+          })
+          global.weinreProcess.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`)
+          })
+          resolve('weinre已经启动')
+        } catch (e) {
+          reject(e)
+        }
+      }
+      resolve('weinre已经启动')
+    })
+  },
+  stopWeinre () {
+    if (global.weinreProcess) {
+      process.kill(-global.weinreProcess.pid)
+      global.weinreProcess = null
+    }
   }
 }

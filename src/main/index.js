@@ -165,6 +165,7 @@ app.on('window-all-closed', () => {
 app.on('quit', () => {
   // try to clear global proxy config when quit
   proxyManager.clearGlobalProxyConfig()
+  proxyManager.stopWeinre()
 })
 
 app.on('activate', () => {
