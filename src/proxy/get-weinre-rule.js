@@ -9,7 +9,7 @@ const getWeinreRule = function () {
 
       if (requestDetail.url.indexOf(WEINRE_MOCK_DOMAIN) > -1) {
         const newRequestOptions = requestDetail.requestOptions
-        newRequestOptions.hostname = '192.168.0.109'
+        newRequestOptions.hostname = '127.0.0.1'
         newRequestOptions.port = 8787
         return {
           protocol: 'http',
@@ -18,7 +18,7 @@ const getWeinreRule = function () {
       }
     },
     beforeSendResponse (requestDetail, responseDetail) {
-      if (!global.weinreProcess) {
+      if (!global.weinreProcess || requestDetail.requestOptions.port === 8787) {
         return
       }
 

@@ -59,3 +59,7 @@ export const defaultRuleConfigs = [
     }
   }
 ]
+
+export const defaultWeinreConfig = {
+  port: 8787
+}

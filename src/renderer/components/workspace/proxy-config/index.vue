@@ -57,59 +57,65 @@
       </div>
     </div>
     <div class="info-container">
-      <div class="proxy-config-info" v-if="proxyServerStatus === 0">
-        <div class="title">
-          代理服务器配置信息
-        </div>
-        <div class="proxy-config-item">
-          <div class="label">
-            代理服务器端口
+      <el-tabs class="proxy-server-info-tab" v-model="infoTab" v-if="proxyServerStatus === 0" type="border-card">
+        <el-tab-pane label="代理配置信息" name="proxy-config-info">
+          <div class="proxy-config-info-wrapper">
+            <div class="proxy-config-info">
+              <div class="proxy-config-item">
+                <div class="label">
+                  代理服务器端口
+                </div>
+                <div class="content">
+                  {{proxyConfig.port}}
+                </div>
+              </div>
+              <div class="proxy-config-item">
+                <div class="label">
+                  开启HTTPS
+                </div>
+                <div class="content">
+                  {{proxyConfig.forceProxyHttps ? '开启' : '未开启'}}
+                </div>
+              </div>
+              <div class="proxy-config-item">
+                <div class="label">
+                  网络速度
+                </div>
+                <div class="content">
+                  {{proxyConfig.throttle}}KB
+                </div>
+              </div>
+              <div class="proxy-config-item">
+                <div class="label">
+                  数据web端口
+                </div>
+                <div class="content">
+                  {{proxyConfig.webInterface && proxyConfig.webInterface.webPort}}
+                </div>
+              </div>
+              <div class="proxy-config-item">
+                <div class="label">
+                  开启全局代理
+                </div>
+                <div class="content">
+                  {{proxyConfig.enableGlobalProxy ? '开启' : '未开启'}}
+                </div>
+              </div>
+              <div class="proxy-config-item">
+                <div class="label">
+                  页面注入vConsole
+                </div>
+                <div class="content">
+                  {{proxyConfig.injectVConsole ? '开启' : '未开启'}}
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="content">
-            {{proxyConfig.port}}
-          </div>
-        </div>
-        <div class="proxy-config-item">
-          <div class="label">
-            开启HTTPS
-          </div>
-          <div class="content">
-            {{proxyConfig.forceProxyHttps ? '开启' : '未开启'}}
-          </div>
-        </div>
-        <div class="proxy-config-item">
-          <div class="label">
-            网络速度
-          </div>
-          <div class="content">
-            {{proxyConfig.throttle}}KB
-          </div>
-        </div>
-        <div class="proxy-config-item">
-          <div class="label">
-            数据web端口
-          </div>
-          <div class="content">
-            {{proxyConfig.webInterface && proxyConfig.webInterface.webPort}}
-          </div>
-        </div>
-        <div class="proxy-config-item">
-          <div class="label">
-            开启全局代理
-          </div>
-          <div class="content">
-            {{proxyConfig.enableGlobalProxy ? '开启' : '未开启'}}
-          </div>
-        </div>
-        <div class="proxy-config-item">
-          <div class="label">
-            页面注入vConsole
-          </div>
-          <div class="content">
-            {{proxyConfig.injectVConsole ? '开启' : '未开启'}}
-          </div>
-        </div>
-      </div>
+        </el-tab-pane>
+        <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
+          <weinre-data-tab />
+        </el-tab-pane>
+      </el-tabs>
       <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1" type="border-card">
         <el-tab-pane label="网络数据" name="proxy-server-record">
           <proxy-server-record />
@@ -126,13 +132,16 @@
           </span>
           <proxy-server-error />
         </el-tab-pane>
+        <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
+          <weinre-data-tab />
+        </el-tab-pane>
       </el-tabs>
     </div>
     <el-dialog
       title="代理服务器配置"
       :visible.sync="showProxyConfigSetting"
       :append-to-body="true"
-      :fullscreen="true"
+      width="60%"
      >
       <proxy-config-dialog :proxyConfig="proxyConfig" @submitProxyConfig="handleSubmitProxyConfig"
       @cancelProxyConfig="showProxyConfigSetting = false"/>
@@ -141,7 +150,7 @@
       title="weinre配置"
       :visible.sync="showWeinreConfigSetting"
       :append-to-body="true"
-      :fullscreen="true"
+      width="60%"
      >
       <weinre-config-dialog @cancelWeinreConfig="showWeinreConfigSetting = false" />
     </el-dialog>
@@ -162,6 +171,7 @@ import WeinreConfigDialog from './weinre-config-dialog'
 import ProxyServerData from './proxy-server-data'
 import ProxyServerError from './proxy-server-error'
 import ProxyServerRecord from './proxy-server-record'
+import WeinreDataTab from './weinre-data-tab'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 
@@ -172,12 +182,14 @@ export default {
       showWeinreConfigSetting: false,
       loading: false,
       dataTab: 'proxy-server-record',
+      infoTab: 'proxy-config-info',
       proxyServerErrorNumber: 0
     }
   },
   computed: {
     ...mapGetters({
       proxyServerStatus: 'getProxyServerStatus',
+      weinreServerStatus: 'getWeinreServerStatus',
       proxyConfig: 'getProxyConfig'
     })
   },
@@ -186,6 +198,15 @@ export default {
       deep: true,
       handler (val) {
         this.$proxyApi.writeProxyConfig(val)
+      }
+    },
+    weinreServerStatus (val) {
+      if (val === 1) {
+        this.dataTab = 'weinre-data'
+        this.infoTab = 'weinre-data'
+      } else {
+        this.dataTab = 'proxy-server-record'
+        this.infoTab = 'proxy-config-info'
       }
     }
   },
@@ -270,7 +291,8 @@ export default {
     WeinreConfigDialog,
     ProxyServerData,
     ProxyServerError,
-    ProxyServerRecord
+    ProxyServerRecord,
+    WeinreDataTab
   }
 }
 </script>
@@ -301,28 +323,34 @@ export default {
   font-size: 14px;
 }
 .proxy-config .info-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   flex: 1;
   overflow: hidden;
 }
-.proxy-config .info-container .proxy-config-info .title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #999;
-  margin-bottom: 20px;
+.proxy-config .info-container .proxy-server-info-tab {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
-.proxy-config .info-container .proxy-config-info .proxy-config-item {
+.proxy-config .info-container .proxy-config-info-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info {
+  display: inline-block;
+}
+.proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item {
   height: 36px;
   line-height: 36px;
 }
-.proxy-config .info-container .proxy-config-info .proxy-config-item .label {
+.proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item .label {
   display: inline-block;
   width: 180px;
   font-weight: bold;
 }
-.proxy-config .info-container .proxy-config-info .proxy-config-item .content {
+.proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item .content {
   display: inline-block;
 }
 .proxy-config .info-container .proxy-server-data-tab {

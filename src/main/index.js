@@ -8,15 +8,18 @@ import {
   Menu,
   ipcMain
 } from 'electron'
-import proxyManager from '../proxy/proxy-manager'
+import _manager from '../proxy/index'
+
 import pkg from '../../package.json'
+
+const path = require('path')
 
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path')
+  global.__static = path
     .join(__dirname, '/static')
     .replace(/\\/g, '\\\\')
 }
@@ -164,8 +167,8 @@ app.on('window-all-closed', () => {
 
 app.on('quit', () => {
   // try to clear global proxy config when quit
-  proxyManager.clearGlobalProxyConfig()
-  proxyManager.stopWeinre()
+  _manager.clearGlobalProxyConfig()
+  _manager.stopWeinre()
 })
 
 app.on('activate', () => {
