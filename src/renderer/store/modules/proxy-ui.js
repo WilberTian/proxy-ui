@@ -6,7 +6,8 @@ const state = {
   proxyConfig: {},
   proxyServerStatus: 0,
   workspaceFooterVisible: true,
-  weinreServerStatus: 0
+  weinreServerStatus: 0,
+  ruleConfigListDisplayMode: 'group'
 }
 
 window.state = state
@@ -29,6 +30,9 @@ const getters = {
   },
   getWeinreServerStatus (state) {
     return state.weinreServerStatus
+  },
+  getRuleConfigListDisplayMode (state) {
+    return state.ruleConfigListDisplayMode
   }
 }
 
@@ -69,6 +73,9 @@ const mutations = {
   },
   setWeinreServerStatus (state, status) {
     state.weinreServerStatus = status
+  },
+  setRuleConfigListDisplayMode (state, ruleConfigListDisplayMode) {
+    state.ruleConfigListDisplayMode = ruleConfigListDisplayMode
   }
 }
 

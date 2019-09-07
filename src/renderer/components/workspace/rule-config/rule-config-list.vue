@@ -1,12 +1,6 @@
 <template>
-  <div
-    class="rule-config-list"
-    v-masonry
-    transition-duration="0.2s"
-    item-selector=".rule-config-item"
-  >
+  <div class="rule-config-list">
     <div
-      v-masonry-tile
       :class="{'rule-config-item': true, 'disabled': !ruleConfig.enabled}"
       v-for="ruleConfig in ruleConfigs"
       :key="ruleConfig.guid"
@@ -58,13 +52,9 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import { VueMasonryPlugin } from 'vue-masonry/dist/vue-masonry-plugin-umd'
 import PreviewIcon from './preview-icon'
 import createGUID from '@/utils/uuidv4'
 import TooltipWrapper from './tooltip-wrapper'
-
-Vue.use(VueMasonryPlugin)
 
 export default {
   props: {
@@ -135,7 +125,7 @@ export default {
 <style scoped>
 .rule-config-list .rule-config-item {
   position: relative;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   width: 200px;
   height: 124px;

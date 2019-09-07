@@ -7,6 +7,14 @@
       <div class="step-info">
         代理规则配置 （{{ruleConfigs.length}}条）
       </div>
+      <el-radio-group v-model="displayMode" size="small" :style="{marginRight: '10px'}">
+        <el-radio-button label="group">
+          <i class="el-icon-tickets"></i>
+        </el-radio-button>
+        <el-radio-button label="list">
+          <i class="el-icon-menu"></i>
+        </el-radio-button>
+      </el-radio-group>
       <el-popover
         placement="top"
         v-model="advanceSettingVisible"
@@ -115,7 +123,8 @@ export default {
   computed: {
     ...mapGetters({
       currentStep: 'getCurrentStep',
-      ruleConfigs: 'getRuleConfigs'
+      ruleConfigs: 'getRuleConfigs',
+      ruleConfigListDisplayMode: 'getRuleConfigListDisplayMode'
     }),
     exportedRuleConfigs () {
       if (this.ruleConfigs.length > 0) {
@@ -127,6 +136,14 @@ export default {
         return JSON.stringify(convertedData, null, 2)
       }
       return ''
+    },
+    displayMode: {
+      get () {
+        return this.ruleConfigListDisplayMode
+      },
+      set (val) {
+        this.$store.commit('setRuleConfigListDisplayMode', val)
+      }
     }
   },
   beforeCreate () {

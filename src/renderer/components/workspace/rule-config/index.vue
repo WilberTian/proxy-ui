@@ -1,17 +1,25 @@
 <template>
   <div class="rule-config">
     <div class="rule-config-list-wrapper" v-if="!ruleSettingVisible">
-      <rule-config-filter :tags="tags"
+      <rule-config-filter
+        v-if="ruleConfigListDisplayMode === 'list'"
+        :tags="tags"
         @filterChange="handleFilterChange"
         @enableSelected="toggleSelectedRules(true)"
         @disableSelected="toggleSelectedRules(false)"
       />
       <rule-config-list
-        v-if="filteredRuleConfigs.length > 0"
+        v-if="filteredRuleConfigs.length > 0 && ruleConfigListDisplayMode === 'list'"
         :ruleConfigs="filteredRuleConfigs"
         @editRuleConfig="handleEditRuleConfig"
       />
-      <div class="no-config-rule-msg" v-else>没有规则！</div>
+      <grouped-rule-config-list
+        :tags="tags"
+        v-if="filteredRuleConfigs.length > 0 && ruleConfigListDisplayMode === 'group'"
+        :ruleConfigs="filteredRuleConfigs"
+        @editRuleConfig="handleEditRuleConfig"
+      />
+      <div class="no-config-rule-msg" v-if="filteredRuleConfigs.length === 0">没有规则！</div>
     </div>
     <rule-config-setting
       v-if="ruleSettingVisible"
@@ -27,6 +35,7 @@
 import { mapGetters } from 'vuex'
 import RuleConfigFilter from './rule-config-filter'
 import RuleConfigList from './rule-config-list'
+import GroupedRuleConfigList from './grouped-rule-config-list'
 import RuleConfigSetting from './rule-config-setting'
 import createGUID from '@/utils/uuidv4'
 import events from '@/configs/events'
@@ -35,7 +44,8 @@ import eventBus from '@/utils/event-bus'
 export default {
   computed: {
     ...mapGetters({
-      ruleConfigs: 'getRuleConfigs'
+      ruleConfigs: 'getRuleConfigs',
+      ruleConfigListDisplayMode: 'getRuleConfigListDisplayMode'
     }),
     filteredRuleConfigs () {
       let result = []
@@ -157,6 +167,7 @@ export default {
   },
   components: {
     RuleConfigList,
+    GroupedRuleConfigList,
     RuleConfigSetting,
     RuleConfigFilter
   }
