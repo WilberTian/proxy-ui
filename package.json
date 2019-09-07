@@ -6,12 +6,11 @@
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "build": "npm run unzip && node .electron-vue/build.js && electron-builder",
+    "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
-    "dev": "npm run unzip && node .electron-vue/dev-runner.js",
-    "unzip": "node .electron-vue/unzip.js",
+    "dev": "node .electron-vue/dev-runner.js",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src",
     "pack": "npm run pack:main && npm run pack:renderer",
@@ -44,19 +43,30 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/icon.icns",
+      "asarUnpack": [
+        "dist/electron/apache-weinre.zip"
+      ]
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "asarUnpack": [
+        "dist/electron/apache-weinre.zip"
+      ]
     },
     "linux": {
-      "icon": "build/icons"
+      "icon": "build/icons",
+      "asarUnpack": [
+        "dist/electron/apache-weinre.zip"
+      ]
     }
   },
   "dependencies": {
+    "adm-zip": "^0.4.13",
     "anyproxy": "^4.1.0",
     "axios": "^0.18.0",
     "codemirror": "^5.47.0",
+    "electron-log": "^3.0.7",
     "element-ui": "^2.8.2",
     "lodash.throttle": "^4.1.1",
     "vue": "^2.5.16",
@@ -108,7 +118,6 @@
     "node-sass": "^4.9.2",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.21.0",
-    "unzip": "^0.1.11",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^15.2.4",

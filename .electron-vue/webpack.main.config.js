@@ -58,8 +58,13 @@ let mainConfig = {
         to: path.join(__dirname, '../dist/electron/rule_sample')
       },
       {
-        from: path.join(__dirname, '../apache-weinre'),
-        to: path.join(__dirname, '../dist/electron/apache-weinre')
+        from: path.join(__dirname, '../apache-weinre.zip'),
+        to: path.join(__dirname, '../dist/electron/apache-weinre.zip')
+      }
+      ,
+      {
+        from: path.join(__dirname, '../src/proxy/weinre-process.js'),
+        to: path.join(__dirname, '../dist/electron/weinre-process.js')
       }
     ])
   ],

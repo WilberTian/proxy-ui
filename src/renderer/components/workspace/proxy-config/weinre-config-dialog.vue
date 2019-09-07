@@ -85,7 +85,12 @@ export default {
             })
             this.$store.commit('setWeinreServerStatus', 1)
           }, (e) => {
-            console.log(e)
+            this.$emit('cancelWeinreConfig')
+            this.$notify({
+              title: '提示',
+              message: e.message,
+              type: 'error'
+            })
           })
         } else {
           return false

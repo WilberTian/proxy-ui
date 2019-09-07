@@ -36,7 +36,7 @@
               命中 {{effectiveRules[guid].count}} 次
             </div>
           </template>
-          <div class="log-item-detail">{{effectiveRules[guid].data}}</div>
+          <rule-config-detail :ruleConfig="effectiveRules[guid].ruleConfig"></rule-config-detail>
         </el-collapse-item>
       </el-collapse>
     </div>
@@ -50,6 +50,7 @@
 </template>
 
 <script>
+import RuleConfigDetail from './rule-config-detail'
 
 export default {
   data () {
@@ -69,6 +70,9 @@ export default {
   },
   beforeDestroy () {
     this.$ipcRenderer.removeListener('hook-data-updated', this.hookDataListener)
+  },
+  components: {
+    RuleConfigDetail
   }
 }
 </script>
@@ -132,6 +136,7 @@ export default {
   white-space: nowrap;
   text-emphasis: ellipse;
   color: #444;
+  padding-left: 4px;
 }
 .el-collapse-item__header .hit-data {
   height: 28px;
@@ -149,12 +154,10 @@ export default {
   font-weight: bold;
   color: #999;
 }
-.log-item-detail {
+.rule-config-detail-wrapper {
   padding: 12px;
-  overflow: auto;
   background-color: #efefef;
-  white-space: pre;
-  max-height: 240px;
+  max-height: 180px;
   overflow-y: auto;
 }
 </style>

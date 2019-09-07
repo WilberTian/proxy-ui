@@ -8,6 +8,7 @@ const fs = require('fs')
 const path = require('path')
 const exec = require('child_process').exec
 const throttle = require('lodash.throttle')
+const log = require('electron-log')
 const AnyProxy = require('anyproxy')
 const AnyProxyUtils = require('anyproxy/lib/util')
 const matchers = require('./matchers')
@@ -60,6 +61,7 @@ const _writeCustomizeRule = ruleConfig => {
     )
     return true
   } catch (e) {
+    log.error(`_writeCustomizeRule: ${e.message}`)
     _addErrorLog({
       info: `自定义规则写入失败：${ruleConfig.name}`,
       detail: `规则内容：${ruleConfig.customizeRule}`
@@ -122,7 +124,7 @@ const emitHookDataUpdatedEvent = throttle(mainWindow => {
   mainWindow.webContents.send('hook-data-updated')
 }, 500)
 
-const _updateEffectiveRule = (ruleConfig, data) => {
+const _updateEffectiveRule = (ruleConfig) => {
   if (ruleConfig) {
     const effectiveRules = hookData.effectiveRules
     hookData.hitCount += 1
@@ -131,8 +133,7 @@ const _updateEffectiveRule = (ruleConfig, data) => {
     } else {
       effectiveRules[ruleConfig.guid] = {
         ruleConfig,
-        count: 1,
-        data
+        count: 1
       }
     }
     if (global.mainWindow) {
@@ -174,10 +175,10 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
           if (typeof result !== 'undefined') {
             if (result.then && typeof result.then === 'function') {
               result.then(function (data) {
-                _updateEffectiveRule(customizeRuleModule.ruleConfig, data)
+                _updateEffectiveRule(customizeRuleModule.ruleConfig)
               })
             } else {
-              _updateEffectiveRule(customizeRuleModule.ruleConfig, result)
+              _updateEffectiveRule(customizeRuleModule.ruleConfig)
             }
             return result
           }
@@ -207,7 +208,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 requestData: requestHook.body
               }
 
-              _updateEffectiveRule(requestHook, updatedRequest)
+              _updateEffectiveRule(requestHook)
               return updatedRequest
             case 'mock':
               const mockResponse = {
@@ -222,7 +223,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 )
               }
 
-              _updateEffectiveRule(requestHook, mockResponse.response)
+              _updateEffectiveRule(requestHook)
               return mockResponse
             default:
               return null
@@ -240,10 +241,10 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
           if (typeof result !== 'undefined') {
             if (result.then && typeof result.then === 'function') {
               result.then(function (data) {
-                _updateEffectiveRule(customizeRuleModule.ruleConfig, data)
+                _updateEffectiveRule(customizeRuleModule.ruleConfig)
               })
             } else {
-              _updateEffectiveRule(customizeRuleModule.ruleConfig, result)
+              _updateEffectiveRule(customizeRuleModule.ruleConfig)
             }
             return result
           }
@@ -273,7 +274,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
                 )
               }
 
-              _updateEffectiveRule(responseHook, updatedResponse.response)
+              _updateEffectiveRule(responseHook)
               return updatedResponse
             default:
               return null
@@ -390,12 +391,15 @@ const proxyServerManager = (action = 'start', options = {}) => {
 
 export default {
   startProxyServer: function (options) {
+    log.info(`startProxyServer: ${JSON.stringify(options)}`)
     return proxyServerManager('start', options)
   },
   stopProxyServer: function () {
+    log.info(`stopProxyServer}`)
     return proxyServerManager('stop')
   },
   restartProxyServer: function (options) {
+    log.info(`restartProxyServer: ${JSON.stringify(options)}`)
     return proxyServerManager('stop').then(() => {
       return proxyServerManager('start', options)
     })
@@ -409,10 +413,13 @@ export default {
         }
       )
       if (ruleConfigs) {
+        log.info(`readRuleConfigs`)
         return JSON.parse(ruleConfigs)
       }
+      log.info(`readRuleConfigs: []`)
       return []
     } catch (e) {
+      log.error(`readRuleConfigs: ${e.message}`)
       const result = this.writeRuleConfig(defaultRuleConfigs)
       if (result) {
         return defaultRuleConfigs
@@ -428,6 +435,7 @@ export default {
       )
       return true
     } catch (e) {
+      log.error(`writeRuleConfig: ${e.message}`)
       _addErrorLog({
         info: '配置规则写入失败',
         detail: JSON.stringify(ruleConfigs)
@@ -477,6 +485,7 @@ export default {
       )
       return true
     } catch (e) {
+      log.error(`writeProxyConfig: ${e.message}`)
       _addErrorLog({
         info: '代理服务器配置写入失败',
         detail: JSON.stringify(proxyConfig)
@@ -584,6 +593,7 @@ export default {
       )
       return customizeRule
     } catch (e) {
+      log.error(`readCustomizeRule: ${e.message}`)
       return ''
     }
   },
@@ -600,6 +610,7 @@ export default {
       try {
         fs.unlinkSync(customizeRulePath)
       } catch (e) {
+        log.error(`deleteCustomizeRule: ${e.message}`)
         _addErrorLog({
           info: `删除自定义规则失败：${ruleConfig.name}`,
           detail: e.message
@@ -627,6 +638,7 @@ export default {
           }
         })
       } else {
+        log.error(`getRecordById: get ${id} fail`)
         reject(new Error('获取记录失败'))
       }
     })
