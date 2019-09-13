@@ -12,7 +12,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 let mainConfig = {
   entry: {
     main: path.join(__dirname, '../src/main/index.js'),
-    'proxy-manager': path.join(__dirname, '../src/proxy/index.js')
+    'proxy-api': path.join(__dirname, '../src/proxy/index.js')
   },
   externals: [
     ...Object.keys(dependencies || {})

@@ -1,7 +1,7 @@
 import { app } from 'electron'
 import { defaultProxyConfig, defaultRuleConfigs } from './constatns'
 import ruleConfigSchema from './rule-config-schema'
-import vconsoleRule from './vconsole-rule'
+import getVconsoleRule from './get-vconsole-rule'
 import getWeinreRule from './get-weinre-rule'
 
 const fs = require('fs')
@@ -155,12 +155,9 @@ const _addErrorLog = errorLogItem => {
 
 const proxyRuleCreator = (ruleConfig, proxyConfig) => {
   const customizeRuleModules = getCustomizeRuleModules(ruleConfig)
-  if (proxyConfig.injectVConsole) {
-    customizeRuleModules.push({
-      module: vconsoleRule
-    })
-  }
-
+  customizeRuleModules.push({
+    module: getVconsoleRule()
+  })
   customizeRuleModules.push({
     module: getWeinreRule()
   })

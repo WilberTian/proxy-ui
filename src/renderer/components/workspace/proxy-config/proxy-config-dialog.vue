@@ -50,15 +50,6 @@
         <el-radio :label="false">不开启</el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item
-      label="注入vConsole"
-      prop="injectVConsole"
-    >
-      <el-radio-group v-model="proxyConfigData.injectVConsole">
-        <el-radio :label="true">开启</el-radio>
-        <el-radio :label="false">不开启</el-radio>
-      </el-radio-group>
-    </el-form-item>
     <el-form-item>
       <el-button
         type="primary"

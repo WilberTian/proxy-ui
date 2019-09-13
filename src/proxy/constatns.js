@@ -9,8 +9,7 @@ export const defaultProxyConfig = {
   forceProxyHttps: true,
   wsIntercept: false,
   silent: true,
-  enableGlobalProxy: true,
-  injectVConsole: false
+  enableGlobalProxy: true
 }
 
 export const defaultRuleConfigs = [
@@ -62,4 +61,8 @@ export const defaultRuleConfigs = [
 
 export const defaultWeinreConfig = {
   port: 8787
+}
+
+export const defaultVconsoleConfig = {
+  injected: false
 }

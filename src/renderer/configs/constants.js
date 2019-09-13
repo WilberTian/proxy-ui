@@ -5,7 +5,7 @@ export const defaultRuleConfigs = {
     type: 'request',
     matcher: 'includes',
     pattern: 'www.proxy-ui.com',
-    header: '',
+    header: {},
     body: ''
   },
   response: {

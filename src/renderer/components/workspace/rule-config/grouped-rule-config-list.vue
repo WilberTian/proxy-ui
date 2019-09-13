@@ -1,19 +1,27 @@
 <template>
   <div class="grouped-rule-config-list">
-    <div class="rule-config-list-group" v-for="(tag, idx) in tagList" :key="idx">
-      <div class="group-header">
-        <div class="tag-name">
-          {{tag}}
+    <div v-for="(tagItem, idx) in tagList" :key="idx">
+      <div class="rule-config-list-group" v-if="groupedRuleConfigList[tagItem.tag] && groupedRuleConfigList[tagItem.tag].length > 0">
+        <div class="group-header">
+          <div class="tag-name">
+            {{tagItem.tag}} （{{groupedRuleConfigList[tagItem.tag].length}}条）
+          </div>
+          <div style="float: right; margin-right: 12px; padding: 2px">
+            <el-button v-show="!tagItem.folded" size="mini" @click="toggleRulesByTag(tagItem.tag, true)" round>开启全部</el-button>
+            <el-button v-show="!tagItem.folded" size="mini" @click="toggleRulesByTag(tagItem.tag, false)" round>禁用全部</el-button>
+            <el-button
+              size="mini"
+              :icon="tagItem.folded ? 'el-icon-arrow-right' : 'el-icon-arrow-down'"
+              @click="toggleRuleConfigList(tagItem.tag)"
+            circle></el-button>
+          </div>
         </div>
-        <div style="float: right; margin-right: 16px; padding: 2px">
-          <el-button size="mini" @click="toggleRulesByTag(tag, true)" round>开启全部</el-button>
-          <el-button size="mini" @click="toggleRulesByTag(tag, false)" round>禁用全部</el-button>
-        </div>
+        <rule-config-list
+          v-show="!tagItem.folded"
+          :ruleConfigs="groupedRuleConfigList[tagItem.tag]"
+          @editRuleConfig="handleEditRuleConfig"
+        />
       </div>
-      <rule-config-list
-        :ruleConfigs="groupedRuleConfigList[tag]"
-        @editRuleConfig="handleEditRuleConfig"
-      />
     </div>
   </div>
 </template>
@@ -32,18 +40,38 @@ export default {
       type: Array
     }
   },
+  data () {
+    return {
+      tagList: []
+    }
+  },
+  watch: {
+    tags: {
+      deep: true,
+      immediate: true,
+      handler (val) {
+        this.tagList = val.map((tag) => {
+          return {
+            tag,
+            folded: false
+          }
+        })
+        this.tagList.unshift({
+          tag: 'N/A',
+          folded: false
+        })
+      }
+    }
+  },
   computed: {
-    tagList () {
-      return ['N/A', ...this.tags]
-    },
     groupedRuleConfigList () {
       const groupedRuleConfigList = {}
-      this.tagList.forEach((tag) => {
+      this.tagList.forEach((tagItem) => {
         const result = this.ruleConfigs.filter((ruleConfig) => {
-          return ruleConfig.tags.indexOf(tag) !== -1
+          return ruleConfig.tags.indexOf(tagItem.tag) !== -1
         })
         if (result.length > 0) {
-          groupedRuleConfigList[tag] = result
+          groupedRuleConfigList[tagItem.tag] = result
         }
       })
       const notTaggedList = this.ruleConfigs.filter((ruleConfig) => {
@@ -68,6 +96,16 @@ export default {
           enabled: status
         })
       })
+    },
+    toggleRuleConfigList (tag) {
+      const foundIdx = this.tagList.findIndex((tagItem) => {
+        return tagItem.tag === tag
+      })
+      const updatedItem = {
+        tag,
+        folded: !this.tagList[foundIdx].folded
+      }
+      this.$set(this.tagList, foundIdx, updatedItem)
     }
   },
   components: {
@@ -77,12 +115,13 @@ export default {
 </script>
 
 <style scoped>
-.rule-config-list-group {
-  margin-bottom: 16px;
+.rule-config-list {
+  padding-bottom: 16px;
 }
 .group-header {
   height: 32px;
   background-color: #ebeef5;
+  border-bottom: 1px solid #e1e1e1;
 }
 .group-header .tag-name {
   display: inline-block;

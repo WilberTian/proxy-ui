@@ -47,6 +47,14 @@
         ></svgicon>
         HTTPS证书
       </div>
+      <div class="icon-wrapper" @click="showVconsoleSetting = true">
+        <svgicon
+          class="vconsole-icon"
+          icon="vconsole"
+          width="34" height="34" color="#909399"
+        ></svgicon>
+        vconsole配置
+      </div>
       <div class="icon-wrapper" @click="showWeinreConfigSetting = true">
         <svgicon
           class="weinre-icon"
@@ -101,14 +109,6 @@
                   {{proxyConfig.enableGlobalProxy ? '开启' : '未开启'}}
                 </div>
               </div>
-              <div class="proxy-config-item">
-                <div class="label">
-                  页面注入vConsole
-                </div>
-                <div class="content">
-                  {{proxyConfig.injectVConsole ? '开启' : '未开启'}}
-                </div>
-              </div>
             </div>
           </div>
         </el-tab-pane>
@@ -154,6 +154,14 @@
      >
       <weinre-config-dialog @cancelWeinreConfig="showWeinreConfigSetting = false" />
     </el-dialog>
+    <el-dialog
+      title="vconsole配置"
+      :visible.sync="showVconsoleSetting"
+      :append-to-body="true"
+      width="60%"
+     >
+      <vconsole-config-dialog @cancelVconsoleConfig="showVconsoleSetting = false" />
+    </el-dialog>
   </div>
 </template>
 
@@ -166,8 +174,10 @@ import '@/assets/icons/settings'
 import '@/assets/icons/certificate'
 import '@/assets/icons/browser'
 import '@/assets/icons/weinre'
+import '@/assets/icons/vconsole'
 import ProxyConfigDialog from './proxy-config-dialog'
 import WeinreConfigDialog from './weinre-config-dialog'
+import VconsoleConfigDialog from './vconsole-config-dialog'
 import ProxyServerData from './proxy-server-data'
 import ProxyServerError from './proxy-server-error'
 import ProxyServerRecord from './proxy-server-record'
@@ -180,6 +190,7 @@ export default {
     return {
       showProxyConfigSetting: false,
       showWeinreConfigSetting: false,
+      showVconsoleSetting: false,
       loading: false,
       dataTab: 'proxy-server-record',
       infoTab: 'proxy-config-info',
@@ -289,6 +300,7 @@ export default {
   components: {
     ProxyConfigDialog,
     WeinreConfigDialog,
+    VconsoleConfigDialog,
     ProxyServerData,
     ProxyServerError,
     ProxyServerRecord,

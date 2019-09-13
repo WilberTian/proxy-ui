@@ -26,9 +26,8 @@
       const remote = electron.remote;
       const ipcRenderer = electron.ipcRenderer;
       const shell = electron.shell;
-      const proxyApi = remote.require("./proxy-manager").default;
+      const proxyApi = remote.require("./proxy-api").default;
       const dialog = remote.dialog;
-      
 
       // only explose these variable
       global.proxyApi = proxyApi;
