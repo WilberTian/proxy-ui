@@ -16,7 +16,7 @@
         <el-radio-group v-model="ruleConfigType" @change="selectRuleConfigType">
           <el-radio label="mock">
             {{'mock' | ruleTypeConvertor}}
-            <el-tooltip class="item" effect="dark" content="请求不会发送到服务器，代理服务器直接返回Mock响应" placement="bottom">
+            <el-tooltip class="item" effect="dark" content="请求不会发送到服务器，代理服务器直接返回Mock数据作为响应" placement="bottom">
               <i class="el-icon-info"></i>
             </el-tooltip>
           </el-radio>

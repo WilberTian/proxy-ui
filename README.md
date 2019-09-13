@@ -1,9 +1,11 @@
 # proxy-ui
 
-A proxy ui tool based on anyproxy.
+一个基于Anyproxy的图形化代理工具，支持代理规则的创建、保存和分组。
+
+同时集成了vconsole和weinre，支持移动端的调试。
 
 
-# Build & Setup
+# 本地开发和构建
 
 ``` bash
 # install dependencies
@@ -20,23 +22,36 @@ npm run lint
 
 ```
 
-# Feature & Usage
+# 功能和使用
 
 
-## Feature
+## 功能
 
-Proxy UI helps user to create proxy rules with a simple user interface and the rules can be run by anyproxy to start the proxy server.
+Proxy UI是基于Anyproxy的一个代理工具，可以通过图形化的方式支持以下功能：
 
-With proxy ui, we can easily create four kinds of rules:
+1. 配置、启动以及停止代理服务器
+2. 创建代理规则，通过Proxy UI可以创建下面四种代理规则
 
-  - mock
-  - request
-  - response
-  - customize
+    - Mock响应：请求不会发送到服务器，代理服务器直接返回Mock数据作为响应
+    - 修改请求：修改请求数据，并发送的服务器
+    - 修改响应：请求发送到服务器，代理服务器收到响应数据后进行处理，然后返回
+    - 自定义规则：支持通过编程的方式自定义代理规则
 
-## How to use
+3. 代理规则的导入和导出
+4. 设置HTML页面是否自动注入vconsole
+5. 开启weinre服务器，并在HTML页面中自动注入weinre脚本
 
-...
+详细的使用，可以参考“使用文档”。
+
+
+## 使用文档
+
+1. 代理规则管理
+2. 创建代理规则
+3. 代理服务器配置
+4. vconsole配置
+5. weinre配置
+
 
 # License
 
