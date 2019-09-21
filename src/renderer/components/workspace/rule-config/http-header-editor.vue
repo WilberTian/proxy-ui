@@ -199,9 +199,6 @@ export default {
 }
 </style>
 <style>
-.http-header-editor textarea {
-  border-radius: 0 !important;
-}
 .http-header-editor i {
   font-weight: bold;
 }

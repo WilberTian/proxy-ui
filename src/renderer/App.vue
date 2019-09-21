@@ -90,7 +90,17 @@ body {
   height: 22px;
   line-height: 22px;
 }
+textarea {
+  border-radius: 0 !important;
+}
 ::-webkit-scrollbar {
-  width: 0;
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(3, 3, 3, .7);
+}
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  background-color: #f5f5f5;
 }
 </style>

@@ -71,6 +71,7 @@
       >
         <el-input
           type="textarea"
+          :rows="4"
           v-model="ruleConfigData.body"
         ></el-input>
       </el-form-item>
@@ -107,6 +108,7 @@
       >
         <el-input
           type="textarea"
+          :rows="4"
           v-model="ruleConfigData.bodyContent"
         ></el-input>
       </el-form-item>
