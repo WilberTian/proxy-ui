@@ -48,8 +48,7 @@
             <div class="section-title">
               Body
             </div>
-            <div class="section-data">
-            </div>
+            <div class="section-data preview-mode">{{recordDetail.reqBody}}</div>
           </div>
         </div>
       </el-tab-pane>

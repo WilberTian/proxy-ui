@@ -94,14 +94,21 @@ textarea {
   border-radius: 0 !important;
 }
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(3, 3, 3, .7);
+  background-color: #0d9de2;
 }
 ::-webkit-scrollbar-track {
   box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
   background-color: #f5f5f5;
+}
+textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+textarea::-webkit-scrollbar-thumb {
+  background-color: #606266;
 }
 </style>

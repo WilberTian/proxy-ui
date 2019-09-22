@@ -272,6 +272,5 @@ export default {
   overflow: auto;
   line-height: 1;
   border: 1px solid #999;
-  border-radius: 4px;
 }
 </style>
