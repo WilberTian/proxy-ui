@@ -3,6 +3,9 @@
     <record-filter @filterChange="handleFilterChange" />
     <div class="record-data-wrapper">
       <div class="host-list" :style="hostListStyle">
+        <div class="clear-record-btn">
+          <el-button type="danger" size="mini" :disabled="hostList.length === 0" @click="clearRecords">清空数据</el-button>
+        </div>
         <div
           v-for="(host, idx) in hostList"
           :key="idx"
@@ -160,6 +163,14 @@ export default {
       this.isCursorMove = false
       document.documentElement.removeEventListener('mousemove', this.handleCursorMove, true)
       document.documentElement.removeEventListener('mouseup', this.handleCursorUp, true)
+    },
+    clearRecords () {
+      this.$proxyApi.clearRecords()
+      this.selectedHost = ''
+      this.hostList = []
+      this.pagedRecords = []
+      this.selectedRecordId = -1
+      this.recordUpdateListener(true)
     }
   },
   components: {
@@ -181,11 +192,17 @@ export default {
   border-bottom: 1px solid #ccc;
   user-select: none;
 }
+.clear-record-btn {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+}
 .record-data-wrapper {
   flex: 1;
   display: flex;
 }
 .host-list {
+  position: relative;
   height: 100%;
   overflow-y: auto;
   font-size: 13px;
