@@ -45,23 +45,17 @@ export default {
       tagList: []
     }
   },
-  watch: {
-    tags: {
-      deep: true,
-      immediate: true,
-      handler (val) {
-        this.tagList = val.map((tag) => {
-          return {
-            tag,
-            folded: false
-          }
-        })
-        this.tagList.unshift({
-          tag: 'N/A',
-          folded: false
-        })
+  mounted () {
+    this.tagList = this.tags.map((tag) => {
+      return {
+        tag,
+        folded: false
       }
-    }
+    })
+    this.tagList.unshift({
+      tag: 'N/A',
+      folded: false
+    })
   },
   computed: {
     groupedRuleConfigList () {
