@@ -2,9 +2,6 @@
   <div class="proxy-server-record">
     <record-filter @filterChange="handleFilterChange" />
     <div class="record-data-wrapper">
-      <div class="clear-record-btn" :style="clearBtnStyle">
-        <el-button type="danger" size="mini" :disabled="hostList.length === 0" @click="clearRecords">清空数据</el-button>
-      </div>
       <div class="host-list" :style="hostListStyle">
         <div
           v-for="(host, idx) in hostList"
@@ -18,7 +15,7 @@
       </div>
       <div class="dividor" @mousedown.stop.prevent="handleCursorDown"></div>
       <div class="host-records">
-        <div class="list-wrapper" v-if="filteredRecordLength > 0">
+        <div class="list-wrapper" v-if="recordsByHostCount > 0">
           <div class="list-item" v-for="(record, idx) in pagedRecords" :key="record.id"> 
             <span class="id-column column" @click="openRecordDetail(record.id)">
               {{idx + 1}}
@@ -36,7 +33,7 @@
         </div>
         <el-pagination
           small
-          v-if="filteredRecordLength > 0"
+          v-if="recordsByHostCount > 0"
           @size-change="handleSizeChange"
           @current-change="handlePageChange"
           :current-page="currentPage"
@@ -44,15 +41,23 @@
           :page-size="pageSize"
           :pager-count="5"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="filteredRecordLength"
+          :total="recordsByHostCount"
         >
         </el-pagination>
         <div
           class="no-record-msg"
-          v-if="filteredRecordLength === 0"
+          v-if="recordsByHostCount === 0"
         >
           当前没有数据！
         </div>
+      </div>
+    </div>
+    <div class="record-status">
+      <div class="record-info">
+        共 {{totalRecordsCount}} 条数据，已筛选 {{filteredRecordsCount}} 条数据
+      </div>
+      <div class="clear-record-btn">
+        <el-button type="danger" size="mini" :disabled="hostList.length === 0" @click="clearRecords">清空数据</el-button>
       </div>
     </div>
     <transition name="slide-fade">
@@ -74,22 +79,19 @@ export default {
       filterData: {},
       showRecordDetail: false,
       selectedRecordId: -1,
-      filteredRecordLength: 0,
+      recordsByHostCount: 0,
       pagedRecords: [],
       selectedHost: '',
       hostList: [],
-      hostListWidth: 180
+      hostListWidth: 180,
+      totalRecordsCount: 0,
+      filteredRecordsCount: 0
     }
   },
   computed: {
     hostListStyle () {
       return {
         width: `${this.hostListWidth}px`
-      }
-    },
-    clearBtnStyle () {
-      return {
-        left: `${this.hostListWidth - 85}px`
       }
     }
   },
@@ -100,19 +102,22 @@ export default {
   mounted () {
     this.recordUpdateListener = (forceUpdate = false) => {
       this.$proxyApi.getLatestRecords(this.filterData).then((data) => {
-        this.hostList = Object.keys(data)
+        this.totalRecordsCount = data.totalCount
+        this.filteredRecordsCount = data.filteredRecordsCount
+        const filteredRecords = data.filteredRecords
+        this.hostList = Object.keys(filteredRecords)
 
         if (this.selectedHost) {
-          const recordsByHost = data[this.selectedHost]
+          const recordsByHost = filteredRecords[this.selectedHost]
           if (recordsByHost) {
-            this.filteredRecordLength = recordsByHost.length
+            this.recordsByHostCount = recordsByHost.length
 
             if (forceUpdate || this.pagedRecords.length !== this.pageSize) {
               const start = (this.currentPage - 1) * this.pageSize
               this.pagedRecords = recordsByHost.slice(start, start + this.pageSize)
             }
           } else {
-            this.filteredRecordLength = 0
+            this.recordsByHostCount = 0
             this.pagedRecords = []
           }
         }
@@ -183,6 +188,9 @@ export default {
         this.hostList = []
         this.pagedRecords = []
         this.selectedRecordId = -1
+        this.recordsByHostCount = 0
+        this.totalRecordsCount = 0
+        this.filteredRecordsCount = 0
         this.recordUpdateListener(true)
       }, (err) => {
         this.$notify({
@@ -212,13 +220,25 @@ export default {
   border-bottom: 1px solid #ccc;
   user-select: none;
 }
-.clear-record-btn {
+.record-status {
+  position: relative;
+  height: 40px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+  background-color: #fafafa;
+}
+.record-status .record-info {
+  display: inline-block;
+  line-height: 40px;
+  margin-left: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+.record-status .clear-record-btn {
   position: absolute;
-  z-index: 1;
-  bottom: 4px;
+  right: 8px;
+  top: 6px;
 }
 .record-data-wrapper {
-  position: relative;
   flex: 1;
   display: flex;
 }

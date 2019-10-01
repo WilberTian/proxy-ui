@@ -649,6 +649,7 @@ export default {
           } else {
             const { method, host, path } = filterData
             const filteredRecords = {}
+            let filteredRecordsCount = 0
 
             docs.filter((item) => {
               let passed = true
@@ -672,6 +673,7 @@ export default {
               }
               return passed
             }).map((item) => {
+              filteredRecordsCount += 1
               if (item.host in filteredRecords) {
                 filteredRecords[item.host].push({
                   id: item.id,
@@ -684,7 +686,11 @@ export default {
                 filteredRecords[item.host] = []
               }
             })
-            resolve(filteredRecords)
+            resolve({
+              totalCount: docs.length,
+              filteredRecordsCount,
+              filteredRecords
+            })
           }
         })
       } else {
