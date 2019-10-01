@@ -23,8 +23,6 @@ const userDataPath = app.getPath('userData')
 
 let proxyServer
 let proxyServerRecorder
-let recordIdStart = 0
-let lastRecordId = 0
 const responseFileCache = {}
 let hookData = {
   hitCount: 0,
@@ -645,15 +643,12 @@ export default {
   getLatestRecords (filterData) {
     return new Promise((resolve, reject) => {
       if (proxyServerRecorder) {
-        proxyServerRecorder.getRecords(recordIdStart, 10000, (err, docs) => {
+        proxyServerRecorder.getRecords(0, 10000, (err, docs) => {
           if (err) {
             reject(err.toString())
           } else {
             const { method, host, path } = filterData
             const filteredRecords = {}
-            if (docs.length > 0) {
-              lastRecordId = docs[docs.length - 1].id
-            }
 
             docs.filter((item) => {
               let passed = true
@@ -723,6 +718,18 @@ export default {
     })
   },
   clearRecords () {
-    recordIdStart = lastRecordId + 1
+    return new Promise((resolve, reject) => {
+      if (proxyServerRecorder && proxyServerRecorder.db) {
+        proxyServerRecorder.db.remove({}, { multi: true }, (err, numRemoved) => {
+          if (err) {
+            reject(err.toString())
+          } else {
+            resolve(numRemoved)
+          }
+        })
+      } else {
+        reject(new Error('清空数据失败'))
+      }
+    })
   }
 }

@@ -2,10 +2,10 @@
   <div class="proxy-server-record">
     <record-filter @filterChange="handleFilterChange" />
     <div class="record-data-wrapper">
+      <div class="clear-record-btn" :style="clearBtnStyle">
+        <el-button type="danger" size="mini" :disabled="hostList.length === 0" @click="clearRecords">清空数据</el-button>
+      </div>
       <div class="host-list" :style="hostListStyle">
-        <div class="clear-record-btn">
-          <el-button type="danger" size="mini" :disabled="hostList.length === 0" @click="clearRecords">清空数据</el-button>
-        </div>
         <div
           v-for="(host, idx) in hostList"
           :key="idx"
@@ -86,6 +86,11 @@ export default {
       return {
         width: `${this.hostListWidth}px`
       }
+    },
+    clearBtnStyle () {
+      return {
+        left: `${this.hostListWidth - 85}px`
+      }
     }
   },
   created () {
@@ -157,6 +162,9 @@ export default {
       this.lastMouseX = this.mouseX
       if (this.isCursorMove) {
         this.hostListWidth += diffX
+        if (this.hostListWidth < 180) {
+          this.hostListWidth = 180
+        }
       }
     },
     handleCursorUp () {
@@ -165,12 +173,24 @@ export default {
       document.documentElement.removeEventListener('mouseup', this.handleCursorUp, true)
     },
     clearRecords () {
-      this.$proxyApi.clearRecords()
-      this.selectedHost = ''
-      this.hostList = []
-      this.pagedRecords = []
-      this.selectedRecordId = -1
-      this.recordUpdateListener(true)
+      this.$proxyApi.clearRecords().then((num) => {
+        this.$notify({
+          title: '提示',
+          message: `${num}条记录被删除！`,
+          type: 'success'
+        })
+        this.selectedHost = ''
+        this.hostList = []
+        this.pagedRecords = []
+        this.selectedRecordId = -1
+        this.recordUpdateListener(true)
+      }, (err) => {
+        this.$notify({
+          title: '错误信息',
+          message: err,
+          type: 'error'
+        })
+      })
     }
   },
   components: {
@@ -194,15 +214,15 @@ export default {
 }
 .clear-record-btn {
   position: absolute;
-  right: 4px;
+  z-index: 1;
   bottom: 4px;
 }
 .record-data-wrapper {
+  position: relative;
   flex: 1;
   display: flex;
 }
 .host-list {
-  position: relative;
   height: 100%;
   overflow-y: auto;
   font-size: 13px;
