@@ -648,7 +648,8 @@ export default {
             reject(err.toString())
           } else {
             const { method, host, path } = filterData
-            const filteredRecords = {}
+            const filteredGroupRecords = {}
+            const filteredListRecords = []
             let filteredRecordsCount = 0
 
             docs.filter((item) => {
@@ -674,8 +675,8 @@ export default {
               return passed
             }).map((item) => {
               filteredRecordsCount += 1
-              if (item.host in filteredRecords) {
-                filteredRecords[item.host].push({
+              if (item.host in filteredGroupRecords) {
+                filteredGroupRecords[item.host].push({
                   id: item.id,
                   method: item.method,
                   statusCode: item.statusCode,
@@ -683,13 +684,15 @@ export default {
                   path: item.path
                 })
               } else {
-                filteredRecords[item.host] = []
+                filteredGroupRecords[item.host] = []
               }
+              filteredListRecords.push(item)
             })
             resolve({
               totalCount: docs.length,
               filteredRecordsCount,
-              filteredRecords
+              filteredGroupRecords,
+              filteredListRecords
             })
           }
         })

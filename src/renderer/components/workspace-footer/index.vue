@@ -7,12 +7,12 @@
       <div class="step-info">
         代理规则配置 （{{ruleConfigs.length}}条）
       </div>
-      <el-radio-group v-model="displayMode" size="small" :style="{marginRight: '10px'}">
+      <el-radio-group v-model="displayMode" size="mini" :style="{marginRight: '10px'}">
         <el-radio-button label="group">
-          <i class="el-icon-tickets"></i>
+          标签分组
         </el-radio-button>
         <el-radio-button label="list">
-          <i class="el-icon-menu"></i>
+          列表
         </el-radio-button>
       </el-radio-group>
       <el-popover

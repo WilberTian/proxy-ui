@@ -27,7 +27,7 @@
         <svgicon
           class="browser-icon"
           icon="browser"
-          width="36" height="36" color="#409EFF"
+          width="32" height="32" color="#409EFF"
         ></svgicon>
         查看网络数据
       </div>
@@ -43,7 +43,7 @@
         <svgicon
           class="certificate-icon"
           icon="certificate"
-          width="34" height="34" color="#3a8ee6"
+          width="30" height="30" color="#3a8ee6"
         ></svgicon>
         HTTPS证书
       </div>
