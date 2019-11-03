@@ -131,7 +131,6 @@ export default {
         const convertedData = JSON.parse(JSON.stringify(this.ruleConfigs))
         convertedData.forEach((item) => {
           delete item.guid
-          delete item.enabled
         })
         return JSON.stringify(convertedData, null, 2)
       }
@@ -181,7 +180,6 @@ export default {
         if (valid) {
           ruleConfigs.forEach((item) => {
             item.guid = createGUID()
-            item.enabled = true
           })
           this.$store.commit('setRuleConfigs', ruleConfigs)
           this.importDialogVisible = false

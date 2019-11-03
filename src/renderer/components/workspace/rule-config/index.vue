@@ -8,7 +8,7 @@
         @enableSelected="toggleSelectedRules(true)"
         @disableSelected="toggleSelectedRules(false)"
       />
-      <rule-config-list
+      <listed-rule-config
         v-if="filteredRuleConfigs.length > 0 && ruleConfigListDisplayMode === 'list'"
         :ruleConfigs="filteredRuleConfigs"
         @editRuleConfig="handleEditRuleConfig"
@@ -34,7 +34,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import RuleConfigFilter from './rule-config-filter'
-import RuleConfigList from './rule-config-list'
+import ListedRuleConfig from './listed-rule-config'
 import GroupedRuleConfigList from './grouped-rule-config-list'
 import RuleConfigSetting from './rule-config-setting'
 import createGUID from '@/utils/uuidv4'
@@ -166,7 +166,7 @@ export default {
     }
   },
   components: {
-    RuleConfigList,
+    ListedRuleConfig,
     GroupedRuleConfigList,
     RuleConfigSetting,
     RuleConfigFilter

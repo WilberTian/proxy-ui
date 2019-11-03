@@ -123,14 +123,14 @@
         <el-tab-pane label="命中规则数据" name="proxy-server-data">
           <proxy-server-data />
         </el-tab-pane>
-        <el-tab-pane name="proxy-server-error">
+        <el-tab-pane name="proxy-server-log">
           <span slot="label" style="display: flex; align-items: center;">
-            代理服务器错误
-            <span class="proxy-server-error-number">
-              {{proxyServerErrorNumber}}
+            代理服务器日志
+            <span class="proxy-server-log-number" v-if="proxyServerLogNumber > 0">
+              {{proxyServerLogNumber}}
             </span>
           </span>
-          <proxy-server-error />
+          <proxy-server-log />
         </el-tab-pane>
         <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
           <weinre-data-tab />
@@ -179,7 +179,7 @@ import ProxyConfigDialog from './proxy-config-dialog'
 import WeinreConfigDialog from './weinre-config-dialog'
 import VconsoleConfigDialog from './vconsole-config-dialog'
 import ProxyServerData from './proxy-server-data'
-import ProxyServerError from './proxy-server-error'
+import ProxyServerLog from './proxy-server-log'
 import ProxyServerRecord from './proxy-server-record'
 import WeinreDataTab from './weinre-data-tab'
 import events from '@/configs/events'
@@ -194,7 +194,7 @@ export default {
       loading: false,
       dataTab: 'proxy-server-record',
       infoTab: 'proxy-config-info',
-      proxyServerErrorNumber: 0
+      proxyServerLogNumber: 0
     }
   },
   computed: {
@@ -224,18 +224,18 @@ export default {
   mounted () {
     const proxyConfig = this.$proxyApi.readProxyConfig()
     this.$store.commit('setProxyConfig', proxyConfig)
-    eventBus.$on(events.UPDATE_PROXY_ERR_COUNT, (errNumber) => {
-      this.proxyServerErrorNumber = errNumber
+    eventBus.$on(events.UPDATE_PROXY_SERVER_LOG_COUNT, (errNumber) => {
+      this.proxyServerLogNumber = errNumber
     })
   },
   beforeDestroy () {
-    eventBus.$off(events.UPDATE_PROXY_ERR_COUNT)
+    eventBus.$off(events.UPDATE_PROXY_SERVER_LOG_COUNT)
   },
   methods: {
     startProxyServer () {
       this.loading = true
       this.$proxyApi.resetHookData()
-      this.$proxyApi.resetErrorLog()
+      this.$proxyApi.resetProxyServerLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.startProxyServer(proxyConfig).then((data) => {
         this.$notify({
@@ -273,7 +273,7 @@ export default {
     restartProxyServer () {
       this.loading = true
       this.$proxyApi.resetHookData()
-      this.$proxyApi.resetErrorLog()
+      this.$proxyApi.resetProxyServerLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.restartProxyServer(proxyConfig).then((data) => {
         this.$notify({
@@ -302,7 +302,7 @@ export default {
     WeinreConfigDialog,
     VconsoleConfigDialog,
     ProxyServerData,
-    ProxyServerError,
+    ProxyServerLog,
     ProxyServerRecord,
     WeinreDataTab
   }
@@ -373,8 +373,8 @@ export default {
 .restart-icon {
   margin: -2px;
 }
-.proxy-server-error-number {
-  background-color: #f56c6c;
+.proxy-server-log-number {
+  background-color: #66b1ff;
   border-radius: 10px;
   color: #fff;
   display: inline-block;

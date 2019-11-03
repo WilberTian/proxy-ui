@@ -8,6 +8,9 @@ const ruleConfigSchema = {
           type: {
             const: 'request'
           },
+          enabled: {
+            type: 'boolean'
+          },
           tags: {
             type: 'array',
             items: {
@@ -37,6 +40,9 @@ const ruleConfigSchema = {
           type: {
             type: 'string',
             enum: ['mock', 'response']
+          },
+          enabled: {
+            type: 'boolean'
           },
           tags: {
             type: 'array',
@@ -73,6 +79,34 @@ const ruleConfigSchema = {
               }
             },
             additionalProperties: false
+          }
+        },
+        additionalProperties: false
+      },
+      {
+        type: 'object',
+        properties: {
+          type: {
+            const: 'customize'
+          },
+          enabled: {
+            type: 'boolean'
+          },
+          tags: {
+            type: 'array',
+            items: {
+              type: 'string'
+            }
+          },
+          name: {
+            type: 'string',
+            minLength: 1
+          },
+          description: {
+            type: 'string'
+          },
+          customizeRule: {
+            type: 'string'
           }
         },
         additionalProperties: false

@@ -28,7 +28,22 @@ let hookData = {
   hitCount: 0,
   effectiveRules: {}
 }
-const errorLog = []
+const proxyServerLog = []
+
+global.logger = {
+  info: (detail) => {
+    _addProxyServerLog({
+      detail,
+      isErr: false
+    })
+  },
+  error: (detail) => {
+    _addProxyServerLog({
+      detail,
+      isErr: true
+    })
+  }
+}
 
 const _getResponseFile = responseFilePath => {
   try {
@@ -42,9 +57,10 @@ const _getResponseFile = responseFilePath => {
     responseFileCache.responseFilePath = responseFileContent
     return responseFileContent
   } catch (e) {
-    _addErrorLog({
+    _addProxyServerLog({
       info: `读取相应文件失败：${responseFilePath}`,
-      detail: e.message
+      detail: e.message,
+      isErr: true
     })
     return responseFilePath
   }
@@ -62,9 +78,10 @@ const _writeCustomizeRule = ruleConfig => {
     return true
   } catch (e) {
     log.error(`_writeCustomizeRule: ${e.message}`)
-    _addErrorLog({
+    _addProxyServerLog({
       info: `自定义规则写入失败：${ruleConfig.name}`,
-      detail: `规则内容：${ruleConfig.customizeRule}`
+      detail: `规则内容：${ruleConfig.customizeRule}`,
+      isErr: true
     })
     return false
   }
@@ -94,9 +111,10 @@ const _requireCustomizeRule = ruleConfig => {
       path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
     )
   } catch (e) {
-    _addErrorLog({
+    _addProxyServerLog({
       info: `引入自定义规则写入失败：${ruleConfig.name}`,
-      detail: `规则内容：${ruleConfig.customizeRule}`
+      detail: `规则内容：${ruleConfig.customizeRule}`,
+      isErr: true
     })
   }
 
@@ -142,14 +160,14 @@ const _updateEffectiveRule = (ruleConfig) => {
   }
 }
 
-const _emitErrorLogUpdatedEvent = throttle(mainWindow => {
-  mainWindow.webContents.send('error-log-updated')
+const _emitProxyServerLogUpdatedEvent = throttle(mainWindow => {
+  mainWindow.webContents.send('proxy-log-updated')
 }, 500)
 
-const _addErrorLog = errorLogItem => {
-  errorLog.push(errorLogItem)
+const _addProxyServerLog = logItem => {
+  proxyServerLog.push(logItem)
   if (global.mainWindow) {
-    _emitErrorLogUpdatedEvent(global.mainWindow)
+    _emitProxyServerLogUpdatedEvent(global.mainWindow)
   }
 }
 
@@ -334,9 +352,10 @@ const proxyServerManager = (action = 'start', options = {}) => {
           proxyServer.on('error', e => {
             proxyServer = null
             proxyServerRecorder = null
-            _addErrorLog({
+            _addProxyServerLog({
               info: '代理服务器启动失败',
-              detail: e.message
+              detail: e.message,
+              isErr: true
             })
             reject(e)
           })
@@ -356,9 +375,10 @@ const proxyServerManager = (action = 'start', options = {}) => {
               createProxyServer()
             },
             e => {
-              _addErrorLog({
+              _addProxyServerLog({
                 info: '生成HTTPS证书失败',
-                detail: e.message
+                detail: e.message,
+                isErr: true
               })
               reject(e)
             }
@@ -433,9 +453,10 @@ export default {
       return true
     } catch (e) {
       log.error(`writeRuleConfig: ${e.message}`)
-      _addErrorLog({
+      _addProxyServerLog({
         info: '配置规则写入失败',
-        detail: JSON.stringify(ruleConfigs)
+        detail: JSON.stringify(ruleConfigs),
+        isErr: true
       })
       return false
     }
@@ -483,9 +504,10 @@ export default {
       return true
     } catch (e) {
       log.error(`writeProxyConfig: ${e.message}`)
-      _addErrorLog({
+      _addProxyServerLog({
         info: '代理服务器配置写入失败',
-        detail: JSON.stringify(proxyConfig)
+        detail: JSON.stringify(proxyConfig),
+        isErr: true
       })
       return false
     }
@@ -572,9 +594,10 @@ export default {
           sampleContent: sampleRuleContent
         })
       } catch (e) {
-        _addErrorLog({
+        _addProxyServerLog({
           info: '获取自定义规则样例失败',
-          detail: e.message
+          detail: e.message,
+          isErr: true
         })
       }
     })
@@ -608,21 +631,22 @@ export default {
         fs.unlinkSync(customizeRulePath)
       } catch (e) {
         log.error(`deleteCustomizeRule: ${e.message}`)
-        _addErrorLog({
+        _addProxyServerLog({
           info: `删除自定义规则失败：${ruleConfig.name}`,
-          detail: e.message
+          detail: e.message,
+          isErr: true
         })
       }
     }
   },
-  getErrorLog () {
-    return [...errorLog]
+  getProxyServerLog () {
+    return [...proxyServerLog]
   },
-  addErrorLog (logItem) {
-    _addErrorLog(logItem)
+  addProxyServerLog (logItem) {
+    _addProxyServerLog(logItem)
   },
-  resetErrorLog () {
-    errorLog.length = 0
+  resetProxyServerLog () {
+    proxyServerLog.length = 0
   },
   getRecordById (id) {
     return new Promise((resolve, reject) => {

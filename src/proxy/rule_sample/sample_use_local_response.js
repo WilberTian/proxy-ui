@@ -6,6 +6,7 @@ module.exports = {
       body: '{"hello": "this is local response"}'
     }
     if (requestDetail.url.indexOf('http://httpbin.org') === 0) {
+      logger.info('sample_use_local_response')
       return {
         response: localResponse
       }
