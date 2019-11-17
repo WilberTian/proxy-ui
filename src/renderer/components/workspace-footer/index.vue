@@ -35,7 +35,7 @@
         @click="createRuleConfig"
       >
         <i class="el-icon-circle-plus-outline"></i>
-        添加规则
+        创建规则
       </div>
       <div
         class="operation-btn"

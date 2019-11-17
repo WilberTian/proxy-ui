@@ -148,10 +148,15 @@
       </el-form-item>
       <el-form-item
         v-if="ruleConfigData.type === 'customize'"
-        label="自定义规则"
         prop="customizeRule"
         placeholder="自定义规则"
       >
+        <span slot="label">
+          自定义规则
+          <el-tooltip class="item" effect="dark" content="代理规则代码中可以使用 logger.info('***') 或者 logger.error('***') 来打印日志" placement="right">
+            <i class="el-icon-info"></i>
+          </el-tooltip>
+        </span>
         <textarea class="customize-rule-editor" ref="customize-rule-editor"></textarea>
         <el-button class="show-sample-rule-btn" size="mini" type="primary" @click="showSampleRule" round>
           <i class="el-icon-collection"></i> 查看样例规则
@@ -294,7 +299,8 @@ export default {
       ruleConfigData = JSON.parse(JSON.stringify(this.ruleConfig))
       ruleConfigType = ruleConfigData.type
     } else {
-      ruleConfigData = defaultRuleConfigs[ruleConfigType]
+      const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
+      ruleConfigData = clonedDefaultRuleConfigs[ruleConfigType]
     }
     return {
       ruleConfigType,

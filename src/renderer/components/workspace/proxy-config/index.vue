@@ -6,7 +6,7 @@
           class="start-icon"
           icon="start" width="36" height="36" color="#67c23a"
         ></svgicon>
-        启动服务器
+        启动代理
       </div>
       <div class="icon-wrapper" v-if="proxyServerStatus === 1" @click="restartProxyServer">
         <svgicon
@@ -14,7 +14,7 @@
           icon="restart"
           width="44" height="44" color="#67c23a"
         ></svgicon>
-        重启服务器
+        重启代理
       </div>
       <div class="icon-wrapper" v-if="proxyServerStatus === 1" @click="stopProxyServer">
         <svgicon
@@ -22,14 +22,14 @@
           icon="stop"
           width="36" height="36" color="red"
         ></svgicon>
-        停止服务器
+        关闭代理
       </div><div class="icon-wrapper" v-if="proxyServerStatus === 1" @click="openNetworkData">
         <svgicon
           class="browser-icon"
           icon="browser"
           width="32" height="32" color="#409EFF"
         ></svgicon>
-        查看网络数据
+        网络数据
       </div>
       <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="showProxyConfigSetting = true">
         <svgicon
@@ -90,7 +90,7 @@
                   网络速度
                 </div>
                 <div class="content">
-                  {{proxyConfig.throttle}}KB
+                  {{networkSpeedValue}}
                 </div>
               </div>
               <div class="proxy-config-item">
@@ -184,6 +184,7 @@ import ProxyServerRecord from './proxy-server-record'
 import WeinreDataTab from './weinre-data-tab'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
+import { networkSpeed } from '@/configs/constants'
 
 export default {
   data () {
@@ -202,7 +203,19 @@ export default {
       proxyServerStatus: 'getProxyServerStatus',
       weinreServerStatus: 'getWeinreServerStatus',
       proxyConfig: 'getProxyConfig'
-    })
+    }),
+    networkSpeedValue () {
+      let val = ''
+      if (this.proxyConfig && this.proxyConfig.throttle) {
+        const found = networkSpeed.find((item) => {
+          return item.value === this.proxyConfig.throttle
+        })
+        if (found) {
+          val = found.label
+        }
+      }
+      return val
+    }
   },
   watch: {
     proxyConfig: {

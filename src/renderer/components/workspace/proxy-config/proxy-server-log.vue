@@ -12,7 +12,7 @@
       class="no-error-msg"
       v-if="proxyServerLog.length === 0"
     >
-      当前没有错误信息！
+      当前没有日志数据！
     </div>
   </div>
 </template>
