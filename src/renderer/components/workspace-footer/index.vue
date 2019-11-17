@@ -141,6 +141,7 @@ export default {
         return this.ruleConfigListDisplayMode
       },
       set (val) {
+        window.localStorage.setItem('displayMode', val)
         this.$store.commit('setRuleConfigListDisplayMode', val)
       }
     }

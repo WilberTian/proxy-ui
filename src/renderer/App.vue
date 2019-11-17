@@ -7,6 +7,11 @@
 <script>
 export default {
   name: 'proxy-ui',
+  beforeCreate () {
+    if (!window.localStorage.getItem('displayMode')) {
+      window.localStorage.setItem('displayMode', 'group')
+    }
+  },
   mounted () {
     this.disableDragEvent()
   },

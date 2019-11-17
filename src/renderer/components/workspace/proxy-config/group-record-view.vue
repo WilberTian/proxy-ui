@@ -11,7 +11,7 @@
         <i v-if="host === selectedHost" class="el-icon-arrow-right"></i>
       </div>
     </div>
-    <div class="dividor" @mousedown.stop.prevent="handleCursorDown"></div>
+    <div :class="{'dividor': true, 'active': isCursorMove}" @mousedown.stop.prevent="handleCursorDown"></div>
     <div class="host-records">
       <div class="list-wrapper" v-if="recordsByHostCount > 0">
         <div class="list-item" v-for="(record, idx) in pagedRecords" :key="record.id"> 
@@ -73,7 +73,6 @@ export default {
     }
   },
   created () {
-    this.isCursorMove = false
     this.mouseOffX = 0
   },
   mounted () {
@@ -121,6 +120,7 @@ export default {
   },
   data: function () {
     return {
+      isCursorMove: false,
       currentPage: 1,
       pageSize: 50,
       recordsByHostCount: 0,
@@ -145,7 +145,9 @@ export default {
 
       this.lastMouseX = this.mouseX
       if (this.isCursorMove) {
-        this.hostListWidth += diffX
+        if ((this.hostListWidth + diffX) >= 100 && (this.hostListWidth + diffX) <= 600) {
+          this.hostListWidth += diffX
+        }
       }
     },
     handleCursorUp () {
@@ -211,6 +213,12 @@ export default {
   cursor: col-resize;
   opacity: .8;
   border-radius: 40px;
+}
+.dividor.active {
+  background: #409eff;
+}
+.dividor:hover {
+  background: #409eff;
 }
 .host-records {
   flex: 1;

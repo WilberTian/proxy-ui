@@ -7,7 +7,7 @@ const state = {
   proxyServerStatus: 0,
   workspaceFooterVisible: true,
   weinreServerStatus: 0,
-  ruleConfigListDisplayMode: 'group'
+  ruleConfigListDisplayMode: window.localStorage.getItem('displayMode')
 }
 
 window.state = state
