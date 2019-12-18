@@ -564,6 +564,10 @@ export default {
         fileName: 'sample_modify_response_statuscode.js'
       },
       {
+        sampleName: '转发请求',
+        fileName: 'sample_map_remote.js'
+      },
+      {
         sampleName: '修改请求数据',
         fileName: 'sample_modify_request_data.js'
       },
