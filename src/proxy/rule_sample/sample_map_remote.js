@@ -9,10 +9,12 @@ module.exports = {
       newOption.method = 'GET'
       newOption.path = '/list'
       newOption.headers['User-Agent'] = 'proxy-ui/1.0.0'
+      newOption.headers['host'] = 'github.com'
 
-      requestDetail.protocol = 'https'
-
-      return requestDetail
+      return {
+        protocol: 'https',
+        requestOptions: newOption
+      }
     }
   }
 }
