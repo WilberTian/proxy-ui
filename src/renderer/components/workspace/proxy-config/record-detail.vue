@@ -5,6 +5,12 @@
     </div>
     <el-tabs class="record-detail-tab" v-model="selectedTab">
       <el-tab-pane label="请求数据" name="request">
+        <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
+          <el-button size="mini" type="primary" @click="addRequestHandler">录制请求</el-button>
+          <el-tooltip class="item" effect="dark" content="" placement="bottom">
+            <i class="el-icon-info"></i>
+          </el-tooltip>
+        </div>
         <div class="data-wrapper">
           <div class="section-data-wrapper">
             <div class="section-title">
@@ -98,6 +104,9 @@
 </template>
 
 <script>
+import events from '@/configs/events'
+import eventBus from '@/utils/event-bus'
+
 export default {
   props: {
     id: {
@@ -157,6 +166,16 @@ export default {
         self.responseBody = ''
         self.loading = false
       })
+    },
+    addRequestHandler () {
+      eventBus.$emit(events.ADD_REQUEST, {
+        protocol: this.recordDetail.protocol,
+        host: this.recordDetail.host,
+        path: this.recordDetail.path,
+        method: this.recordDetail.method,
+        reqHeader: this.recordDetail.reqHeader,
+        reqBody: this.recordDetail.reqBody
+      })
     }
   }
 }
@@ -187,11 +206,16 @@ export default {
   width: 100%;
   height: 100%;
 }
-
+.request-record-btn {
+  position: absolute;
+  top: 2px;
+  right: 24px;
+}
 .data-wrapper {
   height: 100%;
   overflow-y: auto;
 }
+
 .section-data-wrapper {
   margin-bottom: 32px;
   padding: 0 8px;

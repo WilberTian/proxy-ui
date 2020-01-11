@@ -11,6 +11,7 @@ const throttle = require('lodash.throttle')
 const log = require('electron-log')
 const AnyProxy = require('anyproxy')
 const AnyProxyUtils = require('anyproxy/lib/util')
+const ip = require('ip')
 const matchers = require('./matchers')
 
 const RULE_CONFIG_FILE = 'rule-config.json'
@@ -29,6 +30,17 @@ let hookData = {
   effectiveRules: {}
 }
 const proxyServerLog = []
+let localIPAddress = '127.0.0.1'
+
+setInterval(() => {
+  const ipAddress = ip.address()
+  if (ipAddress !== localIPAddress) {
+    localIPAddress = ipAddress
+    if (global.mainWindow) {
+      global.mainWindow.webContents.send('ip-address-updated')
+    }
+  }
+}, 500)
 
 global.logger = {
   info: (detail) => {
@@ -712,7 +724,13 @@ export default {
                   path: item.path
                 })
               } else {
-                filteredGroupRecords[item.host] = []
+                filteredGroupRecords[item.host] = [{
+                  id: item.id,
+                  method: item.method,
+                  statusCode: item.statusCode,
+                  host: item.host,
+                  path: item.path
+                }]
               }
               filteredListRecords.push(item)
             })
@@ -768,5 +786,8 @@ export default {
         reject(new Error('清空数据失败'))
       }
     })
+  },
+  getIPAddress () {
+    return localIPAddress
   }
 }

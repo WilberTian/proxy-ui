@@ -115,6 +115,9 @@
         <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
           <weinre-data-tab />
         </el-tab-pane>
+        <el-tab-pane label="已录制请求" name="request-list">
+          <request-list-tab />
+        </el-tab-pane>
       </el-tabs>
       <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1" type="border-card">
         <el-tab-pane label="网络数据" name="proxy-server-record">
@@ -134,6 +137,9 @@
         </el-tab-pane>
         <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
           <weinre-data-tab />
+        </el-tab-pane>
+        <el-tab-pane label="已录制请求" name="request-list">
+          <request-list-tab />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -182,6 +188,7 @@ import ProxyServerData from './proxy-server-data'
 import ProxyServerLog from './proxy-server-log'
 import ProxyServerRecord from './proxy-server-record'
 import WeinreDataTab from './weinre-data-tab'
+import RequestListTab from './request-list-tab'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 import { networkSpeed } from '@/configs/constants'
@@ -317,7 +324,8 @@ export default {
     ProxyServerData,
     ProxyServerLog,
     ProxyServerRecord,
-    WeinreDataTab
+    WeinreDataTab,
+    RequestListTab
   }
 }
 </script>

@@ -4,7 +4,7 @@
       <div class="list-wrapper" v-if="recordsCount > 0">
         <div class="list-item" v-for="(record, idx) in pagedRecords" :key="record.id"> 
           <span class="id-column column" @click="openRecordDetail(record.id)">
-            {{idx * currentPage + 1}}
+            {{(currentPage - 1) * pageSize + 1 + idx}}
           </span>
           <span class="method-column column">
             {{record.method}}

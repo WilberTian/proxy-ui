@@ -1,6 +1,6 @@
 <template>
   <div class="proxy-server-data">
-    <div class="request-info-wrapper">
+    <div class="request-info-wrapper" v-if="false">
       <div class="request-info-item">
         <div class="request-number">
           N/A

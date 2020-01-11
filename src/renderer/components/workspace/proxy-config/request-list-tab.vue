@@ -1,0 +1,194 @@
+<template>
+  <div class="request-list-tab">
+    <div class="data-wrapper" v-if="requestList.length > 0">
+      <div class="requesst-item-wrapper" v-for="(request, idx) in requestList" :key="idx" :name="idx"> 
+          <div class="request-item">
+            <div v-loading="request.loading" class="btn-wrapper" @click="processRequest(idx)">
+              {{request.method}}
+            </div>
+            <div class="request-url">
+              {{request.protocol}}://{{request.host}}{{request.path}}
+            </div>
+            <div class="detail-btn" @click="toggleVisible(idx)">
+              {{request.visible ? '收起详情' : '展开详情'}}
+            </div>
+            <div class="delete-btn" @click="removeRequest(idx)">
+              <i class="el-icon-error"></i>
+            </div>
+          </div>
+          <div v-if="request.visible" class="request-item-detail">{{JSON.stringify(request.response, null, 2) || '没有数据'}}</div>
+        </div>
+    </div>
+    <div
+      class="empty-request-list-msg"
+      v-if="requestList.length === 0"
+    >
+      当前没有录制的请求！
+    </div>
+  </div>
+</template>
+<script>
+import events from '@/configs/events'
+import eventBus from '@/utils/event-bus'
+
+export default {
+  data () {
+    return {
+      requestList: []
+    }
+  },
+  mounted () {
+    this.requestList = this.$proxyApi.readRequestList()
+    eventBus.$on(events.ADD_REQUEST, this.addRequest)
+    eventBus.$on(events.REMOVE_REQUEST, this.removeRequest)
+  },
+  beforeDestroy () {
+    eventBus.$off(events.ADD_REQUEST, this.addRequest)
+    eventBus.$off(events.REMOVE_REQUEST, this.removeRequest)
+  },
+  methods: {
+    addRequest (requestInfo) {
+      this.requestList.push(requestInfo)
+      this.$proxyApi.writeRequestList(this.formatRequestList())
+      this.$notify({
+        title: '提示',
+        message: '请求录制成功',
+        type: 'success'
+      })
+    },
+    removeRequest (idx) {
+      this.$confirm('确认删除该记录?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          this.requestList.splice(idx, 1)
+          this.$proxyApi.writeRequestList(this.formatRequestList())
+        })
+        .catch(() => {
+          //
+        })
+    },
+    toggleVisible (idx) {
+      this.$set(this.requestList, idx, {
+        ...this.requestList[idx],
+        visible: !this.requestList[idx].visible
+      })
+    },
+    formatRequestList () {
+      const requestList = []
+      this.requestList.forEach(item => {
+        requestList.push({
+          protocol: item.protocol,
+          host: item.host,
+          path: item.path,
+          method: item.method,
+          reqHeader: item.reqHeader,
+          reqBody: item.reqBody
+        })
+      })
+      return requestList
+    },
+    async processRequest (idx) {
+      const requestInfo = this.requestList[idx]
+
+      this.$set(this.requestList, idx, {
+        ...requestInfo,
+        loading: true,
+        response: null
+      })
+      try {
+        const response = await this.$proxyApi.processRequest(requestInfo)
+        this.$set(this.requestList, idx, {
+          ...requestInfo,
+          loading: false,
+          visible: true,
+          response: {
+            status: response.status,
+            data: response.data
+          }
+        })
+      } catch (e) {
+        this.$set(this.requestList, idx, {
+          ...requestInfo,
+          loading: false,
+          visible: true,
+          response: {
+            status: 0,
+            data: e.message
+          }
+        })
+      }
+    }
+  }
+}
+</script>
+<style scoped>
+.request-list-tab {
+  height: 100%;
+}
+.request-list-tab .data-wrapper {
+  height: 100%;
+  overflow-y: auto;
+}
+.requesst-item-wrapper {
+  margin: 4px;
+  border: 1px solid #d7d7d7;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.requesst-item-wrapper .request-item {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
+  font-size: 12px;
+}
+.requesst-item-wrapper .request-item .btn-wrapper {
+  width: 48px;
+  font-size: 10px;
+  text-align: center;
+  margin-right: 8px;
+  background-color: #409eff;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+.requesst-item-wrapper .request-item .request-url {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.requesst-item-wrapper .request-item .detail-btn {
+  color: #409eff;
+  cursor: pointer;
+  padding: 0 8px;
+  height: 16px;
+  line-height: 16px;
+  border-right: 1px solid #ccc;
+}
+.requesst-item-wrapper .request-item .delete-btn {
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+.requesst-item-wrapper .request-item-detail {
+  font-size: 12px;
+  background-color: #efefef;
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre;
+}
+.request-list-tab .empty-request-list-msg {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #999;
+}
+</style>
