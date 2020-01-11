@@ -51,6 +51,7 @@ Proxy UI是基于Anyproxy的一个代理工具，可以通过图形化的方式�
 3. [代理服务器配置](https://github.com/WilberTian/proxy-ui/blob/master/docs/03-%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE.md)
 4. [vconsole配置](https://github.com/WilberTian/proxy-ui/blob/master/docs/04-vconsole%E9%85%8D%E7%BD%AE.md)
 5. [weinre配置](https://github.com/WilberTian/proxy-ui/blob/master/docs/05-weinre%E9%85%8D%E7%BD%AE.md)
+6. [录制请求](https://github.com/WilberTian/proxy-ui/blob/master/docs/06-%E5%BD%95%E5%88%B6%E8%AF%B7%E6%B1%82.md)
 
 
 # License
