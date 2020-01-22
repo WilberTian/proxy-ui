@@ -51,6 +51,8 @@
 
 <script>
 import RuleConfigDetail from './rule-config-detail'
+import events from '@/configs/events'
+import eventBus from '@/utils/event-bus'
 
 export default {
   data () {
@@ -64,6 +66,7 @@ export default {
       const hookData = this.$proxyApi.getHookData()
       this.hitCount = hookData.hitCount
       this.effectiveRules = hookData.effectiveRules
+      eventBus.$emit(events.UPDATE_HITTED_RULE_COUNT, Object.keys(this.effectiveRules).length)
     }
     this.$ipcRenderer.on('hook-data-updated', this.hookDataListener)
     this.hookDataListener()

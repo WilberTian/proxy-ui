@@ -123,7 +123,13 @@
         <el-tab-pane label="网络数据" name="proxy-server-record">
           <proxy-server-record />
         </el-tab-pane>
-        <el-tab-pane label="命中规则数据" name="proxy-server-data">
+        <el-tab-pane name="proxy-server-data">
+          <span slot="label" style="display: flex; align-items: center;">
+            命中规则
+            <span class="hitted-rule-count" v-if="hittedRuleCount > 0">
+              {{hittedRuleCount}}
+            </span>
+          </span>
           <proxy-server-data />
         </el-tab-pane>
         <el-tab-pane name="proxy-server-log">
@@ -202,7 +208,8 @@ export default {
       loading: false,
       dataTab: 'proxy-server-record',
       infoTab: 'proxy-config-info',
-      proxyServerLogNumber: 0
+      proxyServerLogNumber: 0,
+      hittedRuleCount: 0
     }
   },
   computed: {
@@ -247,9 +254,13 @@ export default {
     eventBus.$on(events.UPDATE_PROXY_SERVER_LOG_COUNT, (errNumber) => {
       this.proxyServerLogNumber = errNumber
     })
+    eventBus.$on(events.UPDATE_HITTED_RULE_COUNT, (value) => {
+      this.hittedRuleCount = value
+    })
   },
   beforeDestroy () {
     eventBus.$off(events.UPDATE_PROXY_SERVER_LOG_COUNT)
+    eventBus.$off(events.UPDATE_HITTED_RULE_COUNT)
   },
   methods: {
     startProxyServer () {
@@ -394,7 +405,7 @@ export default {
 .restart-icon {
   margin: -2px;
 }
-.proxy-server-log-number {
+.proxy-server-log-number, .hitted-rule-count {
   background-color: #66b1ff;
   border-radius: 10px;
   color: #fff;

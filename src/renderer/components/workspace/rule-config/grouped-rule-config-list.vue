@@ -16,11 +16,13 @@
             circle></el-button>
           </div>
         </div>
-        <rule-config-list
-          v-show="!tagItem.folded"
-          :ruleConfigs="groupedRuleConfigList[tagItem.tag]"
-          @editRuleConfig="handleEditRuleConfig"
-        />
+        <transition name="slide-fade">
+          <rule-config-list
+            v-show="!tagItem.folded"
+            :ruleConfigs="groupedRuleConfigList[tagItem.tag]"
+            @editRuleConfig="handleEditRuleConfig"
+          />
+        </transition>
       </div>
     </div>
   </div>
@@ -131,5 +133,14 @@ export default {
   font-weight: bold;
   line-height: 32px;
   padding: 0 8px;
+}
+.slide-fade-enter-active {
+  transition: all .2s ease-in;
+}
+.slide-fade-leave-active {
+  transition: all .1s ease-in;
+}
+.slide-fade-enter, .slide-fade-leave-active {
+  opacity: 0;
 }
 </style>
