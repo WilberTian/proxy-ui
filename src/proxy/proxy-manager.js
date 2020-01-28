@@ -99,6 +99,15 @@ const _writeCustomizeRule = ruleConfig => {
   }
 }
 
+const _requireFn = (moduleName) => {
+  let code = fs.readFileSync(path.resolve(userDataPath, moduleName), 'utf8')
+  const module = {}
+  code = `(function (module, require){${code}})(module, _requireFn)`
+  // eslint-disable-next-line no-eval
+  eval(code)
+  return module.exports
+}
+
 const _requireCustomizeRule = ruleConfig => {
   let customizeRuleModule = null
   const customizeRuleFileExist = fs.existsSync(
@@ -108,24 +117,25 @@ const _requireCustomizeRule = ruleConfig => {
     _writeCustomizeRule(ruleConfig)
   }
   try {
-    /* eslint-disable */
-    const requireFunc =
-      typeof __webpack_require__ === 'function'
-        ? __non_webpack_require__
-        : require
-    delete requireFunc.cache[
-      requireFunc.resolve(
-        path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
-      )
-    ]
-    /* eslint-enable */
-    customizeRuleModule = requireFunc(
-      path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
-    )
+    // /* eslint-disable */
+    // const requireFunc =
+    //   typeof __webpack_require__ === 'function'
+    //     ? __non_webpack_require__
+    //     : require
+    // delete requireFunc.cache[
+    //   requireFunc.resolve(
+    //     path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
+    //   )
+    // ]
+    // /* eslint-enable */
+    // customizeRuleModule = requireFunc(
+    //   path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
+    // )
+    customizeRuleModule = _requireFn(`__customize_${ruleConfig.guid}.js`)
   } catch (e) {
     _addProxyServerLog({
-      info: `引入自定义规则写入失败：${ruleConfig.name}`,
-      detail: `规则内容：${ruleConfig.customizeRule}`,
+      info: `引入自定义规则失败：${ruleConfig.name}`,
+      detail: `错误信息：${e.message}`,
       isErr: true
     })
   }
