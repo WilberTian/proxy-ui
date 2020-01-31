@@ -64,7 +64,7 @@
   "dependencies": {
     "adm-zip": "^0.4.13",
     "anyproxy": "^4.1.0",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "codemirror": "^5.47.0",
     "electron-log": "^3.0.7",
     "element-ui": "^2.8.2",
