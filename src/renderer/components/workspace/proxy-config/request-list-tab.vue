@@ -180,7 +180,8 @@ export default {
   padding: 12px;
   max-height: 300px;
   overflow-y: auto;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 .request-list-tab .empty-request-list-msg {
   height: 100%;
