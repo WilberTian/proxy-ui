@@ -16,7 +16,9 @@
               <i class="el-icon-error"></i>
             </div>
           </div>
-          <div v-if="request.visible" class="request-item-detail">{{JSON.stringify(request.response, null, 2) || '没有数据'}}</div>
+          <div v-if="request.visible" class="request-item-detail">
+            <truncate action-class="truncate-btn" clamp="显示更多" :length="1000" less="收起更多" :text="JSON.stringify(request.response, null, 2) || '没有数据'"></truncate>
+          </div>
         </div>
     </div>
     <div
@@ -28,6 +30,7 @@
   </div>
 </template>
 <script>
+import truncate from 'vue-truncate-collapsed'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 
@@ -121,6 +124,9 @@ export default {
         })
       }
     }
+  },
+  components: {
+    truncate
   }
 }
 </script>
@@ -177,11 +183,14 @@ export default {
 .requesst-item-wrapper .request-item-detail {
   font-size: 12px;
   background-color: #efefef;
-  padding: 12px;
+  padding: 8px;
   max-height: 300px;
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-all;
+}
+.requesst-item-wrapper .request-item-detail > div {
+  display: inline-flex;
 }
 .request-list-tab .empty-request-list-msg {
   height: 100%;
@@ -191,5 +200,13 @@ export default {
   font-size: 20px;
   font-weight: bold;
   color: #999;
+}
+</style>
+<style>
+.truncate-btn {
+  color: #409eff;
+  font-weight: bold;
+  display: block;
+  text-align: center;
 }
 </style>

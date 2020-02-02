@@ -129,6 +129,14 @@ export default {
         if (type.match('image')) {
           this.isResponseImg = true
           return `<img style="width: 100%;" src="${this.recordDetail.url}">`
+        } else if (type.match('json')) {
+          this.isResponseImg = false
+          try {
+            const JOSNObj = JSON.parse(this.responseBody.content)
+            return JSON.stringify(JOSNObj, null, 2)
+          } catch (e) {
+            return this.responseBody.content
+          }
         } else {
           this.isResponseImg = false
           return this.responseBody.content
@@ -187,7 +195,7 @@ export default {
   top: 0;
   right: 0;
   height: 100%;
-  width: 68vw;
+  width: 80vw;
   background-color: #fff;
   z-index: 999;
 }
@@ -208,6 +216,7 @@ export default {
 }
 .request-record-btn {
   position: absolute;
+  z-index: 100;
   top: 2px;
   right: 24px;
 }
@@ -241,6 +250,7 @@ export default {
 .section-data-item .label {
   width: 120px;
   padding-right: 8px;
+  text-align: right;
   font-weight: bold;
   word-wrap: break-word;
   word-break: break-all;

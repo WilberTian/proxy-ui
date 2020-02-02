@@ -4209,6 +4209,10 @@ html-minifier@^3.2.3:
     relateurl "0.2.x"
     uglify-js "3.4.x"
 
+html-truncate@^1.2.2:
+  version "1.2.2"
+  resolved "http://r.cnpmjs.org/html-truncate/download/html-truncate-1.2.2.tgz#db2e331dcf1cba0bd432a507d16e988609f2575f"
+
 html-webpack-plugin@^3.2.0:
   version "3.2.0"
   resolved "https://r.cnpmjs.org/html-webpack-plugin/download/html-webpack-plugin-3.2.0.tgz#b01abbd723acaaa7b37b6af4492ebda03d9dd37b"
@@ -8338,6 +8342,12 @@ vue-template-compiler@^2.5.16:
 vue-template-es2015-compiler@^1.9.0:
   version "1.9.1"
   resolved "https://r.cnpmjs.org/vue-template-es2015-compiler/download/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
+
+vue-truncate-collapsed@^2.1.0:
+  version "2.1.0"
+  resolved "http://r.cnpmjs.org/vue-truncate-collapsed/download/vue-truncate-collapsed-2.1.0.tgz#19404ea332647542a7e81f4773d09749af4056bc"
+  dependencies:
+    html-truncate "^1.2.2"
 
 vue@^2.5.16:
   version "2.6.10"

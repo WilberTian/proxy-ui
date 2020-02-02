@@ -76,6 +76,7 @@
     "vue-highlightjs": "^1.3.3",
     "vue-router": "^3.0.1",
     "vue-svgicon": "^3.2.6",
+    "vue-truncate-collapsed": "^2.1.0",
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0"
   },
