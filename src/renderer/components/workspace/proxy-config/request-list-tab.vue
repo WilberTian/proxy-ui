@@ -12,6 +12,36 @@
             <div class="detail-btn" @click="toggleVisible(idx)">
               {{request.visible ? '收起详情' : '展开详情'}}
             </div>
+            <div class="info-btn">
+              <el-popover
+                placement="left"
+                width="300"
+                trigger="hover"
+              >
+                <div>
+                  <div>
+                    <b>默认行为：</b>
+                  </div>
+                  <div :style="{margin: '4px 8px'}">
+                    1. 代理开启时，请求经过代理服务器<br/>
+                    2. 代理关闭时，请求不经过代理服务器
+                  </div>
+                  <br/>
+                  <div>
+                    <b>覆盖默认设置：</b>
+                  </div>
+                  <div :style="{margin: '4px 8px'}">
+                    <el-checkbox
+                      :value="typeof request.withProxy === 'undefined' ? proxyServerStatus === 1 : request.withProxy"
+                      @change="(value) => {updateWithProxy(value, idx)}"
+                    >
+                      请求通过代理服务器
+                    </el-checkbox>
+                  </div>
+                </div>
+                <i class="el-icon-info" slot="reference"></i>
+              </el-popover>
+            </div>
             <div class="delete-btn" @click="removeRequest(idx)">
               <i class="el-icon-error"></i>
             </div>
@@ -35,6 +65,11 @@ import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 
 export default {
+  props: {
+    proxyServerStatus: {
+      type: Number
+    }
+  },
   data () {
     return {
       requestList: []
@@ -42,6 +77,7 @@ export default {
   },
   mounted () {
     this.requestList = this.$proxyApi.readRequestList()
+    eventBus.$emit(events.UPDATE_REQUEST_LIST_COUNT, this.requestList.length)
     eventBus.$on(events.ADD_REQUEST, this.addRequest)
     eventBus.$on(events.REMOVE_REQUEST, this.removeRequest)
   },
@@ -52,6 +88,7 @@ export default {
   methods: {
     addRequest (requestInfo) {
       this.requestList.push(requestInfo)
+      eventBus.$emit(events.UPDATE_REQUEST_LIST_COUNT, this.requestList.length)
       this.$proxyApi.writeRequestList(this.formatRequestList())
       this.$notify({
         title: '提示',
@@ -67,6 +104,7 @@ export default {
       })
         .then(() => {
           this.requestList.splice(idx, 1)
+          eventBus.$emit(events.UPDATE_REQUEST_LIST_COUNT, this.requestList.length)
           this.$proxyApi.writeRequestList(this.formatRequestList())
         })
         .catch(() => {
@@ -102,7 +140,9 @@ export default {
         response: null
       })
       try {
-        const response = await this.$proxyApi.processRequest(requestInfo)
+        const proxyConfig = await this.$proxyApi.readProxyConfig()
+        const withProxy = typeof requestInfo.withProxy === 'undefined' ? this.proxyServerStatus === 1 : requestInfo.withProxy
+        const response = await this.$proxyApi.processRequest(requestInfo, proxyConfig, withProxy)
         this.$set(this.requestList, idx, {
           ...requestInfo,
           loading: false,
@@ -123,6 +163,12 @@ export default {
           }
         })
       }
+    },
+    updateWithProxy (value, idx) {
+      this.$set(this.requestList, idx, {
+        ...this.requestList[idx],
+        withProxy: value
+      })
     }
   },
   components: {
@@ -178,7 +224,12 @@ export default {
 .requesst-item-wrapper .request-item .delete-btn {
   font-size: 14px;
   cursor: pointer;
-  padding: 0 8px;
+  margin: 0 8px 0 0;
+}
+.requesst-item-wrapper .request-item .info-btn {
+  font-size: 14px;
+  cursor: pointer;
+  margin: 0 8px;
 }
 .requesst-item-wrapper .request-item-detail {
   font-size: 12px;

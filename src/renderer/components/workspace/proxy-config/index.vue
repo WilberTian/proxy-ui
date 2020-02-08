@@ -115,8 +115,14 @@
         <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
           <weinre-data-tab />
         </el-tab-pane>
-        <el-tab-pane label="已录制请求" name="request-list">
-          <request-list-tab />
+        <el-tab-pane name="request-list">
+          <span slot="label" style="display: flex; align-items: center;">
+            已录制请求
+            <span class="request-list-count" v-if="requestListCount > 0">
+              {{requestListCount}}
+            </span>
+          </span>
+          <request-list-tab :proxyServerStatus="proxyServerStatus" />
         </el-tab-pane>
       </el-tabs>
       <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1" type="border-card">
@@ -144,8 +150,14 @@
         <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
           <weinre-data-tab />
         </el-tab-pane>
-        <el-tab-pane label="已录制请求" name="request-list">
-          <request-list-tab />
+        <el-tab-pane name="request-list">
+          <span slot="label" style="display: flex; align-items: center;">
+            已录制请求
+            <span class="request-list-count" v-if="requestListCount > 0">
+              {{requestListCount}}
+            </span>
+          </span>
+          <request-list-tab :proxyServerStatus="proxyServerStatus" />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -209,7 +221,8 @@ export default {
       dataTab: 'proxy-server-record',
       infoTab: 'proxy-config-info',
       proxyServerLogNumber: 0,
-      hittedRuleCount: 0
+      hittedRuleCount: 0,
+      requestListCount: 0
     }
   },
   computed: {
@@ -257,10 +270,14 @@ export default {
     eventBus.$on(events.UPDATE_HITTED_RULE_COUNT, (value) => {
       this.hittedRuleCount = value
     })
+    eventBus.$on(events.UPDATE_REQUEST_LIST_COUNT, (value) => {
+      this.requestListCount = value
+    })
   },
   beforeDestroy () {
     eventBus.$off(events.UPDATE_PROXY_SERVER_LOG_COUNT)
     eventBus.$off(events.UPDATE_HITTED_RULE_COUNT)
+    eventBus.$off(events.UPDATE_REQUEST_LIST_COUNT)
   },
   methods: {
     startProxyServer () {
@@ -405,7 +422,7 @@ export default {
 .restart-icon {
   margin: -2px;
 }
-.proxy-server-log-number, .hitted-rule-count {
+.proxy-server-log-number, .hitted-rule-count, .request-list-count {
   background-color: #66b1ff;
   border-radius: 10px;
   color: #fff;

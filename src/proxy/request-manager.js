@@ -42,16 +42,24 @@ export default {
       return false
     }
   },
-  processRequest: function (requestInfo) {
-    return axios({
+  processRequest: function (requestInfo, proxyConfig, withProxy = false) {
+    const proxyPort = proxyConfig.port
+    const proxy = {
+      host: '192.168.0.103',
+      port: proxyPort
+    }
+
+    const requestParams = {
       method: requestInfo.method,
       url: `${requestInfo.protocol}://${requestInfo.host}${requestInfo.path}`,
       headers: requestInfo.reqHeader || {},
       data: requestInfo.reqBody || {}
-      // proxy: {
-      //   host: '127.0.0.1',
-      //   port: 9000
-      // }
-    })
+    }
+
+    if (withProxy) {
+      requestParams.proxy = proxy
+    }
+
+    return axios(requestParams)
   }
 }
