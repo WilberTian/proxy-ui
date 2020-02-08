@@ -671,7 +671,7 @@ aws4@^1.8.0:
 
 axios@^0.19.2:
   version "0.19.2"
-  resolved "http://r.cnpmjs.org/axios/download/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
+  resolved "https://r.cnpmjs.org/axios/download/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
   dependencies:
     follow-redirects "1.5.10"
 
@@ -4210,7 +4210,7 @@ html-minifier@^3.2.3:
 
 html-truncate@^1.2.2:
   version "1.2.2"
-  resolved "http://r.cnpmjs.org/html-truncate/download/html-truncate-1.2.2.tgz#db2e331dcf1cba0bd432a507d16e988609f2575f"
+  resolved "https://r.cnpmjs.org/html-truncate/download/html-truncate-1.2.2.tgz#db2e331dcf1cba0bd432a507d16e988609f2575f"
 
 html-webpack-plugin@^3.2.0:
   version "3.2.0"
@@ -5186,8 +5186,8 @@ lodash.uniq@^4.5.0:
   resolved "https://r.cnpmjs.org/lodash.uniq/download/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
 lodash@^4.0.0, lodash@^4.17.11, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.2.0, lodash@^4.3.0, lodash@~4.17.10:
-  version "4.17.11"
-  resolved "https://r.cnpmjs.org/lodash/download/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
 
 log-update@^1.0.2:
   version "1.0.2"
@@ -8340,7 +8340,7 @@ vue-template-es2015-compiler@^1.9.0:
 
 vue-truncate-collapsed@^2.1.0:
   version "2.1.0"
-  resolved "http://r.cnpmjs.org/vue-truncate-collapsed/download/vue-truncate-collapsed-2.1.0.tgz#19404ea332647542a7e81f4773d09749af4056bc"
+  resolved "https://r.cnpmjs.org/vue-truncate-collapsed/download/vue-truncate-collapsed-2.1.0.tgz#19404ea332647542a7e81f4773d09749af4056bc"
   dependencies:
     html-truncate "^1.2.2"
 
