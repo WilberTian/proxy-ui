@@ -122,6 +122,7 @@ export default {
   padding-left: 8px;
   white-space: pre-wrap;
   border-left: 1px solid #ccc;
+  overflow: hidden;
 }
 .rule-config-tag {
   display: inline-block;
