@@ -18,8 +18,6 @@
 </template>
 
 <script>
-import events from '@/configs/events'
-import eventBus from '@/utils/event-bus'
 
 export default {
   data () {
@@ -30,7 +28,9 @@ export default {
   mounted () {
     this.proxyServerLogListener = () => {
       this.proxyServerLog = this.$proxyApi.getProxyServerLog()
-      eventBus.$emit(events.UPDATE_PROXY_SERVER_LOG_COUNT, this.proxyServerLog.length)
+      this.$store.commit('updateProxyServerData', {
+        proxyServerLogCount: this.proxyServerLog.length
+      })
     }
     this.$ipcRenderer.on('proxy-log-updated', this.proxyServerLogListener)
     this.proxyServerLogListener()

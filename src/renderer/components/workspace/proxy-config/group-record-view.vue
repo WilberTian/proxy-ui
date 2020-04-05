@@ -164,6 +164,7 @@ export default {
       this.recordUpdateListener(true)
     },
     handleHostChange (host) {
+      this.currentPage = 1
       this.selectedHost = host
       this.recordUpdateListener(true)
     },

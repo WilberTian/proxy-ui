@@ -45,7 +45,7 @@ export default {
   processRequest: function (requestInfo, proxyConfig, withProxy = false) {
     const proxyPort = proxyConfig.port
     const proxy = {
-      host: '192.168.0.103',
+      host: '127.0.0.1',
       port: proxyPort
     }
 

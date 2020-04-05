@@ -77,7 +77,7 @@ export default {
   },
   mounted () {
     this.requestList = this.$proxyApi.readRequestList()
-    eventBus.$emit(events.UPDATE_REQUEST_LIST_COUNT, this.requestList.length)
+    this.updateRequestListCount()
     eventBus.$on(events.ADD_REQUEST, this.addRequest)
     eventBus.$on(events.REMOVE_REQUEST, this.removeRequest)
   },
@@ -88,7 +88,7 @@ export default {
   methods: {
     addRequest (requestInfo) {
       this.requestList.push(requestInfo)
-      eventBus.$emit(events.UPDATE_REQUEST_LIST_COUNT, this.requestList.length)
+      this.updateRequestListCount()
       this.$proxyApi.writeRequestList(this.formatRequestList())
       this.$notify({
         title: '提示',
@@ -104,12 +104,17 @@ export default {
       })
         .then(() => {
           this.requestList.splice(idx, 1)
-          eventBus.$emit(events.UPDATE_REQUEST_LIST_COUNT, this.requestList.length)
+          this.updateRequestListCount()
           this.$proxyApi.writeRequestList(this.formatRequestList())
         })
         .catch(() => {
           //
         })
+    },
+    updateRequestListCount () {
+      this.$store.commit('updateProxyServerData', {
+        recordedRequestCount: this.requestList.length
+      })
     },
     toggleVisible (idx) {
       this.$set(this.requestList, idx, {

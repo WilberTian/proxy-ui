@@ -7,7 +7,12 @@ const state = {
   proxyServerStatus: 0,
   workspaceFooterVisible: true,
   weinreServerStatus: 0,
-  ruleConfigListDisplayMode: window.localStorage.getItem('displayMode') || 'group'
+  ruleConfigListDisplayMode: window.localStorage.getItem('displayMode') || 'group',
+  proxyServerData: {
+    hittedRuleCount: 0,
+    proxyServerLogCount: 0,
+    recordedRequestCount: 0
+  }
 }
 
 window.state = state
@@ -33,6 +38,9 @@ const getters = {
   },
   getRuleConfigListDisplayMode (state) {
     return state.ruleConfigListDisplayMode
+  },
+  getProxyServerData (state) {
+    return state.proxyServerData
   }
 }
 
@@ -76,6 +84,12 @@ const mutations = {
   },
   setRuleConfigListDisplayMode (state, ruleConfigListDisplayMode) {
     state.ruleConfigListDisplayMode = ruleConfigListDisplayMode
+  },
+  updateProxyServerData (state, proxyServerData) {
+    state.proxyServerData = {
+      ...state.proxyServerData,
+      ...proxyServerData
+    }
   }
 }
 

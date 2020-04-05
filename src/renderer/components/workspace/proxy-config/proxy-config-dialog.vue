@@ -50,6 +50,12 @@
         <el-radio :label="false">不开启</el-radio>
       </el-radio-group>
     </el-form-item>
+    <el-form-item
+      label="黑名单"
+      prop="bypassListStr"
+    >
+      <el-input type="textarea" v-model="proxyConfigData.bypassListStr"></el-input>
+    </el-form-item>
     <el-form-item>
       <el-button
         type="primary"

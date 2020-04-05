@@ -109,6 +109,14 @@
                   {{proxyConfig.enableGlobalProxy ? '开启' : '未开启'}}
                 </div>
               </div>
+              <div class="proxy-config-item">
+                <div class="label">
+                  黑名单
+                </div>
+                <div class="content">
+                  {{proxyConfig.bypassListStr ? proxyConfig.bypassListStr : '未设置'}}
+                </div>
+              </div>
             </div>
           </div>
         </el-tab-pane>
@@ -118,31 +126,31 @@
         <el-tab-pane name="request-list">
           <span slot="label" style="display: flex; align-items: center;">
             已录制请求
-            <span class="request-list-count" v-if="requestListCount > 0">
-              {{requestListCount}}
+            <span class="request-list-count" v-if="proxyServerData.recordedRequestCount > 0">
+              {{proxyServerData.recordedRequestCount}}
             </span>
           </span>
           <request-list-tab :proxyServerStatus="proxyServerStatus" />
         </el-tab-pane>
       </el-tabs>
-      <el-tabs class="proxy-server-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1" type="border-card">
+      <el-tabs class="proxy-rule-data-tab" v-model="dataTab" v-if="proxyServerStatus === 1" type="border-card">
         <el-tab-pane label="网络数据" name="proxy-server-record">
           <proxy-server-record />
         </el-tab-pane>
-        <el-tab-pane name="proxy-server-data">
+        <el-tab-pane name="proxy-rule-data">
           <span slot="label" style="display: flex; align-items: center;">
             命中规则
-            <span class="hitted-rule-count" v-if="hittedRuleCount > 0">
-              {{hittedRuleCount}}
+            <span class="hitted-rule-count" v-if="proxyServerData.hittedRuleCount > 0">
+              {{proxyServerData.hittedRuleCount}}
             </span>
           </span>
-          <proxy-server-data />
+          <proxy-rule-data />
         </el-tab-pane>
         <el-tab-pane name="proxy-server-log">
           <span slot="label" style="display: flex; align-items: center;">
             代理服务器日志
-            <span class="proxy-server-log-number" v-if="proxyServerLogNumber > 0">
-              {{proxyServerLogNumber}}
+            <span class="proxy-server-log-number" v-if="proxyServerData.proxyServerLogCount > 0">
+              {{proxyServerData.proxyServerLogCount}}
             </span>
           </span>
           <proxy-server-log />
@@ -153,8 +161,8 @@
         <el-tab-pane name="request-list">
           <span slot="label" style="display: flex; align-items: center;">
             已录制请求
-            <span class="request-list-count" v-if="requestListCount > 0">
-              {{requestListCount}}
+            <span class="request-list-count" v-if="proxyServerData.recordedRequestCount > 0">
+              {{proxyServerData.recordedRequestCount}}
             </span>
           </span>
           <request-list-tab :proxyServerStatus="proxyServerStatus" />
@@ -202,13 +210,11 @@ import '@/assets/icons/vconsole'
 import ProxyConfigDialog from './proxy-config-dialog'
 import WeinreConfigDialog from './weinre-config-dialog'
 import VconsoleConfigDialog from './vconsole-config-dialog'
-import ProxyServerData from './proxy-server-data'
+import ProxyRuleData from './proxy-rule-data'
 import ProxyServerLog from './proxy-server-log'
 import ProxyServerRecord from './proxy-server-record'
 import WeinreDataTab from './weinre-data-tab'
 import RequestListTab from './request-list-tab'
-import events from '@/configs/events'
-import eventBus from '@/utils/event-bus'
 import { networkSpeed } from '@/configs/constants'
 
 export default {
@@ -219,17 +225,15 @@ export default {
       showVconsoleSetting: false,
       loading: false,
       dataTab: 'proxy-server-record',
-      infoTab: 'proxy-config-info',
-      proxyServerLogNumber: 0,
-      hittedRuleCount: 0,
-      requestListCount: 0
+      infoTab: 'proxy-config-info'
     }
   },
   computed: {
     ...mapGetters({
       proxyServerStatus: 'getProxyServerStatus',
       weinreServerStatus: 'getWeinreServerStatus',
-      proxyConfig: 'getProxyConfig'
+      proxyConfig: 'getProxyConfig',
+      proxyServerData: 'getProxyServerData'
     }),
     networkSpeedValue () {
       let val = ''
@@ -264,20 +268,6 @@ export default {
   mounted () {
     const proxyConfig = this.$proxyApi.readProxyConfig()
     this.$store.commit('setProxyConfig', proxyConfig)
-    eventBus.$on(events.UPDATE_PROXY_SERVER_LOG_COUNT, (errNumber) => {
-      this.proxyServerLogNumber = errNumber
-    })
-    eventBus.$on(events.UPDATE_HITTED_RULE_COUNT, (value) => {
-      this.hittedRuleCount = value
-    })
-    eventBus.$on(events.UPDATE_REQUEST_LIST_COUNT, (value) => {
-      this.requestListCount = value
-    })
-  },
-  beforeDestroy () {
-    eventBus.$off(events.UPDATE_PROXY_SERVER_LOG_COUNT)
-    eventBus.$off(events.UPDATE_HITTED_RULE_COUNT)
-    eventBus.$off(events.UPDATE_REQUEST_LIST_COUNT)
   },
   methods: {
     startProxyServer () {
@@ -349,7 +339,7 @@ export default {
     ProxyConfigDialog,
     WeinreConfigDialog,
     VconsoleConfigDialog,
-    ProxyServerData,
+    ProxyRuleData,
     ProxyServerLog,
     ProxyServerRecord,
     WeinreDataTab,
@@ -414,7 +404,7 @@ export default {
 .proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item .content {
   display: inline-block;
 }
-.proxy-config .info-container .proxy-server-data-tab {
+.proxy-config .info-container .proxy-rule-data-tab {
   width: 100%;
   height: 100%;
   border: none;

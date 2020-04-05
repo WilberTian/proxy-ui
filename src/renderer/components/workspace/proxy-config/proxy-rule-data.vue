@@ -1,5 +1,5 @@
 <template>
-  <div class="proxy-server-data">
+  <div class="proxy-rule-data">
     <div class="request-info-wrapper" v-if="false">
       <div class="request-info-item">
         <div class="request-number">
@@ -51,8 +51,6 @@
 
 <script>
 import RuleConfigDetail from './rule-config-detail'
-import events from '@/configs/events'
-import eventBus from '@/utils/event-bus'
 
 export default {
   data () {
@@ -66,7 +64,9 @@ export default {
       const hookData = this.$proxyApi.getHookData()
       this.hitCount = hookData.hitCount
       this.effectiveRules = hookData.effectiveRules
-      eventBus.$emit(events.UPDATE_HITTED_RULE_COUNT, Object.keys(this.effectiveRules).length)
+      this.$store.commit('updateProxyServerData', {
+        hittedRuleCount: Object.keys(this.effectiveRules).length
+      })
     }
     this.$ipcRenderer.on('hook-data-updated', this.hookDataListener)
     this.hookDataListener()
@@ -81,7 +81,7 @@ export default {
 </script>
 
 <style scoped>
-.proxy-server-data {
+.proxy-rule-data {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -148,7 +148,7 @@ export default {
   border-radius: 50%;
   color: #444;
 }
-.proxy-server-data .no-data-msg {
+.proxy-rule-data .no-data-msg {
   flex: 1;
   display: flex;
   justify-content: center;

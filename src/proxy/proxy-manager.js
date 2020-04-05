@@ -32,6 +32,9 @@ let hookData = {
 const proxyServerLog = []
 let localIPAddress = '127.0.0.1'
 
+let clearId = 0
+const MAX_RECORD_COUNT = 6000
+
 setInterval(() => {
   const ipAddress = ip.address()
   if (ipAddress !== localIPAddress) {
@@ -351,6 +354,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
         const createProxyServer = () => {
           proxyServer = proxyServerCreator(options)
           proxyServerRecorder = proxyServer.recorder
+          clearId = 0
           proxyServer.on('ready', () => {
             if (options.enableGlobalProxy) {
               if (options.forceProxyHttps) {
@@ -365,6 +369,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
                 options.port,
                 'http'
               )
+              setBypassList(options.bypassListStr || '')
             }
 
             resolve({
@@ -418,6 +423,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
         proxyServer.close()
         proxyServer = null
         proxyServerRecorder = null
+        clearId = 0
         AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
         AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
         resolve({
@@ -426,6 +432,11 @@ const proxyServerManager = (action = 'start', options = {}) => {
       }
     }
   })
+}
+
+const setBypassList = (listStr) => {
+  const networkType = AnyProxy.utils.systemProxyMgr.getNetworkType()
+  exec(`networksetup -setproxybypassdomains ${networkType} ${listStr ? listStr.split(',').join(' ') : '" "'}`)
 }
 
 export default {
@@ -693,64 +704,73 @@ export default {
   getLatestRecords (filterData) {
     return new Promise((resolve, reject) => {
       if (proxyServerRecorder) {
-        proxyServerRecorder.getRecords(0, 10000, (err, docs) => {
+        proxyServerRecorder.db.remove({id: {$lte: clearId}}, { multi: true }, (err, numRemoved) => {
           if (err) {
-            reject(err.toString())
-          } else {
-            const { method, host, path } = filterData
-            const filteredGroupRecords = {}
-            const filteredListRecords = []
-            let filteredRecordsCount = 0
-
-            docs.filter((item) => {
-              let passed = true
-              if (method) {
-                passed = (item.method.toLowerCase().indexOf(method.toLowerCase()) > -1) && passed
-                if (!passed) {
-                  return passed
-                }
-              }
-              if (host) {
-                passed = (item.host.toLowerCase().indexOf(host.toLowerCase()) > -1) && passed
-                if (!passed) {
-                  return passed
-                }
-              }
-              if (path) {
-                passed = (item.path.toLowerCase().indexOf(path.toLowerCase()) > -1) && passed
-                if (!passed) {
-                  return passed
-                }
-              }
-              return passed
-            }).map((item) => {
-              filteredRecordsCount += 1
-              if (item.host in filteredGroupRecords) {
-                filteredGroupRecords[item.host].push({
-                  id: item.id,
-                  method: item.method,
-                  statusCode: item.statusCode,
-                  host: item.host,
-                  path: item.path
-                })
-              } else {
-                filteredGroupRecords[item.host] = [{
-                  id: item.id,
-                  method: item.method,
-                  statusCode: item.statusCode,
-                  host: item.host,
-                  path: item.path
-                }]
-              }
-              filteredListRecords.push(item)
-            })
-            resolve({
-              totalCount: docs.length,
-              filteredRecordsCount,
-              filteredGroupRecords,
-              filteredListRecords
-            })
+            //
           }
+          proxyServerRecorder.getRecords(0, MAX_RECORD_COUNT, (err, docs) => {
+            if (err) {
+              reject(err.toString())
+            } else {
+              const { method, host, path } = filterData
+              const filteredGroupRecords = {}
+              const filteredListRecords = []
+              let filteredRecordsCount = 0
+
+              if (docs.length >= MAX_RECORD_COUNT) {
+                clearId = docs[MAX_RECORD_COUNT / 2].id
+              }
+
+              docs.filter((item) => {
+                let passed = true
+                if (method) {
+                  passed = (item.method.toLowerCase().indexOf(method.toLowerCase()) > -1) && passed
+                  if (!passed) {
+                    return passed
+                  }
+                }
+                if (host) {
+                  passed = (item.host.toLowerCase().indexOf(host.toLowerCase()) > -1) && passed
+                  if (!passed) {
+                    return passed
+                  }
+                }
+                if (path) {
+                  passed = (item.path.toLowerCase().indexOf(path.toLowerCase()) > -1) && passed
+                  if (!passed) {
+                    return passed
+                  }
+                }
+                return passed
+              }).map((item) => {
+                filteredRecordsCount += 1
+                if (item.host in filteredGroupRecords) {
+                  filteredGroupRecords[item.host].push({
+                    id: item.id,
+                    method: item.method,
+                    statusCode: item.statusCode,
+                    host: item.host,
+                    path: item.path
+                  })
+                } else {
+                  filteredGroupRecords[item.host] = [{
+                    id: item.id,
+                    method: item.method,
+                    statusCode: item.statusCode,
+                    host: item.host,
+                    path: item.path
+                  }]
+                }
+                filteredListRecords.push(item)
+              })
+              resolve({
+                totalCount: docs.length,
+                filteredRecordsCount,
+                filteredGroupRecords,
+                filteredListRecords
+              })
+            }
+          })
         })
       } else {
         reject(new Error('获取记录失败'))

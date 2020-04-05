@@ -5,7 +5,7 @@
     <list-record-view v-if="displayMode === 'list'" :filterData="filterData" @updateRecordList="recordUpdateHandler" @selectRecord="recordSelectHandler" />
     <div class="record-status">
       <div class="record-info">
-        共 {{totalRecordsCount}} 条数据，已筛选 {{filteredRecordsCount}} 条数据
+        共 {{totalRecordsCount}} 条数据<span v-if="totalRecordsCount !== filteredRecordsCount">，已筛选 {{filteredRecordsCount}} 条数据</span>
       </div>
       <el-radio-group v-model="displayMode" size="mini" :style="{position: 'absolute', right: '120px', top: '6px'}">
         <el-radio-button label="group">
