@@ -10,5 +10,15 @@ export default {
   ...proxyManager,
   ...weinreManager,
   ...vconsoleManager,
-  ...requestManager
+  ...requestManager,
+  showWindow: function () {
+    if (global.mainWindow) {
+      global.mainWindow.show()
+    }
+  },
+  setTrayTitle: function (title) {
+    if (global.tray) {
+      global.tray.setTitle(title)
+    }
+  }
 }

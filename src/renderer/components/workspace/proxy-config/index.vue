@@ -306,6 +306,7 @@ export default {
         this.$store.commit('setProxyServerStatus', 0)
         this.$store.commit('setWorkspaceFooterVisible', true)
         this.loading = false
+        this.$proxyApi.setTrayTitle('')
       })
     },
     restartProxyServer () {

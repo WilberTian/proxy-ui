@@ -122,6 +122,7 @@ function createTray () {
   tray.on('click', () => {
     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
   })
+  global.tray = tray
 }
 
 function createLoadingWindow () {

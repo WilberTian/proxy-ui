@@ -52,6 +52,7 @@ export default {
     recordUpdateHandler (data) {
       this.totalRecordsCount = data.totalCount
       this.filteredRecordsCount = data.filteredRecordsCount
+      this.$proxyApi.setTrayTitle(`${data.totalCount}`)
     },
     recordSelectHandler (id) {
       this.selectedRecordId = id
@@ -68,6 +69,7 @@ export default {
         this.selectedRecordId = -1
         this.totalRecordsCount = 0
         this.filteredRecordsCount = 0
+        this.$proxyApi.setTrayTitle('0')
         eventBus.$emit(events.CLEAR_RECORDS, true)
       }, (err) => {
         this.$notify({

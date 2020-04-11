@@ -105,9 +105,10 @@ const _writeCustomizeRule = ruleConfig => {
 const _requireFn = (moduleName) => {
   let code = fs.readFileSync(path.resolve(userDataPath, moduleName), 'utf8')
   const module = {}
-  code = `(function (module, require){${code}})(module, _requireFn)`
-  // eslint-disable-next-line no-eval
-  eval(code)
+  code = `(function (module, require){${code}})(module, require)`
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('module', 'require', code)
+  fn(module, _requireFn)
   return module.exports
 }
 

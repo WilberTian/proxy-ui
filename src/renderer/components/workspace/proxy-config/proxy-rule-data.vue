@@ -51,6 +51,7 @@
 
 <script>
 import RuleConfigDetail from './rule-config-detail'
+import showNotification from '../../../utils/show-notification'
 
 export default {
   data () {
@@ -64,9 +65,20 @@ export default {
       const hookData = this.$proxyApi.getHookData()
       this.hitCount = hookData.hitCount
       this.effectiveRules = hookData.effectiveRules
+      const hittedRuleCount = Object.keys(this.effectiveRules).length
       this.$store.commit('updateProxyServerData', {
-        hittedRuleCount: Object.keys(this.effectiveRules).length
+        hittedRuleCount
       })
+      if (hittedRuleCount > 0) {
+        showNotification('命中规则', {
+          body: `命中规则${hittedRuleCount}条`,
+          tag: 'hitted-rule-updated'
+        },
+        4000,
+        () => {
+          this.$proxyApi.showWindow()
+        })
+      }
     }
     this.$ipcRenderer.on('hook-data-updated', this.hookDataListener)
     this.hookDataListener()
