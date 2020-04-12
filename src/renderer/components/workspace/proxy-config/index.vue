@@ -114,7 +114,7 @@
                   黑名单
                 </div>
                 <div class="content">
-                  {{proxyConfig.bypassListStr ? proxyConfig.bypassListStr : '未设置'}}
+                  {{(proxyConfig.bypassList && proxyConfig.bypassList.length > 0) ? proxyConfig.bypassList.join(', ') : '未设置'}}
                 </div>
               </div>
             </div>
@@ -173,7 +173,7 @@
       title="代理服务器配置"
       :visible.sync="showProxyConfigSetting"
       :append-to-body="true"
-      width="60%"
+      width="70%"
      >
       <proxy-config-dialog :proxyConfig="proxyConfig" @submitProxyConfig="handleSubmitProxyConfig"
       @cancelProxyConfig="showProxyConfigSetting = false"/>
@@ -383,27 +383,33 @@ export default {
   height: 100%;
   border: none;
 }
+
 .proxy-config .info-container .proxy-config-info-wrapper {
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 .proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info {
-  display: inline-block;
+  margin: 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
 }
 .proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item {
-  height: 36px;
-  line-height: 36px;
+  display: flex; 
+  font-size: 14px;
+  border-bottom: 1px solid #e8e8e8;
+}
+.proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item:last-child {
+  border-bottom: none;
 }
 .proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item .label {
-  display: inline-block;
-  width: 180px;
+  width: 160px;
+  padding: 8px; 
   font-weight: bold;
+  border-right: 1px solid #e8e8e8;
 }
 .proxy-config .info-container .proxy-config-info-wrapper .proxy-config-info .proxy-config-item .content {
-  display: inline-block;
+  flex: 1;
+  padding: 8px; 
 }
 .proxy-config .info-container .proxy-rule-data-tab {
   width: 100%;

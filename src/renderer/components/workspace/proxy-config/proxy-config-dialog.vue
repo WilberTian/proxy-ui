@@ -52,9 +52,27 @@
     </el-form-item>
     <el-form-item
       label="黑名单"
-      prop="bypassListStr"
+      prop="bypassList"
     >
-      <el-input type="textarea" v-model="proxyConfigData.bypassListStr"></el-input>
+      <el-tag
+        :key="tag"
+        v-for="tag in proxyConfigData.bypassList"
+        closable
+        :disable-transitions="false"
+        @close="handleItemRemove(tag)">
+        {{tag}}
+      </el-tag>
+      <el-input
+        class="input-new-tag"
+        v-if="tagInputVisible"
+        v-model="tagInputValue"
+        ref="saveTagInput"
+        size="mini"
+        @keyup.enter.native="handleTagInputConfirm"
+        @blur="handleTagInputConfirm"
+      >
+      </el-input>
+      <el-button v-else class="button-new-tag" size="small" @click="showTagInput">+ 添加</el-button>
     </el-form-item>
     <el-form-item>
       <el-button
@@ -123,14 +141,16 @@ export default {
         'webInterface.webPort': [
           { validator: isValidPort, trigger: 'blur' }
         ]
-      }
+      },
+      tagInputVisible: false,
+      tagInputValue: ''
     }
   },
   methods: {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$emit('submitProxyConfig', this.proxyConfigData)
+          this.$emit('submitProxyConfig', JSON.parse(JSON.stringify(this.proxyConfigData)))
         } else {
           return false
         }
@@ -138,10 +158,40 @@ export default {
     },
     resetForm (formName) {
       this.$refs[formName].resetFields()
+    },
+    handleItemRemove (tag) {
+      this.proxyConfigData.bypassList.splice(this.proxyConfigData.bypassList.indexOf(tag), 1)
+    },
+    showTagInput () {
+      this.tagInputVisible = true
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+    handleTagInputConfirm () {
+      let tagInputValue = this.tagInputValue
+      if (tagInputValue) {
+        this.proxyConfigData.bypassList.push(tagInputValue)
+      }
+      this.tagInputVisible = false
+      this.tagInputValue = ''
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
+.el-tag {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+.button-new-tag {
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+}
 </style>

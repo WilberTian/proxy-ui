@@ -30,6 +30,8 @@
 
 <script>
 import RuleConfigList from './rule-config-list'
+const NA = 'N/A'
+
 export default {
   props: {
     tags: {
@@ -53,12 +55,12 @@ export default {
         const tagList = val.map((tag) => {
           return {
             tag,
-            folded: false
+            folded: !!window.localStorage.getItem(`tag-${tag}`)
           }
         })
         tagList.unshift({
-          tag: 'N/A',
-          folded: false
+          tag: NA,
+          folded: !!window.localStorage.getItem(`tag-${NA}`)
         })
         this.tagList = tagList
       },
@@ -104,9 +106,11 @@ export default {
       const foundIdx = this.tagList.findIndex((tagItem) => {
         return tagItem.tag === tag
       })
+      const currentStatus = this.tagList[foundIdx].folded
+      currentStatus ? window.localStorage.removeItem(`tag-${tag}`) : window.localStorage.setItem(`tag-${tag}`, '1')
       const updatedItem = {
         tag,
-        folded: !this.tagList[foundIdx].folded
+        folded: !!window.localStorage.getItem(`tag-${tag}`)
       }
       this.$set(this.tagList, foundIdx, updatedItem)
     }
@@ -123,8 +127,8 @@ export default {
 }
 .group-header {
   height: 32px;
-  background-color: #ebeef5;
-  border-bottom: 1px solid #e1e1e1;
+  background-color: #ccc;
+  margin: 0 0 1px 0;
 }
 .group-header .tag-name {
   display: inline-block;

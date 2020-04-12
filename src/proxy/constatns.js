@@ -10,7 +10,7 @@ export const defaultProxyConfig = {
   wsIntercept: false,
   silent: true,
   enableGlobalProxy: true,
-  bypassListStr: ''
+  bypassList: []
 }
 
 export const defaultRuleConfigs = [

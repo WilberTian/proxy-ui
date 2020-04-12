@@ -370,7 +370,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
                 options.port,
                 'http'
               )
-              setBypassList(options.bypassListStr || '')
+              setBypassList(options.bypassList || [])
             }
 
             resolve({
@@ -435,9 +435,9 @@ const proxyServerManager = (action = 'start', options = {}) => {
   })
 }
 
-const setBypassList = (listStr) => {
+const setBypassList = (bypassList) => {
   const networkType = AnyProxy.utils.systemProxyMgr.getNetworkType()
-  exec(`networksetup -setproxybypassdomains ${networkType} ${listStr ? listStr.split(',').join(' ') : '" "'}`)
+  exec(`networksetup -setproxybypassdomains ${networkType} ${bypassList.length > 1 ? bypassList.join(' ') : '" "'}`)
 }
 
 export default {

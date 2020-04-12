@@ -1,28 +1,5 @@
 <template>
   <div class="workspace-footer">
-    <div class="online-status">
-      <el-popover
-        title="本机IP"
-        width="200"
-        trigger="hover"
-        :content="`${ipAddress}`"
-      >
-        <svgicon
-          slot="reference"
-          v-if="isOnline"
-          class="online-icon"
-          icon="online"
-          width="16" height="16" color="#67c23a"
-        ></svgicon>
-        <svgicon
-          slot="reference"
-          v-if="!isOnline"
-          class="offline-icon"
-          icon="offline"
-          width="16" height="16" color="#e2210d"
-        ></svgicon>
-      </el-popover>
-    </div>
     <div
       class="step-item"
       v-if="currentStep === 1"
@@ -129,8 +106,6 @@ import { mapGetters } from 'vuex'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 import createGUID from '@/utils/uuidv4'
-import '@/assets/icons/online'
-import '@/assets/icons/offline'
 
 const Ajv = require('ajv')
 
@@ -142,8 +117,7 @@ export default {
       advanceSettingVisible: false,
       importDialogVisible: false,
       exportDialogVisible: false,
-      contentToImport: '',
-      ipAddress: '127.0.0.1'
+      contentToImport: ''
     }
   },
   computed: {
@@ -170,21 +144,11 @@ export default {
         window.localStorage.setItem('displayMode', val)
         this.$store.commit('setRuleConfigListDisplayMode', val)
       }
-    },
-    isOnline () {
-      return this.ipAddress !== '127.0.0.1'
     }
   },
   beforeCreate () {
     this.ajv = new Ajv()
     this.ruleConfigSchema = this.$proxyApi.getRuleConfigSchema()
-  },
-  mounted () {
-    this.ipAddressUpdateListener = () => {
-      this.ipAddress = this.$proxyApi.getIPAddress()
-    }
-    this.$ipcRenderer.on('ip-address-updated', this.ipAddressUpdateListener)
-    this.ipAddressUpdateListener()
   },
   methods: {
     gotoProxyConfig () {
@@ -244,12 +208,6 @@ export default {
   height: 40px;
   line-height: 40px;
   background-color: #d7d7d7;
-}
-.online-status {
-  padding: 2px 0px 0 12px;
-}
-.online-icon, .offline-icon {
-  cursor: pointer;
 }
 .step-item {
   display: flex;
