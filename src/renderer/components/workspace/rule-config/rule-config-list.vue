@@ -5,7 +5,6 @@
       v-for="ruleConfig in ruleConfigs"
       :key="ruleConfig.guid"
     >
-      <div class="rule-config-type" >{{ruleConfig.type | ruleTypeConvertor}}</div>
       <div class="rule-config-info-wrapper">
         <div class="rule-config-info" v-if="ruleConfig.type !== 'customize'">
           <div class="rule-config-matcher">{{ruleConfig.matcher}}</div>
@@ -15,15 +14,15 @@
           <tooltip-wrapper :content="ruleConfig.name" className="rule-config-name" />
           <tooltip-wrapper :content="ruleConfig.description" className="rule-config-description" />
         </div>
-        <div class="rule-config-tags">
+        <!-- <div class="rule-config-tags">
           <div class="rule-config-tag" v-for="(tag, idx) in ruleConfig.tags" :key="idx">
             {{tag}}
           </div>
-        </div>
+        </div> -->
       </div>
       <div class="rule-config-operation">
         <el-tooltip class="item" effect="dark" content="编辑规则" placement="top">
-           <i
+          <i
             class="el-icon-edit"
             @click="handleEditRuleConfig(ruleConfig)"
           ></i>
@@ -128,15 +127,14 @@ export default {
   display: inline-flex;
   flex-direction: column;
   width: 200px;
-  height: 124px;
+  height: 100px;
   margin: 12px;
-  box-shadow: 1px 1px 8px 1px #b9b9b9;
-  padding-top: 24px;
+  border: 1px solid #d7d7d7;
   border-radius: 4px;
   overflow: hidden;
 }
 .rule-config-list .rule-config-item.disabled {
-  background-color: #efefef;
+  background-color: #d7d7d7;
 }
 .rule-config-list .rule-config-item .rule-config-operation {
   display: flex;
@@ -147,20 +145,16 @@ export default {
 .rule-config-list .rule-config-item .rule-config-operation i {
   cursor: pointer;
   padding: 4px;
+  font-size: 14px;
 }
 .rule-config-list .rule-config-item .rule-config-type {
-  position: absolute;
-  top: 0;
-  right: 0;
   background-color: #333;
   opacity: .7;
   color: #fff;
-  height: 22px;
-  line-height: 22px;
+  height: 24px;
+  line-height: 24px;
   width: 80px;
   text-align: center;
-  border-bottom-left-radius: 4px;
-  border-top-right-radius: 4px;
   font-size: 12px;
   font-weight: bold;
 }
@@ -188,13 +182,12 @@ export default {
 .rule-config-matcher, .rule-config-name {
   height: 24px;
   line-height: 24px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   color: #333;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  border-bottom: 1px solid #eee;
 }
 .rule-config-pattern, .rule-config-description {
   height: 40px;

@@ -39,14 +39,22 @@
         ></svgicon>
         代理配置
       </div>
-      <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="getRootCA">
+      <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="gotoRuleConfig">
+        <svgicon
+          class="filter-icon"
+          icon="filter"
+          width="32" height="32" color="#606266"
+        ></svgicon>
+        代理规则配置
+      </div>
+      <!-- <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="getRootCA">
         <svgicon
           class="certificate-icon"
           icon="certificate"
           width="30" height="30" color="#3a8ee6"
         ></svgicon>
         HTTPS证书
-      </div>
+      </div> -->
       <div class="icon-wrapper" @click="showVconsoleSetting = true">
         <svgicon
           class="vconsole-icon"
@@ -207,6 +215,7 @@ import '@/assets/icons/certificate'
 import '@/assets/icons/browser'
 import '@/assets/icons/weinre'
 import '@/assets/icons/vconsole'
+import '@/assets/icons/filter'
 import ProxyConfigDialog from './proxy-config-dialog'
 import WeinreConfigDialog from './weinre-config-dialog'
 import VconsoleConfigDialog from './vconsole-config-dialog'
@@ -334,6 +343,9 @@ export default {
     },
     openNetworkData () {
       this.$shell.openExternal(`http://127.0.0.1:${this.proxyConfig.webInterface.webPort}`)
+    },
+    gotoRuleConfig () {
+      this.$store.commit('setCurrentStep', 1)
     }
   },
   components: {
@@ -369,10 +381,11 @@ export default {
   height: 60px;
   margin: 12px;
   padding: 4px;
-  border: 1px solid #d7d7d7;
+  border: 1px solid #777;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  color: #333;
 }
 .proxy-config .info-container {
   flex: 1;

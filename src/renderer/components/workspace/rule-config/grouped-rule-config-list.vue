@@ -2,18 +2,14 @@
   <div class="grouped-rule-config-list">
     <div v-for="(tagItem, idx) in tagList" :key="idx">
       <div class="rule-config-list-group" v-if="groupedRuleConfigList[tagItem.tag] && groupedRuleConfigList[tagItem.tag].length > 0">
-        <div class="group-header">
+        <div class="group-header" @click="toggleRuleConfigList(tagItem.tag)">
           <div class="tag-name">
             {{tagItem.tag}} （{{groupedRuleConfigList[tagItem.tag].length}}条）
           </div>
-          <div style="float: right; margin-right: 12px; padding: 2px">
-            <el-button v-show="!tagItem.folded" size="mini" @click="toggleRulesByTag(tagItem.tag, true)" round>开启全部</el-button>
-            <el-button v-show="!tagItem.folded" size="mini" @click="toggleRulesByTag(tagItem.tag, false)" round>禁用全部</el-button>
-            <el-button
-              size="mini"
-              :icon="tagItem.folded ? 'el-icon-arrow-right' : 'el-icon-arrow-down'"
-              @click="toggleRuleConfigList(tagItem.tag)"
-            circle></el-button>
+          <div class="tag-btns">
+            <el-button v-show="!tagItem.folded" size="mini" @click.stop="toggleRulesByTag(tagItem.tag, true)" round>开启全部</el-button>
+            <el-button v-show="!tagItem.folded" size="mini" @click.stop="toggleRulesByTag(tagItem.tag, false)" round>禁用全部</el-button>
+            <i :class="tagItem.folded ? 'el-icon-arrow-right' : 'el-icon-arrow-down'" />
           </div>
         </div>
         <transition name="slide-fade">
@@ -126,17 +122,22 @@ export default {
   padding-bottom: 16px;
 }
 .group-header {
+  display: flex;
+  align-items: center;
   height: 32px;
-  background-color: #ccc;
-  margin: 0 0 1px 0;
+  border-bottom: 1px solid #d7d7d7;
+  cursor: pointer;
 }
 .group-header .tag-name {
+  flex: 1;
   display: inline-block;
   color: #333;
   opacity: .8;
   font-weight: bold;
-  line-height: 32px;
   padding: 0 8px;
+}
+.group-header .tag-btns i {
+  margin: 0 8px;
 }
 .slide-fade-enter-active {
   transition: all .2s ease-in;

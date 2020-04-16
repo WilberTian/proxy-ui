@@ -58,7 +58,7 @@ export default {
   },
   data () {
     return {
-      showFilterItem: false,
+      showFilterItem: true,
       selectedType: 'all',
       enableStatus: -1,
       selectedTags: []

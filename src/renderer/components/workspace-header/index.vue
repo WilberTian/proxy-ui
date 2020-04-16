@@ -1,49 +1,51 @@
 <template>
   <div class="workspace-header" @dblclick="handleDbClick">
-    <div class="logo">
-      Proxy UI
-    </div>
-    <div class="tool-icon-wrapper">
-      <div class="online-status">
-        <el-popover
-          title="本机IP"
-          width="200"
-          trigger="hover"
-          :content="`${ipAddress}`"
-        >
-          <svgicon
-            slot="reference"
-            v-if="isOnline"
-            class="online-icon"
-            icon="online"
-            width="16" height="16" color="#67c23a"
-          ></svgicon>
-          <svgicon
-            slot="reference"
-            v-if="!isOnline"
-            class="offline-icon"
-            icon="offline"
-            width="16" height="16" color="#e2210d"
-          ></svgicon>
-        </el-popover>
+    <img class="logo" src="static/256x256.png" v-if="currentStep === 2" />
+    <div class="header-toolbar">
+      <div class="tool-icon-wrapper" v-if="currentStep === 2">
+        <div class="online-status">
+          <el-popover
+            title="本机IP"
+            width="200"
+            trigger="hover"
+            :content="`${ipAddress}`"
+          >
+            <svgicon
+              slot="reference"
+              v-if="isOnline"
+              class="online-icon"
+              icon="online"
+              width="16" height="16" color="#67c23a"
+            ></svgicon>
+            <svgicon
+              slot="reference"
+              v-if="!isOnline"
+              class="offline-icon"
+              icon="offline"
+              width="16" height="16" color="#e2210d"
+            ></svgicon>
+          </el-popover>
+        </div>
+        <div class="cert-qr-code" v-if="showCertQr">
+          <el-popover
+            width="200"
+            trigger="hover"
+          >
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+              <qrcode :value="certUrl" :options="{ size: 150, foreground: '#409EFF'}"></qrcode>
+              <span style="margin-top: 12px; color: #409EFF; cursor: pointer;" @click="downloadCert">点击下载HTTPS证书</span>
+              <span style="margin-top: 8px; color: #409EFF; cursor: pointer;" @click="openCertFolder">打开本地证书目录</span>
+            </div>
+            <svgicon
+              slot="reference"
+              class="qrcode-icon"
+              icon="qrcode"
+              width="16" height="16" color="#67c23a"
+            ></svgicon>
+          </el-popover>
+        </div>
       </div>
-      <div class="cert-qr-code" v-if="showCertQr">
-        <el-popover
-          width="200"
-          trigger="hover"
-        >
-          <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <qrcode :value="certUrl" :options="{ size: 150, foreground: '#3f51b5'}"></qrcode>
-            <span style="margin-top: 12px; color: #3f51b5; cursor: pointer;" @click="downloadCert">点击下载HTTPS证书</span>
-          </div>
-          <svgicon
-            slot="reference"
-            class="qrcode-icon"
-            icon="qrcode"
-            width="16" height="16" color="#67c23a"
-          ></svgicon>
-        </el-popover>
-      </div>
+      <rule-config-toolbar v-if="currentStep === 1" />
     </div>
     <window-btn-group />
   </div>
@@ -57,6 +59,7 @@ import '@/assets/icons/online'
 import '@/assets/icons/offline'
 import '@/assets/icons/qrcode'
 import WindowBtnGroup from './window-btn-group'
+import RuleConfigToolbar from '../workspace/rule-config/rule-config-toolbar'
 
 Vue.component(VueQrcode.name, VueQrcode)
 
@@ -69,7 +72,8 @@ export default {
   computed: {
     ...mapGetters({
       proxyServerStatus: 'getProxyServerStatus',
-      proxyConfig: 'getProxyConfig'
+      proxyConfig: 'getProxyConfig',
+      currentStep: 'getCurrentStep'
     }),
     isOnline () {
       return this.ipAddress !== '127.0.0.1'
@@ -87,6 +91,9 @@ export default {
     },
     downloadCert () {
       this.$shell.openExternal(this.certUrl)
+    },
+    openCertFolder () {
+      this.$proxyApi.getRootCA()
     }
   },
   mounted () {
@@ -97,7 +104,8 @@ export default {
     this.ipAddressUpdateListener()
   },
   components: {
-    WindowBtnGroup
+    WindowBtnGroup,
+    RuleConfigToolbar
   }
 }
 </script>
@@ -108,18 +116,24 @@ export default {
   align-items: center;
   height: 48px;
   line-height: 48px;
-  background: #3f51b5;
+  background: #e4e4e4;
   -webkit-app-region: drag;
 }
 .workspace-header .logo {
+  width: 22px;
+  height: 22px;
+  padding: 4px;
+  margin: 0 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+}
+.workspace-header .header-toolbar {
   flex: 1;
-  color: #fff;
-  font-weight: bold;
-  padding: 0 12px;
-  user-select: none;
+  display: inline-flex;
+  justify-content: flex-end;
 }
 .tool-icon-wrapper {
-  background-color: rgba(16, 25, 72, 0.3);
+  background-color: #fff;
   border-radius: 4px;
   display: flex;
   justify-content: center;

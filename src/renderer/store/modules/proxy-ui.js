@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 const state = {
-  currentStep: 1,
+  currentStep: 2,
   ruleConfigs: {},
   proxyConfig: {},
   proxyServerStatus: 0,

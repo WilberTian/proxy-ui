@@ -127,14 +127,14 @@ export default {
   display: flex;
   flex-direction: row;
   margin: 8px;
-  box-shadow: 1px 1px 4px 0px #b9b9b9;
+  border: 1px solid #d7d7d7;
   border-radius: 4px;
   overflow: hidden;
   height: 32px;
   line-height: 32px;
 }
 .rule-config-list .rule-config-item.disabled {
-  background-color: #efefef;
+  background-color: #d7d7d7;
 }
 .rule-config-list .rule-config-item .rule-config-operation {
   display: flex;

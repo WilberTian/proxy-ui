@@ -182,6 +182,7 @@ export default {
 }
 .rule-config .rule-config-list-wrapper .rule-config-filter {
   padding: 10px;
+  margin: 10px;
   box-shadow: 0px 0px 2px 2px #ddd;
   user-select: none;
 }

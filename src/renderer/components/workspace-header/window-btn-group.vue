@@ -70,7 +70,7 @@ export default {
   background-color: #FF5722;
 }
 .minimize-btn {
-  background-color: #FFEB3B;
+  background-color: #fba420;
 }
 .maximize-btn {
   background-color: #13ce66;

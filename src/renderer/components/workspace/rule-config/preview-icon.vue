@@ -46,10 +46,10 @@ export default {
 .el-icon-view.disabled::after {
   content: '';
   position: absolute;
-  top: 11px;
-  left: 4px;
+  top: 10px;
+  left: 5px;
   height: 2px;
-  width: 16px;
+  width: 12px;
   background-color: #606266;
   transform: rotate(45deg);
 }
