@@ -132,15 +132,18 @@ export default {
   overflow: hidden;
   height: 32px;
   line-height: 32px;
+  background: aliceblue;
 }
 .rule-config-list .rule-config-item.disabled {
-  background-color: #d7d7d7;
+  background-color: #efefef;
+  opacity: .8;
 }
 .rule-config-list .rule-config-item .rule-config-operation {
   display: flex;
   align-items: center;
   user-select: none;
   margin: 0 4px;
+  font-size: 14px;
 }
 .rule-config-list .rule-config-item .rule-config-operation i {
   cursor: pointer;

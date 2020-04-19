@@ -116,7 +116,7 @@ export default {
   align-items: center;
   height: 48px;
   line-height: 48px;
-  background: #e4e4e4;
+  background: -webkit-linear-gradient(top, #eee, #bbb);
   -webkit-app-region: drag;
 }
 .workspace-header .logo {

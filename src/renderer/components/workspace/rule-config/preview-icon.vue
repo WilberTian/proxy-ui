@@ -40,9 +40,6 @@ export default {
   position: relative;
   cursor: pointer;
 }
-.el-icon-view.disabled {
-  color: #606266;
-}
 .el-icon-view.disabled::after {
   content: '';
   position: absolute;
@@ -50,7 +47,7 @@ export default {
   left: 5px;
   height: 2px;
   width: 12px;
-  background-color: #606266;
+  background-color: #444;
   transform: rotate(45deg);
 }
 </style>

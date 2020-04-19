@@ -2,7 +2,7 @@
   <div class="grouped-rule-config-list">
     <div v-for="(tagItem, idx) in tagList" :key="idx">
       <div class="rule-config-list-group" v-if="groupedRuleConfigList[tagItem.tag] && groupedRuleConfigList[tagItem.tag].length > 0">
-        <div class="group-header" @click="toggleRuleConfigList(tagItem.tag)">
+        <div :class="{'group-header': true, 'folded-item': tagItem.folded}" @click="toggleRuleConfigList(tagItem.tag)">
           <div class="tag-name">
             {{tagItem.tag}} （{{groupedRuleConfigList[tagItem.tag].length}}条）
           </div>
@@ -120,13 +120,16 @@ export default {
 <style scoped>
 .rule-config-list {
   padding-bottom: 16px;
+  border-bottom: 1px solid #d7d7d7;
 }
 .group-header {
   display: flex;
   align-items: center;
   height: 32px;
-  border-bottom: 1px solid #d7d7d7;
   cursor: pointer;
+}
+.group-header.folded-item {
+  border-bottom: 1px solid #d7d7d7;
 }
 .group-header .tag-name {
   flex: 1;

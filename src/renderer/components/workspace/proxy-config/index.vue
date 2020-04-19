@@ -381,7 +381,7 @@ export default {
   height: 60px;
   margin: 12px;
   padding: 4px;
-  border: 1px solid #777;
+  border: 1px solid #bbb;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;

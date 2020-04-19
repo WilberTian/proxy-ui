@@ -128,13 +128,15 @@ export default {
   flex-direction: column;
   width: 200px;
   height: 100px;
-  margin: 12px;
+  margin: 10px;
   border: 1px solid #d7d7d7;
   border-radius: 4px;
   overflow: hidden;
+  background: aliceblue;
 }
 .rule-config-list .rule-config-item.disabled {
-  background-color: #d7d7d7;
+  background-color: #efefef;
+  opacity: .8;
 }
 .rule-config-list .rule-config-item .rule-config-operation {
   display: flex;
