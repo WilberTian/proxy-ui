@@ -4,6 +4,7 @@
       <rule-config-filter
         v-if="ruleConfigListDisplayMode === 'list'"
         :tags="tags"
+        :filterData="filterData"
         @filterChange="handleFilterChange"
         @enableSelected="toggleSelectedRules(true)"
         @disableSelected="toggleSelectedRules(false)"
@@ -15,8 +16,8 @@
       />
       <grouped-rule-config-list
         :tags="tags"
-        v-if="filteredRuleConfigs.length > 0 && ruleConfigListDisplayMode === 'group'"
-        :ruleConfigs="filteredRuleConfigs"
+        v-if="ruleConfigs.length > 0 && ruleConfigListDisplayMode === 'group'"
+        :ruleConfigs="ruleConfigs"
         @editRuleConfig="handleEditRuleConfig"
       />
       <div class="no-config-rule-msg" v-if="filteredRuleConfigs.length === 0">没有规则！</div>
@@ -45,7 +46,8 @@ export default {
   computed: {
     ...mapGetters({
       ruleConfigs: 'getRuleConfigs',
-      ruleConfigListDisplayMode: 'getRuleConfigListDisplayMode'
+      ruleConfigListDisplayMode: 'getRuleConfigListDisplayMode',
+      ruleSettingVisible: 'getRuleSettingVisible'
     }),
     filteredRuleConfigs () {
       let result = []
@@ -55,7 +57,7 @@ export default {
             if ('selectedType' in this.filterData && this.filterData.selectedType !== ruleConfig.type) {
               return false
             }
-            if ('enableStatus' in this.filterData && this.filterData.enableStatus !== ruleConfig.enabled) {
+            if ('enableStatus' in this.filterData && !!this.filterData.enableStatus !== ruleConfig.enabled) {
               return false
             }
             if ('selectedTags' in this.filterData && this.filterData.selectedTags.length > 0) {
@@ -94,7 +96,6 @@ export default {
   },
   data () {
     return {
-      ruleSettingVisible: false,
       selectedRuleConfig: null,
       operation: null,
       filterData: null
@@ -114,7 +115,7 @@ export default {
     },
     handleSubmitRuleConfig (ruleConfig) {
       let _ruleConfig = ruleConfig
-      this.ruleSettingVisible = false
+      this.$store.commit('setRuleSettingVisible', false)
       this.selectedRuleConfig = null
       if ('guid' in ruleConfig) {
         this.$store.commit('updateRuleConfig', ruleConfig)
@@ -129,29 +130,29 @@ export default {
       if (_ruleConfig.type === 'customize') {
         const result = this.$proxyApi.writeCustomizeRule(_ruleConfig)
         if (result) {
-          this.$store.commit('setWorkspaceFooterVisible', true)
+          // this.$store.commit('setWorkspaceFooterVisible', true)
         } else {
           this.$message.error('创建/修改自定义规则失败，请重试')
         }
       } else {
-        this.$store.commit('setWorkspaceFooterVisible', true)
+        // this.$store.commit('setWorkspaceFooterVisible', true)
       }
     },
     handleCancelRuleConfig () {
-      this.ruleSettingVisible = false
-      this.$store.commit('setWorkspaceFooterVisible', true)
+      this.$store.commit('setRuleSettingVisible', false)
+      // this.$store.commit('setWorkspaceFooterVisible', true)
     },
     handleEditRuleConfig (selectedRuleConfig) {
       this.selectedRuleConfig = selectedRuleConfig
       this.operation = 'edit'
-      this.ruleSettingVisible = true
-      this.$store.commit('setWorkspaceFooterVisible', false)
+      this.$store.commit('setRuleSettingVisible', true)
+      // this.$store.commit('setWorkspaceFooterVisible', false)
     },
     handleCreateConfigRule () {
       this.selectedRuleConfig = null
       this.operation = 'create'
-      this.ruleSettingVisible = true
-      this.$store.commit('setWorkspaceFooterVisible', false)
+      this.$store.commit('setRuleSettingVisible', true)
+      // this.$store.commit('setWorkspaceFooterVisible', false)
     },
     toggleSelectedRules (isEnabled) {
       if (this.filteredRuleConfigs.length > 0) {
@@ -175,6 +176,10 @@ export default {
 </script>
 
 <style scoped>
+.rule-config {
+  flex: 1;
+  overflow: auto;
+}
 .rule-config .rule-config-list-wrapper {
   height: 100%;
   display: flex;

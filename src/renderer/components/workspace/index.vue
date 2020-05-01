@@ -29,12 +29,4 @@ export default {
 .workspace {
   display: flex;
 }
-.rule-config {
-  flex: 1;
-  overflow: auto;
-}
-.proxy-config {
-  flex: 1;
-  overflow: auto;
-}
 </style>

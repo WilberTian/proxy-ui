@@ -7,14 +7,7 @@
       <i class="el-icon-circle-plus-outline"></i>
       创建规则
     </div>
-    <div
-      class="operation-btn"
-      @click="gotoProxyConfig"
-    >
-      启动代理
-    </div>
-    <div style="flex: 1;"></div>
-    <el-radio-group v-model="displayMode" size="mini" :style="{marginRight: '10px'}">
+    <el-radio-group v-model="displayMode" size="mini" style="marginLeft: 10px;">
       <el-radio-button label="group">
         标签分组
       </el-radio-button>
@@ -22,6 +15,7 @@
         列表
       </el-radio-button>
     </el-radio-group>
+    <div style="flex: 1;"></div>
     <el-popover
       placement="top"
       v-model="advanceSettingVisible"
@@ -37,6 +31,13 @@
         高级
       </div>
     </el-popover>
+    <div
+      class="operation-btn"
+      @click="gotoProxyConfig"
+      style="color: #fff; background: #4CAF50"
+    >
+      启动代理<i class="el-icon-right" />
+    </div>
     <el-dialog
       title="导入规则"
       :fullscreen="true"
@@ -188,7 +189,7 @@ export default {
   height: 26px;
   line-height: 26px;
   padding: 2px 12px;
-  margin: 0 8px;
+  margin: 0 12px;
   background: #fff;
   color: #666;
   border-radius: 4px;

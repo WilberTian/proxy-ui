@@ -44,6 +44,7 @@ body {
     Microsoft YaHei, SimSun, sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  color: #333;
 }
 #app {
   height: 100vh;
@@ -73,6 +74,9 @@ body {
 .CodeMirror-cursor {
   height: 20px;
 }
+.el-tabs .el-tabs__header {
+  margin: 0 !important;
+}
 .el-tabs__content {
   padding: 0 !important;
   height: calc(100% - 40px) !important;
@@ -97,23 +101,5 @@ body {
 }
 textarea {
   border-radius: 0 !important;
-}
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-thumb {
-  background-color: #0d9de2;
-}
-::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-  background-color: #f5f5f5;
-}
-textarea::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-textarea::-webkit-scrollbar-thumb {
-  background-color: #606266;
 }
 </style>

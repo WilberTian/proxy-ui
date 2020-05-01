@@ -7,96 +7,26 @@
       <el-tab-pane label="请求数据" name="request">
         <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
           <el-button size="mini" type="primary" @click="addRequestHandler">录制请求</el-button>
-          <el-tooltip class="item" effect="dark" content="" placement="bottom">
+          <el-tooltip class="item" effect="dark" content="将请求信息记录下来，在“已录制请求”界面中，可以重新发送请求" placement="bottom">
             <i class="el-icon-info"></i>
           </el-tooltip>
         </div>
         <div class="data-wrapper">
-          <div class="section-data-wrapper">
-            <div class="section-title">
-              General
-            </div>
-            <div class="section-data">
-              <div class="section-data-item">
-                <div class="label">
-                  Method
-                </div>
-                <div class="value">
-                  {{recordDetail.method}}
-                </div>
-              </div>
-              <div class="section-data-item">
-                <div class="label">
-                  Url
-                </div>
-                <div class="value">
-                  {{recordDetail.url}}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="section-data-wrapper">
-            <div class="section-title">
-              Header
-            </div>
-            <div class="section-data">
-              <div class="section-data-item" v-for="(value, key) in recordDetail.reqHeader" :key="key">
-                <div class="label">
-                  {{key}}
-                </div>
-                <div class="value">
-                  {{value}}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="section-data-wrapper">
-            <div class="section-title">
-              Body
-            </div>
-            <div class="section-data preview-mode">{{recordDetail.reqBody}}</div>
-          </div>
+          <kv-viewer title="通用" :kvData="{
+            Method: recordDetail.method,
+            Url: recordDetail.url
+          }" />
+          <kv-viewer title="请求头" :kvData="recordDetail.reqHeader" />
+          <http-body-viewer title="请求体" :headerData="recordDetail.reqHeader" :bodyData="recordDetail.reqBody" />
         </div>
       </el-tab-pane>
       <el-tab-pane label="响应数据" name="response">
         <div class="data-wrapper">
-          <div class="section-data-wrapper">
-            <div class="section-title">
-              General
-            </div>
-            <div class="section-data">
-              <div class="section-data-item">
-                <div class="label">
-                  Status
-                </div>
-                <div class="value">
-                  {{recordDetail.statusCode}}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="section-data-wrapper">
-            <div class="section-title">
-              Header
-            </div>
-            <div class="section-data">
-              <div class="section-data-item" v-for="(value, key) in recordDetail.resHeader" :key="key">
-                <div class="label">
-                  {{key}}
-                </div>
-                <div class="value">
-                  {{value}}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="section-data-wrapper">
-            <div class="section-title">
-              Body
-            </div>
-            <div v-if="isResponseImg" class="section-data" v-html="formatedBody"></div>
-            <div v-else class="section-data preview-mode">{{formatedBody}}</div>
-          </div>
+          <kv-viewer title="通用" :kvData="{
+            Status: recordDetail.statusCode
+          }" />
+          <kv-viewer title="响应头" :kvData="recordDetail.resHeader" />
+          <http-body-viewer title="响应体" :url="recordDetail.url" :headerData="recordDetail.resHeader" :bodyData="responseBody && responseBody.content" />
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -106,6 +36,8 @@
 <script>
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
+import KvViewer from '@/components/workspace/common/kv-viewer'
+import HttpBodyViewer from '@/components/workspace/common/http-body-viewer'
 
 export default {
   props: {
@@ -120,29 +52,6 @@ export default {
       recordDetail: {},
       responseBody: null,
       isResponseImg: false
-    }
-  },
-  computed: {
-    formatedBody () {
-      if (this.responseBody) {
-        const type = this.responseBody.type
-        if (type.match('image')) {
-          this.isResponseImg = true
-          return `<img style="width: 100%;" src="${this.recordDetail.url}">`
-        } else if (type.match('json')) {
-          this.isResponseImg = false
-          try {
-            const JOSNObj = JSON.parse(this.responseBody.content)
-            return JSON.stringify(JOSNObj, null, 2)
-          } catch (e) {
-            return this.responseBody.content
-          }
-        } else {
-          this.isResponseImg = false
-          return this.responseBody.content
-        }
-      }
-      return ''
     }
   },
   watch: {
@@ -185,6 +94,10 @@ export default {
         reqBody: this.recordDetail.reqBody
       })
     }
+  },
+  components: {
+    KvViewer,
+    HttpBodyViewer
   }
 }
 </script>
@@ -217,60 +130,11 @@ export default {
 .request-record-btn {
   position: absolute;
   z-index: 100;
-  top: 2px;
+  top: 4px;
   right: 24px;
 }
 .data-wrapper {
   height: 100%;
   overflow-y: auto;
-}
-
-.section-data-wrapper {
-  margin-bottom: 32px;
-  padding: 0 8px;
-}
-.section-title {
-  font-size: 16px;
-  font-weight: bold;  
-  color: #333;
-  border-bottom: 1px solid #ccc;
-  padding: 8px 4px;
-  margin-bottom: 8px;
-}
-.section-data {
-  margin: 0 4px;
-}
-.section-data-item {
-  display: flex;
-  font-size: 13px;
-  margin: 12px 8px;
-  opacity: .8;
-  color: #333;
-}
-.section-data-item .label {
-  width: 120px;
-  padding-right: 8px;
-  text-align: right;
-  font-weight: bold;
-  word-wrap: break-word;
-  word-break: break-all;
-}
-.section-data-item .value {
-  flex: 1;
-  padding-left: 8px;
-  word-wrap: break-word;
-  word-break: break-all;
-  border-left: 1px solid #ccc;
-}
-
-.preview-mode {
-  white-space: pre-wrap;
-  background-color: aliceblue;
-  padding: 12px;
-  font-size: 13px;
-  opacity: .8;
-  color: #333;
-  word-wrap: break-word;
-  word-break: break-all;
 }
 </style>

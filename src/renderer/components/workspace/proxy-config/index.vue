@@ -291,7 +291,7 @@ export default {
           type: 'success'
         })
         this.$store.commit('setProxyServerStatus', 1)
-        this.$store.commit('setWorkspaceFooterVisible', false)
+        // this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
       }, (e) => {
         this.$notify({
@@ -300,7 +300,7 @@ export default {
           type: 'error'
         })
         this.$store.commit('setProxyServerStatus', 0)
-        this.$store.commit('setWorkspaceFooterVisible', true)
+        // this.$store.commit('setWorkspaceFooterVisible', true)
         this.loading = false
       })
     },
@@ -313,7 +313,7 @@ export default {
           type: 'success'
         })
         this.$store.commit('setProxyServerStatus', 0)
-        this.$store.commit('setWorkspaceFooterVisible', true)
+        // this.$store.commit('setWorkspaceFooterVisible', true)
         this.loading = false
         this.$proxyApi.setTrayTitle('')
       })
@@ -330,7 +330,7 @@ export default {
           type: 'success'
         })
         this.$store.commit('setProxyServerStatus', 1)
-        this.$store.commit('setWorkspaceFooterVisible', false)
+        // this.$store.commit('setWorkspaceFooterVisible', false)
         this.loading = false
       })
     },
@@ -363,6 +363,8 @@ export default {
 
 <style scoped>
 .proxy-config {
+  flex: 1;
+  overflow: auto;
   display: flex;
 }
 .proxy-config .operation-btn-group {

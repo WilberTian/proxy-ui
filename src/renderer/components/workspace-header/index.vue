@@ -1,8 +1,10 @@
 <template>
   <div class="workspace-header" @dblclick="handleDbClick">
-    <img class="logo" src="static/256x256.png" v-if="currentStep === 2" />
+    <div class="logo-wrapper">
+      <img class="logo" src="static/256x256.png" />
+    </div>
     <div class="header-toolbar">
-      <div class="tool-icon-wrapper" v-if="currentStep === 2">
+      <div class="tool-icon-wrapper" v-if="currentStep === 2 && !ruleSettingVisible">
         <div class="online-status">
           <el-popover
             title="本机IP"
@@ -45,7 +47,7 @@
           </el-popover>
         </div>
       </div>
-      <rule-config-toolbar v-if="currentStep === 1" />
+      <rule-config-toolbar v-if="currentStep === 1 && !ruleSettingVisible" />
     </div>
     <window-btn-group />
   </div>
@@ -73,7 +75,8 @@ export default {
     ...mapGetters({
       proxyServerStatus: 'getProxyServerStatus',
       proxyConfig: 'getProxyConfig',
-      currentStep: 'getCurrentStep'
+      currentStep: 'getCurrentStep',
+      ruleSettingVisible: 'getRuleSettingVisible'
     }),
     isOnline () {
       return this.ipAddress !== '127.0.0.1'
@@ -119,13 +122,18 @@ export default {
   background: -webkit-linear-gradient(top, #eee, #bbb);
   -webkit-app-region: drag;
 }
-.workspace-header .logo {
-  width: 22px;
-  height: 22px;
-  padding: 4px;
-  margin: 0 10px;
+.workspace-header .logo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.7);
+  padding: 6px;
+  margin: 0 10px;
+}
+.workspace-header .logo-wrapper .logo {
+  width: 20px;
+  height: 20px;
 }
 .workspace-header .header-toolbar {
   flex: 1;

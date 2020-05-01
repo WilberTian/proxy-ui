@@ -52,6 +52,9 @@
 <script>
 export default {
   props: {
+    filterData: {
+      type: Object
+    },
     tags: {
       type: Array
     }
@@ -59,9 +62,9 @@ export default {
   data () {
     return {
       showFilterItem: true,
-      selectedType: 'all',
-      enableStatus: -1,
-      selectedTags: []
+      selectedType: (this.filterData && this.filterData.selectedType) || 'all',
+      enableStatus: (this.filterData !== null) ? this.filterData.enableStatus : -1,
+      selectedTags: (this.filterData && this.filterData.selectedTags) || []
     }
   },
   methods: {
@@ -88,7 +91,7 @@ export default {
         filterData.selectedType = this.selectedType
       }
       if (this.enableStatus !== -1) {
-        filterData.enableStatus = !!this.enableStatus
+        filterData.enableStatus = this.enableStatus
       }
       if (this.selectedTags.length > 0) {
         filterData.selectedTags = this.selectedTags

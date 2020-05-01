@@ -6,7 +6,7 @@
             <div v-loading="request.loading" class="btn-wrapper" @click="processRequest(idx)">
               {{request.method}}
             </div>
-            <div class="request-url">
+            <div class="request-url" @click="toggleVisible(idx)">
               {{request.protocol}}://{{request.host}}{{request.path}}
             </div>
             <div class="detail-btn" @click="toggleVisible(idx)">
@@ -47,7 +47,22 @@
             </div>
           </div>
           <div v-if="request.visible" class="request-item-detail">
-            <truncate action-class="truncate-btn" clamp="显示更多" :length="1000" less="收起更多" :text="JSON.stringify(request.response, null, 2) || '没有数据'"></truncate>
+            <el-tabs>
+              <el-tab-pane label="响应数据">
+                <div v-if="request.response">
+                  <kv-viewer title="响应头" :kvData="request.response.headers" />
+                  <http-body-viewer title="响应体" :headerData="request.response.headers" :bodyData="request.response.data" />
+                  <!-- <truncate action-class="truncate-btn" clamp="显示更多" :length="1000" less="收起更多" :text="JSON.stringify(request.response, null, 2) || '没有数据'"></truncate> -->
+                </div>
+                <div v-else style="padding: 20px;">
+                  没有数据
+                </div>
+              </el-tab-pane>
+              <el-tab-pane label="请求数据">
+                <kv-viewer title="请求头" :kvData="request.reqHeader" />
+                <http-body-viewer title="请求体" :headerData="request.reqHeader" :bodyData="request.reqBody" />
+              </el-tab-pane>
+            </el-tabs>
           </div>
         </div>
     </div>
@@ -63,6 +78,8 @@
 import truncate from 'vue-truncate-collapsed'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
+import KvViewer from '@/components/workspace/common/kv-viewer'
+import HttpBodyViewer from '@/components/workspace/common/http-body-viewer'
 
 export default {
   props: {
@@ -148,11 +165,13 @@ export default {
         const proxyConfig = await this.$proxyApi.readProxyConfig()
         const withProxy = typeof requestInfo.withProxy === 'undefined' ? this.proxyServerStatus === 1 : requestInfo.withProxy
         const response = await this.$proxyApi.processRequest(requestInfo, proxyConfig, withProxy)
+
         this.$set(this.requestList, idx, {
           ...requestInfo,
           loading: false,
           visible: true,
           response: {
+            headers: response.headers,
             status: response.status,
             data: response.data
           }
@@ -163,6 +182,7 @@ export default {
           loading: false,
           visible: true,
           response: {
+            headers: null,
             status: 0,
             data: e.message
           }
@@ -177,7 +197,9 @@ export default {
     }
   },
   components: {
-    truncate
+    truncate,
+    KvViewer,
+    HttpBodyViewer
   }
 }
 </script>
@@ -190,8 +212,8 @@ export default {
   overflow-y: auto;
 }
 .requesst-item-wrapper {
-  margin: 4px;
-  border: 1px solid #d7d7d7;
+  margin: 8px;
+  border: 1px solid #bbb;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -217,6 +239,7 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 .requesst-item-wrapper .request-item .detail-btn {
   color: #409eff;
@@ -238,15 +261,8 @@ export default {
 }
 .requesst-item-wrapper .request-item-detail {
   font-size: 12px;
-  background-color: #efefef;
-  padding: 8px;
-  max-height: 300px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-.requesst-item-wrapper .request-item-detail > div {
-  display: inline-flex;
+  border-top: 1px solid #efefef;
+  padding: 0 4px;
 }
 .request-list-tab .empty-request-list-msg {
   height: 100%;
