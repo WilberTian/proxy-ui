@@ -65,11 +65,11 @@ export default {
   font-size: 16px;
   font-weight: bold;
   padding-bottom: 8px;
-  word-break: break-all;
+  word-break: break-word;
 }
 .log-item-detail {
   font-size: 14px;
-  word-break: break-all;
+  word-break: break-word;
 }
 .proxy-server-log .no-error-msg {
   height: 100%;

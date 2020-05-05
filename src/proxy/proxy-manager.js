@@ -784,18 +784,8 @@ export default {
         proxyServerRecorder.getDecodedBody(id, (err, result) => {
           if (err || !result || !result.content) {
             reject(new Error('获取数据失败'))
-          } else if (result.type && result.type === 'image' && result.mime) {
-            resolve({
-              raw: true,
-              type: result.mime,
-              content: result.content
-            })
           } else {
-            resolve({
-              id: id,
-              type: result.type,
-              content: result.content
-            })
+            resolve(result)
           }
         })
       } else {

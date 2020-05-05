@@ -115,7 +115,7 @@ export default {
   padding-right: 8px;
   font-weight: bold;
   word-wrap: break-word;
-  word-break: break-all;
+  word-break: break-word;
 }
 .rule-config-item .value {
   flex: 1;

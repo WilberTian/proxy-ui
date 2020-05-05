@@ -3,57 +3,63 @@
     <div class="section-title" v-if="title">
       {{title}}
     </div>
-    <div v-if="isResponseImg" class="section-data" v-html="formatedBody"></div>
-    <div v-else class="section-data preview-mode">{{formatedBody}}</div>
+    <div v-if="showRawHTML" class="section-data" v-html="formatedBody"></div>
+    <div v-else class="section-data preview-mode">
+      <truncate action-class="truncate-btn" clamp="显示更多" :length="1000" less="收起更多" :text="formatedBody || '没有数据'"></truncate>
+    </div>
   </div>
 </template>
 <script>
+import truncate from 'vue-truncate-collapsed'
+
 export default {
   props: {
     title: {
       type: String
     },
-    url: {
-      type: String
-    },
-    headerData: {
-      type: Object
-    },
     bodyData: {
-      type: [Object, String]
+      type: Object,
+      default: function () {
+        return {}
+      }
     }
   },
   data: function () {
     return {
-      isResponseImg: false
+      showRawHTML: false
     }
   },
   computed: {
     formatedBody () {
-      const contentType = this.headerData && (this.headerData['content-type'] || this.headerData['Content-Type'])
-
-      if (this.bodyData) {
+      const contentType = this.bodyData.headers && (this.bodyData.headers['content-type'] || this.bodyData.headers['Content-Type'])
+      if (this.bodyData.body) {
         if (contentType && contentType.match('image')) {
-          this.isResponseImg = true
-          return `<img style="width: 100%;" src="${this.url}">`
-        } else if (contentType && contentType.match('json')) {
-          this.isResponseImg = false
+          this.showRawHTML = true
+          return `<img style="width: 100%;" alt="${this.bodyData.url}" src="${this.bodyData.url}">`
+        } else if (contentType && /json|text|javascript/.test(contentType)) {
+          this.showRawHTML = false
           try {
-            let JSONObj = this.bodyData
-            if (typeof this.bodyData === 'string') {
-              JSONObj = JSON.parse(this.bodyData)
+            let JSONObj = this.bodyData.body
+            if (typeof this.bodyData.body === 'string') {
+              JSONObj = JSON.parse(this.bodyData.body)
             }
             return JSON.stringify(JSONObj, null, 4)
           } catch (e) {
-            return this.bodyData
+            return this.bodyData.body
           }
+        } else if (!this.bodyData.isRequest) {
+          this.showRawHTML = true
+          return `<a href="${this.bodyData.url}">${this.bodyData.url}</a>`
         } else {
-          this.isResponseImg = false
-          return this.bodyData
+          this.showRawHTML = false
+          return this.bodyData.body
         }
       }
       return ''
     }
+  },
+  components: {
+    truncate
   }
 }
 </script>
@@ -72,16 +78,23 @@ export default {
 }
 .section-data {
   margin: 0 4px;
+  padding: 12px;
+  background-color: aliceblue;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
 }
 
 .preview-mode {
-  white-space: pre-wrap;
-  background-color: aliceblue;
-  padding: 12px;
-  font-size: 12px;
   opacity: .8;
   color: #333;
-  word-wrap: break-word;
-  word-break: break-all;
+}
+</style>
+<style>
+.truncate-btn {
+  color: #409eff;
+  font-weight: bold;
+  display: block;
+  text-align: right;
 }
 </style>

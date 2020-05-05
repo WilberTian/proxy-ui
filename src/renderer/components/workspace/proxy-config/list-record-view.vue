@@ -160,6 +160,9 @@ export default {
 }
 .host-column {
   width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .path-column {
   flex: 1;

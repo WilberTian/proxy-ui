@@ -50,17 +50,24 @@
             <el-tabs>
               <el-tab-pane label="响应数据">
                 <div v-if="request.response">
-                  <kv-viewer title="响应头" :kvData="request.response.headers" />
-                  <http-body-viewer title="响应体" :headerData="request.response.headers" :bodyData="request.response.data" />
-                  <!-- <truncate action-class="truncate-btn" clamp="显示更多" :length="1000" less="收起更多" :text="JSON.stringify(request.response, null, 2) || '没有数据'"></truncate> -->
+                  <kv-viewer title="响应头" :kvData="request.response.headers || {}" />
+                  <http-body-viewer title="响应体" :bodyData="{
+                    isRequest: false,
+                    headers: request.response.headers,
+                    body: request.response && request.response.data
+                  }" />
                 </div>
                 <div v-else style="padding: 20px;">
                   没有数据
                 </div>
               </el-tab-pane>
               <el-tab-pane label="请求数据">
-                <kv-viewer title="请求头" :kvData="request.reqHeader" />
-                <http-body-viewer title="请求体" :headerData="request.reqHeader" :bodyData="request.reqBody" />
+                <kv-viewer title="请求头" :kvData="request.reqHeader || {}" />
+                <http-body-viewer title="请求体" :bodyData="{
+                  isRequest: true,
+                  headers: request.reqHeader,
+                  body: request.reqBody && request.reqBody.data
+                }" />
               </el-tab-pane>
             </el-tabs>
           </div>
@@ -75,7 +82,6 @@
   </div>
 </template>
 <script>
-import truncate from 'vue-truncate-collapsed'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 import KvViewer from '@/components/workspace/common/kv-viewer'
@@ -197,7 +203,6 @@ export default {
     }
   },
   components: {
-    truncate,
     KvViewer,
     HttpBodyViewer
   }
@@ -272,13 +277,5 @@ export default {
   font-size: 20px;
   font-weight: bold;
   color: #999;
-}
-</style>
-<style>
-.truncate-btn {
-  color: #409eff;
-  font-weight: bold;
-  display: block;
-  text-align: center;
 }
 </style>

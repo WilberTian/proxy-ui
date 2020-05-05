@@ -3,7 +3,7 @@
     <div class="section-title" v-if="title">
       {{title}}
     </div>
-    <div class="section-data">
+    <div v-if="typeof kvData === 'object' && Object.keys(kvData).length > 0" class="section-data">
       <div class="section-data-item" v-for="(value, key) in kvData" :key="key">
         <div class="key">
           {{key}}
@@ -12,6 +12,9 @@
           {{value}}
         </div>
       </div>
+    </div>
+    <div v-else class="section-data">
+      没有数据
     </div>
   </div>
 </template>
@@ -45,10 +48,12 @@ export default {
 }
 .section-data {
   margin: 0 4px;
+  font-size: 12px;
+  padding: 12px;
+  background-color: aliceblue;
 }
 .section-data-item {
   display: flex;
-  font-size: 12px;
   margin: 12px 8px;
   opacity: .8;
   color: #333;
@@ -58,14 +63,12 @@ export default {
   padding-right: 8px;
   text-align: right;
   font-weight: bold;
-  word-wrap: break-word;
-  word-break: break-all;
+  word-break: break-word;
 }
 .section-data-item .value {
   flex: 1;
   padding-left: 8px;
-  word-wrap: break-word;
-  word-break: break-all;
+  word-break: break-word;
   border-left: 1px solid #ccc;
 }
 </style>

@@ -16,8 +16,13 @@
             Method: recordDetail.method,
             Url: recordDetail.url
           }" />
-          <kv-viewer title="请求头" :kvData="recordDetail.reqHeader" />
-          <http-body-viewer title="请求体" :headerData="recordDetail.reqHeader" :bodyData="recordDetail.reqBody" />
+          <kv-viewer title="请求头" :kvData="recordDetail.reqHeader || {}" />
+          <http-body-viewer title="请求体" :bodyData="{
+            url: recordDetail.url,
+            isRequest: true,
+            headers: recordDetail.reqHeader,
+            body: recordDetail.reqBody
+          }" />
         </div>
       </el-tab-pane>
       <el-tab-pane label="响应数据" name="response">
@@ -25,8 +30,13 @@
           <kv-viewer title="通用" :kvData="{
             Status: recordDetail.statusCode
           }" />
-          <kv-viewer title="响应头" :kvData="recordDetail.resHeader" />
-          <http-body-viewer title="响应体" :url="recordDetail.url" :headerData="recordDetail.resHeader" :bodyData="responseBody && responseBody.content" />
+          <kv-viewer title="响应头" :kvData="recordDetail.resHeader || {}" />
+          <http-body-viewer title="响应体" :bodyData="{
+            url: recordDetail.url,
+            isRequest: false,
+            headers: recordDetail.resHeader,
+            body: responseBody && responseBody.content
+          }" />
         </div>
       </el-tab-pane>
     </el-tabs>
