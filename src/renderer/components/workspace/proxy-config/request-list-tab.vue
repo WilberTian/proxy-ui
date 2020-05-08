@@ -52,6 +52,7 @@
                 <div v-if="request.response">
                   <kv-viewer title="响应头" :kvData="request.response.headers || {}" />
                   <http-body-viewer title="响应体" :bodyData="{
+                    url: `${request.protocol}://${request.host}${request.path}`,
                     isRequest: false,
                     headers: request.response.headers,
                     body: request.response && request.response.data
