@@ -388,6 +388,7 @@ export default {
   cursor: pointer;
   font-size: 14px;
   color: #333;
+  background: aliceblue;
 }
 .proxy-config .info-container {
   flex: 1;
