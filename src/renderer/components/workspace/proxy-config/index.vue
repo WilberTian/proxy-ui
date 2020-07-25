@@ -39,14 +39,14 @@
         ></svgicon>
         代理配置
       </div>
-      <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="gotoRuleConfig">
+      <!-- <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="gotoRuleConfig">
         <svgicon
           class="filter-icon"
           icon="filter"
           width="32" height="32" color="#606266"
         ></svgicon>
         代理规则配置
-      </div>
+      </div> -->
       <!-- <div class="icon-wrapper" v-if="proxyServerStatus === 0" @click="getRootCA">
         <svgicon
           class="certificate-icon"

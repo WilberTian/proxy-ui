@@ -2,13 +2,16 @@
   <div class="record-data-wrapper">
     <div class="host-list" :style="{width: `${hostListWidth}px`}">
       <div
-        v-for="(host, idx) in hostList"
+        v-for="(hostItem, idx) in hostList"
         :key="idx"
-        :class="{'selected-host': host === selectedHost, 'host-item': true}"
-        @click="handleHostChange(host)"
+        :class="{'selected-host': hostItem.host === selectedHost, 'host-item': true}"
+        @click="handleHostChange(hostItem.host)"
       >
-        {{host}}
-        <i v-if="host === selectedHost" class="el-icon-arrow-right"></i>
+        <i v-if="hostItem.isHttps && !hostsWithHttps.includes(`${hostItem.host}:443`)" class="el-icon-lock lock-icon" @click="enableHttps4Host(`${hostItem.host}:443`)"></i>
+        <i v-if="hostItem.isHttps && hostsWithHttps.includes(`${hostItem.host}:443`)" class="el-icon-unlock lock-icon"></i>
+        <i v-if="!hostItem.isHttps" class="el-icon-link lock-icon"></i>
+        {{hostItem.host}}
+        <i v-if="hostItem.host === selectedHost" class="el-icon-arrow-right"></i>
       </div>
     </div>
     <div :class="{'dividor': true, 'active': isCursorMove}" @mousedown.stop.prevent="handleCursorDown"></div>
@@ -83,7 +86,12 @@ export default {
           filteredRecordsCount: data.filteredRecordsCount
         })
         const filteredGroupRecords = data.filteredGroupRecords
-        this.hostList = Object.keys(filteredGroupRecords)
+        this.hostList = Object.keys(filteredGroupRecords).map((host) => {
+          return {
+            host,
+            isHttps: filteredGroupRecords[host][0] && filteredGroupRecords[host][0].isHttps
+          }
+        })
         if (this.hostList === 0) {
           this.selectedHost = ''
           this.hostList = []
@@ -113,10 +121,17 @@ export default {
     this.$ipcRenderer.on('record-updated', this.recordUpdateListener)
     eventBus.$on(events.CLEAR_RECORDS, this.recordUpdateListener)
     this.recordUpdateListener()
+
+    this.httpsHostUpdated = () => {
+      this.hostsWithHttps = this.$proxyApi.getHostsEnabledHttps()
+    }
+    this.$ipcRenderer.on('https-host-updated', this.httpsHostUpdated)
+    this.httpsHostUpdated()
   },
   beforeDestroy () {
     this.$ipcRenderer.removeListener('record-updated', this.recordUpdateListener)
     eventBus.$off(events.CLEAR_RECORDS, this.recordUpdateListener)
+    this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
   },
   data: function () {
     return {
@@ -127,7 +142,8 @@ export default {
       pagedRecords: [],
       selectedHost: '',
       hostList: [],
-      hostListWidth: 180
+      hostListWidth: 180,
+      hostsWithHttps: []
     }
   },
   methods: {
@@ -170,6 +186,9 @@ export default {
     },
     openRecordDetail (id) {
       this.$emit('selectRecord', id)
+    },
+    enableHttps4Host (host) {
+      this.$proxyApi.enableHttps4Host(host)
     }
   }
 }
@@ -187,7 +206,7 @@ export default {
   cursor: pointer;
   height: 24px;
   line-height: 24px;
-  padding: 0px 6px;
+  padding: 0px 20px;
   border-bottom: 1px solid #ccc;
   overflow: hidden;
   white-space: nowrap;
@@ -198,9 +217,26 @@ export default {
   color: #fff;
   font-weight: bold;
 }
-.host-list .host-item.selected-host i {
+.host-list .host-item i.lock-icon {
   position: absolute;
-  right: 0;
+  left: 0px;
+  top: 0px;
+  font-weight: bold;
+  font-size: 14px;
+      padding: 5px 2px;
+      background-color: #fff;
+}
+.host-list .host-item i.el-icon-lock {
+  color: #777;
+}
+.host-list .host-item i.el-icon-unlock {
+  color: rgb(103, 194, 58);
+}
+.host-list .host-item i.el-icon-link {
+  color: rgb(103, 194, 58);
+}
+.host-list .host-item.selected-host i.el-icon-arrow-right {
+  position: absolute;
   right: 0;
   top: 6px;
   font-weight: bold;

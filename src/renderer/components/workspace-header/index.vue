@@ -47,6 +47,14 @@
           </el-popover>
         </div>
       </div>
+      <div
+        v-if="currentStep === 2 && !ruleSettingVisible"
+        class="operation-btn"
+        @click="gotoProxyRuleConfig"
+        style="color: #fff; background: #4CAF50"
+      >
+        代理规则<i class="el-icon-right" />
+      </div>
       <rule-config-toolbar v-if="currentStep === 1 && !ruleSettingVisible" />
     </div>
     <window-btn-group />
@@ -97,6 +105,9 @@ export default {
     },
     openCertFolder () {
       this.$proxyApi.getRootCA()
+    },
+    gotoProxyRuleConfig () {
+      this.$store.commit('setCurrentStep', 1)
     }
   },
   mounted () {
@@ -146,7 +157,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: 20px;
+  margin-right: 12px;
 }
 .online-status, .cert-qr-code {
   height: 28px;
@@ -156,5 +167,18 @@ export default {
 }
 .window-btn-group {
   margin: 0 12px;
+}
+.operation-btn {
+  height: 26px;
+  line-height: 26px;
+  padding: 2px 12px;
+  margin: 0 12px;
+  background: #fff;
+  color: #666;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
 }
 </style>

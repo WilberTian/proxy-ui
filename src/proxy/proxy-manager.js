@@ -35,6 +35,8 @@ let localIPAddress = '127.0.0.1'
 let clearId = 0
 const MAX_RECORD_COUNT = 6000
 
+const hostsEnalbedHttps = []
+
 setInterval(() => {
   const ipAddress = ip.address()
   if (ipAddress !== localIPAddress) {
@@ -207,6 +209,13 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
   })
 
   return {
+    *beforeDealHttpsRequest (requestDetail) {
+      console.log('hostsEnalbedHttps', hostsEnalbedHttps, requestDetail.host, hostsEnalbedHttps.includes(requestDetail.host))
+      if (hostsEnalbedHttps.includes(requestDetail.host)) {
+        return true
+      }
+      return false
+    },
     *beforeSendRequest (requestDetail) {
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.module.beforeSendRequest) {
@@ -751,7 +760,8 @@ export default {
                     method: item.method,
                     statusCode: item.statusCode,
                     host: item.host,
-                    path: item.path
+                    path: item.path,
+                    isHttps: item.url.startsWith('https://')
                   })
                 } else {
                   filteredGroupRecords[item.host] = [{
@@ -759,7 +769,8 @@ export default {
                     method: item.method,
                     statusCode: item.statusCode,
                     host: item.host,
-                    path: item.path
+                    path: item.path,
+                    isHttps: item.url.startsWith('https://')
                   }]
                 }
                 filteredListRecords.push(item)
@@ -810,5 +821,25 @@ export default {
   },
   getIPAddress () {
     return localIPAddress
+  },
+  getHostsEnabledHttps () {
+    return hostsEnalbedHttps
+  },
+  enableHttps4Host (host) {
+    // need to close previous connection, otherwise the connection will be reused
+    const connections = proxyServer.requestHandler.conns
+    if (connections && connections.has(host)) {
+      connections.get(host).end()
+    }
+
+    const cltSockets = proxyServer.requestHandler.cltSockets
+    if (cltSockets && cltSockets.has(host)) {
+      cltSockets.get(host).end()
+    }
+
+    if (!hostsEnalbedHttps.includes(host)) {
+      hostsEnalbedHttps.push(host)
+      global.mainWindow.webContents.send('https-host-updated')
+    }
   }
 }
