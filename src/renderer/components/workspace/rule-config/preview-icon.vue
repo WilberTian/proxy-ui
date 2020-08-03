@@ -43,11 +43,13 @@ export default {
 .el-icon-view.disabled::after {
   content: '';
   position: absolute;
-  top: 10px;
-  left: 5px;
+  top: 8px;
+  left: 4px;
   height: 2px;
-  width: 12px;
-  background-color: #444;
+  width: 15px;
+  border-bottom: 2px solid #444;
+  border-radius: 8px;
+  background-color: #efefef;
   transform: rotate(45deg);
 }
 </style>

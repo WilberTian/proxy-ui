@@ -6,6 +6,11 @@
           <span class="id-column column" @click="openRecordDetail(record.id)">
             {{(currentPage - 1) * pageSize + 1 + idx}}
           </span>
+          <span class="icon-column column">
+            <i v-if="record.isHttps && !hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-lock lock-icon" @click="enableHttps4Host(`${record.host}:443`)"></i>
+            <i v-if="record.isHttps && hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-unlock lock-icon"></i>
+            <i v-if="!record.isHttps" class="el-icon-link lock-icon"></i>
+          </span>
           <span class="method-column column">
             {{record.method}}
           </span>
@@ -91,17 +96,25 @@ export default {
     this.$ipcRenderer.on('record-updated', this.recordUpdateListener)
     eventBus.$on(events.CLEAR_RECORDS, this.recordUpdateListener)
     this.recordUpdateListener()
+
+    this.httpsHostUpdated = () => {
+      this.hostsWithHttps = this.$proxyApi.getHostsEnabledHttps()
+    }
+    this.$ipcRenderer.on('https-host-updated', this.httpsHostUpdated)
+    this.httpsHostUpdated()
   },
   beforeDestroy () {
     this.$ipcRenderer.removeListener('record-updated', this.recordUpdateListener)
     eventBus.$off(events.CLEAR_RECORDS, this.recordUpdateListener)
+    this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
   },
   data: function () {
     return {
       currentPage: 1,
       pageSize: 50,
       pagedRecords: [],
-      recordsCount: 0
+      recordsCount: 0,
+      hostsWithHttps: []
     }
   },
   methods: {
@@ -115,6 +128,9 @@ export default {
     },
     openRecordDetail (id) {
       this.$emit('selectRecord', id)
+    },
+    enableHttps4Host (host) {
+      this.$proxyApi.enableHttps4Host(host)
     }
   }
 }
@@ -142,6 +158,23 @@ export default {
 }
 .list-item .column {
   padding: 0 4px;
+}
+.list-item .column i.lock-icon {
+  font-weight: bold;
+  font-size: 14px;
+  padding: 5px 4px;
+}
+.list-item .column i.el-icon-lock {
+  color: #777;
+  cursor: pointer;
+}
+.list-item .column i.el-icon-unlock {
+  color: rgb(103, 194, 58);
+  cursor: default;
+}
+.list-item .column i.el-icon-link {
+  color: rgb(103, 194, 58);
+  cursor: default;
 }
 .id-column {
   width: 40px;

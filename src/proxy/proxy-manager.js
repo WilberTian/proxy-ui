@@ -773,7 +773,14 @@ export default {
                     isHttps: item.url.startsWith('https://')
                   }]
                 }
-                filteredListRecords.push(item)
+                filteredListRecords.push({
+                  id: item.id,
+                  method: item.method,
+                  statusCode: item.statusCode,
+                  host: item.host,
+                  path: item.path,
+                  isHttps: item.url.startsWith('https://')
+                })
               })
               resolve({
                 totalCount: docs.length,

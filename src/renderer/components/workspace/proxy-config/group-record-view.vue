@@ -223,17 +223,21 @@ export default {
   top: 0px;
   font-weight: bold;
   font-size: 14px;
-      padding: 5px 2px;
-      background-color: #fff;
+  padding: 5px 2px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
 }
 .host-list .host-item i.el-icon-lock {
   color: #777;
+  cursor: pointer;
 }
 .host-list .host-item i.el-icon-unlock {
   color: rgb(103, 194, 58);
+  cursor: default;
 }
 .host-list .host-item i.el-icon-link {
   color: rgb(103, 194, 58);
+  cursor: default;
 }
 .host-list .host-item.selected-host i.el-icon-arrow-right {
   position: absolute;
