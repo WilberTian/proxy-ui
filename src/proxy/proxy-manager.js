@@ -35,7 +35,8 @@ let localIPAddress = '127.0.0.1'
 let clearId = 0
 const MAX_RECORD_COUNT = 6000
 
-const hostsEnalbedHttps = []
+const hostsEnalbedHttps = ['www.proxyui-weinre.com:443']
+let hostsDisableCache = []
 
 setInterval(() => {
   const ipAddress = ip.address()
@@ -199,6 +200,23 @@ const _addProxyServerLog = logItem => {
   }
 }
 
+const _disableRequestCache = (reqHeaders) => {
+  delete reqHeaders['If-Modified-Since']
+  delete reqHeaders['If-None-Match']
+
+  reqHeaders['Pragma'] = 'no-cache'
+  reqHeaders['Cache-Control'] = 'no-cache'
+}
+
+const _disableResponseCache = (resHeaders) => {
+  delete resHeaders['Expires']
+  delete resHeaders['Last-Modified']
+  delete resHeaders['ETag']
+
+  resHeaders['Expires'] = 0
+  resHeaders['Cache-Control'] = 'no-cache'
+}
+
 const proxyRuleCreator = (ruleConfig, proxyConfig) => {
   const customizeRuleModules = getCustomizeRuleModules(ruleConfig)
   customizeRuleModules.push({
@@ -210,13 +228,16 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
 
   return {
     *beforeDealHttpsRequest (requestDetail) {
-      console.log('hostsEnalbedHttps', hostsEnalbedHttps, requestDetail.host, hostsEnalbedHttps.includes(requestDetail.host))
       if (hostsEnalbedHttps.includes(requestDetail.host)) {
         return true
       }
       return false
     },
     *beforeSendRequest (requestDetail) {
+      const requestOptions = requestDetail.requestOptions
+      if (hostsDisableCache.includes(requestOptions.hostname)) {
+        _disableRequestCache(requestOptions.headers)
+      }
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.module.beforeSendRequest) {
           const result = customizeRuleModule.module.beforeSendRequest(
@@ -282,6 +303,12 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
       }
     },
     *beforeSendResponse (requestDetail, responseDetail) {
+      const responseData = responseDetail.response
+      const requestOptions = requestDetail.requestOptions
+      if (hostsDisableCache.includes(requestOptions.hostname)) {
+        _disableResponseCache(responseData.header)
+      }
+
       for (let customizeRuleModule of customizeRuleModules) {
         if (customizeRuleModule.module.beforeSendResponse) {
           const result = customizeRuleModule.module.beforeSendResponse(
@@ -847,6 +874,23 @@ export default {
     if (!hostsEnalbedHttps.includes(host)) {
       hostsEnalbedHttps.push(host)
       global.mainWindow.webContents.send('https-host-updated')
+    }
+  },
+  getHostsDisableCache () {
+    return hostsDisableCache
+  },
+  disableCache4Host (host) {
+    if (!hostsDisableCache.includes(host)) {
+      hostsDisableCache.push(host)
+      global.cacheSettingWindow.webContents.send('disable-cache-updated')
+    }
+  },
+  removeHostFromHostsDisableCache (_host) {
+    if (hostsDisableCache.includes(_host)) {
+      hostsDisableCache = hostsDisableCache.filter(host => {
+        return host !== _host
+      })
+      global.cacheSettingWindow.webContents.send('disable-cache-updated')
     }
   }
 }

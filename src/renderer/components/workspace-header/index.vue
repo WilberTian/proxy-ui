@@ -48,7 +48,7 @@
         </div>
       </div>
       <div
-        v-if="currentStep === 2 && !ruleSettingVisible"
+        v-if="currentStep === 2 && !ruleSettingVisible && proxyServerStatus !== 1"
         class="operation-btn"
         @click="gotoProxyRuleConfig"
         style="color: #fff; background: #4CAF50"
@@ -57,7 +57,7 @@
       </div>
       <rule-config-toolbar v-if="currentStep === 1 && !ruleSettingVisible" />
     </div>
-    <window-btn-group />
+    <window-btn-group @close="handleClose" @minimize="handleMinimize" @maximize="handleMaximize" />
   </div>
 </template>
 
@@ -68,7 +68,7 @@ import VueQrcode from '@xkeshi/vue-qrcode'
 import '@/assets/icons/online'
 import '@/assets/icons/offline'
 import '@/assets/icons/qrcode'
-import WindowBtnGroup from './window-btn-group'
+import WindowBtnGroup from '../common/window-btn-group'
 import RuleConfigToolbar from '../workspace/rule-config/rule-config-toolbar'
 
 Vue.component(VueQrcode.name, VueQrcode)
@@ -108,6 +108,15 @@ export default {
     },
     gotoProxyRuleConfig () {
       this.$store.commit('setCurrentStep', 1)
+    },
+    handleClose () {
+      this.$ipcRenderer.send('window-close')
+    },
+    handleMinimize () {
+      this.$ipcRenderer.send('window-minimize')
+    },
+    handleMaximize () {
+      this.$ipcRenderer.send('window-maximize')
     }
   },
   mounted () {

@@ -26,12 +26,19 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let loadingWindow
+let cacheSettingWindow
+// let httpsSettingWindow
 let tray
 
 const winURL =
   process.env.NODE_ENV === 'development'
     ? `http://localhost:9080`
     : `file://${__dirname}/index.html`
+
+const cacheSettingURL =
+  process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080/cache-setting.html`
+    : `file://${__dirname}/cache-setting.html`
 
 function createWindow () {
   /**
@@ -95,22 +102,47 @@ function createMenu () {
           }
         },
         {
-          label: 'Edit',
-          submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' },
-            { role: 'selectall' }
-          ]
-        },
-        {
           label: '退出',
           accelerator: 'Cmd+Q',
           role: 'quit'
         }
+      ]
+    },
+    {
+      label: '编辑',
+      submenu: [
+        { label: '撤销', role: 'undo' },
+        { label: '重做', role: 'redo' },
+        { type: 'separator' },
+        { label: '剪切', role: 'cut' },
+        { label: '复制', role: 'paste' },
+        { label: '粘贴', role: 'copy' },
+        { label: '全选', role: 'selectAll' }
+      ]
+    },
+    {
+      label: '工具',
+      submenu: [
+        {
+          label: '缓存设置',
+          click () {
+            if (!cacheSettingWindow) {
+              createCacheSettingWindow()
+            } else {
+              cacheSettingWindow.show()
+            }
+          }
+        }
+        // {
+        //   label: 'HTTPS设置',
+        //   click () {
+        //     if (!httpsSettingWindow) {
+        //       createHttpsSettingWindow()
+        //     } else {
+        //       httpsSettingWindow.show()
+        //     }
+        //   }
+        // }
       ]
     }
   ])
@@ -148,6 +180,56 @@ function createLoadingWindow () {
     loadingWindow.show()
   })
 }
+
+function createCacheSettingWindow () {
+  cacheSettingWindow = new BrowserWindow({
+    height: 300,
+    width: 500,
+    minHeight: 300,
+    minWidth: 500,
+    frame: false,
+    useContentSize: true,
+    show: false
+  })
+
+  global.cacheSettingWindow = cacheSettingWindow
+
+  cacheSettingWindow.loadURL(cacheSettingURL)
+
+  cacheSettingWindow.webContents.on('did-finish-load', () => {})
+
+  cacheSettingWindow.on('closed', () => {
+    cacheSettingWindow = null
+  })
+
+  cacheSettingWindow.show()
+
+  ipcMain.on('cache-setting-close', () => {
+    cacheSettingWindow.hide()
+  })
+}
+
+// function createHttpsSettingWindow () {
+//   httpsSettingWindow = new BrowserWindow({
+//     height: 300,
+//     width: 500,
+//     minHeight: 300,
+//     minWidth: 500,
+//     frame: false,
+//     useContentSize: true,
+//     show: false
+//   })
+
+//   httpsSettingWindow.loadURL('http://localhost:9080/loading.html')
+
+//   httpsSettingWindow.webContents.on('did-finish-load', () => {})
+
+//   httpsSettingWindow.on('closed', () => {
+//     httpsSettingWindow = null
+//   })
+
+//   httpsSettingWindow.show()
+// }
 
 app.on('ready', () => {
   createLoadingWindow()

@@ -1,20 +1,20 @@
 <template>
   <div class="window-btn-group" @mouseenter="setIconVisible(true)" @mouseleave="setIconVisible(false)">
-    <div class="close-btn" @click="handleClose">
+    <div v-if="!disableClose" class="close-btn" @click="handleClose">
       <svgicon
           v-show="iconVisible"
           icon="close"
           width="12" height="12" color="#333"
         ></svgicon>
     </div>
-    <div class="minimize-btn" @click="handleMinimize">
+    <div v-if="!disableMinimize" class="minimize-btn" @click="handleMinimize">
       <svgicon
           v-show="iconVisible"
           icon="minimize"
           width="12" height="12" color="#333"
         ></svgicon>
     </div>
-    <div class="maximize-btn"  @click="handleMaximize">
+    <div v-if="!disableMaximize" class="maximize-btn"  @click="handleMaximize">
       <svgicon
           v-show="iconVisible"
           icon="maximize"
@@ -30,6 +30,21 @@ import '@/assets/icons/minimize'
 import '@/assets/icons/maximize'
 
 export default {
+  name: 'window-btn-group',
+  props: {
+    disableClose: {
+      type: Boolean,
+      default: false
+    },
+    disableMinimize: {
+      type: Boolean,
+      default: false
+    },
+    disableMaximize: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
       iconVisible: false
@@ -37,13 +52,13 @@ export default {
   },
   methods: {
     handleClose () {
-      this.$ipcRenderer.send('window-close')
+      this.$emit('close')
     },
     handleMinimize () {
-      this.$ipcRenderer.send('window-minimize')
+      this.$emit('minimize')
     },
     handleMaximize () {
-      this.$ipcRenderer.send('window-maximize')
+      this.$emit('maximize')
     },
     setIconVisible (visible) {
       this.iconVisible = visible
@@ -54,11 +69,10 @@ export default {
 
 <style scoped>
 .window-btn-group {
-  width: 80px;
   display: flex;
-  justify-content: space-around;
 }
 .close-btn, .minimize-btn, .maximize-btn {
+  margin: 0 4px;
   border-radius: 50%;
   height: 14px;
   width: 14px;
