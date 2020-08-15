@@ -33,7 +33,7 @@ let mainConfig = {
       {
         test: /\.js$/,
         use: 'babel-loader',
-        exclude: /node_modules/
+        exclude: [/node_modules/, /proxy-server-lib/]
       },
       {
         test: /\.node$/,

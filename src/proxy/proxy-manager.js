@@ -9,9 +9,10 @@ const path = require('path')
 const exec = require('child_process').exec
 const throttle = require('lodash.throttle')
 const log = require('electron-log')
-const AnyProxy = require('anyproxy')
-const AnyProxyUtils = require('anyproxy/lib/util')
 const ip = require('ip')
+
+const AnyProxy = require('../proxy-server-lib/proxy.js')
+const AnyProxyUtils = require('../proxy-server-lib/lib/util.js')
 const matchers = require('./matchers')
 
 const RULE_CONFIG_FILE = 'rule-config.json'

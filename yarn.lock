@@ -453,41 +453,6 @@ anymatch@^2.0.0:
     micromatch "^3.1.4"
     normalize-path "^2.1.1"
 
-anyproxy@^4.1.2:
-  version "4.1.2"
-  resolved "http://r.cnpmjs.org/anyproxy/download/anyproxy-4.1.2.tgz#d01611b88453f9e6c349e9b99c36099b981c3e70"
-  dependencies:
-    async "~0.9.0"
-    async-task-mgr ">=1.1.0"
-    body-parser "^1.13.1"
-    brotli "^1.3.2"
-    classnames "^2.2.5"
-    clipboard-js "^0.3.3"
-    co "^4.6.0"
-    colorful "^2.1.0"
-    commander "~2.11.0"
-    component-emitter "^1.2.1"
-    compression "^1.4.4"
-    es6-promise "^3.3.1"
-    express "^4.8.5"
-    fast-json-stringify "^0.17.0"
-    iconv-lite "^0.4.6"
-    inquirer "^5.2.0"
-    ip "^0.3.2"
-    juicer "^0.6.6-stable"
-    mime-types "2.1.11"
-    moment "^2.15.1"
-    nedb "^1.8.0"
-    node-easy-cert "^1.0.0"
-    pug "^2.0.0-beta6"
-    qrcode-npm "0.0.3"
-    request "^2.74.0"
-    stream-throttle "^0.1.3"
-    svg-inline-react "^1.0.2"
-    thunkify "^2.1.2"
-    whatwg-fetch "^1.0.0"
-    ws "^5.1.0"
-
 app-builder-bin@2.6.6:
   version "2.6.6"
   resolved "https://r.cnpmjs.org/app-builder-bin/download/app-builder-bin-2.6.6.tgz#904b0576a510047d03f63c8a02c38eef47871180"
@@ -4523,10 +4488,6 @@ invert-kv@^2.0.0:
 ip-regex@^2.1.0:
   version "2.1.0"
   resolved "https://r.cnpmjs.org/ip-regex/download/ip-regex-2.1.0.tgz#fa78bf5d2e6913c911ce9f819ee5146bb6d844e9"
-
-ip@^0.3.2:
-  version "0.3.3"
-  resolved "http://r.cnpmjs.org/ip/download/ip-0.3.3.tgz#8ee8309e92f0b040d287f72efaca1a21702d3fb4"
 
 ip@^1.1.0, ip@^1.1.5:
   version "1.1.5"
