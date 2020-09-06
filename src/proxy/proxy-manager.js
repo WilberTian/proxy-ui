@@ -413,6 +413,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
             resolve({
               msg: '代理服务器启动成功'
             })
+            _updateProxyServerStatus()
           })
           proxyServer.on('error', e => {
             proxyServer = null
@@ -423,6 +424,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
               isErr: true
             })
             reject(e)
+            _updateProxyServerStatus()
           })
           proxyServerRecorder.on('update', () => {
             if (global.mainWindow) {
@@ -467,6 +469,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
         resolve({
           msg: '代理服务器关闭成功'
         })
+        _updateProxyServerStatus()
       }
     }
   })
@@ -475,6 +478,12 @@ const proxyServerManager = (action = 'start', options = {}) => {
 const setBypassList = (bypassList) => {
   const networkType = AnyProxy.utils.systemProxyMgr.getNetworkType()
   exec(`networksetup -setproxybypassdomains ${networkType} ${bypassList.length > 1 ? bypassList.join(' ') : '" "'}`)
+}
+
+const _updateProxyServerStatus = () => {
+  if (global.mainWindow) {
+    global.mainWindow.webContents.send('proxy-server-status-updated')
+  }
 }
 
 export default {
@@ -492,6 +501,9 @@ export default {
       return proxyServerManager('start', options)
     })
   },
+  getPoxyServerStatus: function () {
+    return !!proxyServer
+  },
   readRuleConfigs: function () {
     try {
       const ruleConfigs = fs.readFileSync(
@@ -508,28 +520,44 @@ export default {
       return []
     } catch (e) {
       log.error(`readRuleConfigs: ${e.message}`)
-      const result = this.writeRuleConfig(defaultRuleConfigs)
+      const result = this.writeRuleConfigs(defaultRuleConfigs)
       if (result) {
         return defaultRuleConfigs
       }
       return []
     }
   },
-  writeRuleConfig: function (ruleConfigs) {
+  writeRuleConfigs: function (ruleConfigs) {
     try {
       fs.writeFileSync(
         path.resolve(userDataPath, RULE_CONFIG_FILE),
         JSON.stringify(ruleConfigs)
       )
+      global.mainWindow.webContents.send('proxy-rule-config-updated')
       return true
     } catch (e) {
-      log.error(`writeRuleConfig: ${e.message}`)
+      log.error(`writeRuleConfigs: ${e.message}`)
       _addProxyServerLog({
         info: '配置规则写入失败',
         detail: JSON.stringify(ruleConfigs),
         isErr: true
       })
       return false
+    }
+  },
+  addRuleConfig: function (ruleConfig) {
+    const ruleConfigs = this.readRuleConfigs()
+    ruleConfigs.push(ruleConfig)
+    this.writeRuleConfigs(ruleConfigs)
+  },
+  updateRuleConfig: function (ruleConfig) {
+    const ruleConfigs = this.readRuleConfigs()
+    const foundIdx = ruleConfigs.findIndex((_ruleConfig) => {
+      return _ruleConfig.guid === ruleConfig.guid
+    })
+    if (foundIdx > -1) {
+      ruleConfigs[foundIdx] = ruleConfig
+      this.writeRuleConfigs(ruleConfigs)
     }
   },
   getDefaultRuleConfigs: function () {
@@ -572,6 +600,7 @@ export default {
         path.resolve(userDataPath, PROXY_CONFIG_FILE),
         JSON.stringify(proxyConfig)
       )
+      global.mainWindow.webContents.send('proxy-config-updated')
       return true
     } catch (e) {
       log.error(`writeProxyConfig: ${e.message}`)
@@ -782,23 +811,24 @@ export default {
                 return passed
               }).map((item) => {
                 filteredRecordsCount += 1
-                if (item.host in filteredGroupRecords) {
-                  filteredGroupRecords[item.host].push({
+                const hostWithProtocol = `${item.protocol}://${item.host}`
+                if (hostWithProtocol in filteredGroupRecords) {
+                  filteredGroupRecords[hostWithProtocol].push({
                     id: item.id,
                     method: item.method,
                     statusCode: item.statusCode,
                     host: item.host,
                     path: item.path,
-                    isHttps: item.url.startsWith('https://')
+                    protocol: item.protocol
                   })
                 } else {
-                  filteredGroupRecords[item.host] = [{
+                  filteredGroupRecords[hostWithProtocol] = [{
                     id: item.id,
                     method: item.method,
                     statusCode: item.statusCode,
                     host: item.host,
                     path: item.path,
-                    isHttps: item.url.startsWith('https://')
+                    protocol: item.protocol
                   }]
                 }
                 filteredListRecords.push({
@@ -807,7 +837,7 @@ export default {
                   statusCode: item.statusCode,
                   host: item.host,
                   path: item.path,
-                  isHttps: item.url.startsWith('https://')
+                  protocol: item.protocol
                 })
               })
               resolve({

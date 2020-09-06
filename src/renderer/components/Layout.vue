@@ -2,17 +2,20 @@
   <div class="workspace-container">
     <workspace-header />
     <workspace />
+    <workspace-footer />
   </div>
 </template>
 
 <script>
 import WorkspaceHeader from './workspace-header'
 import Workspace from './workspace'
+import WorkspaceFooter from './workspace-footer'
 
 export default {
   components: {
     WorkspaceHeader,
-    Workspace
+    Workspace,
+    WorkspaceFooter
   }
 }
 </script>

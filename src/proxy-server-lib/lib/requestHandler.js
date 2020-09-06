@@ -617,7 +617,8 @@ function getConnectReqHandler(userRule, recorder, httpsServerMgr) {
             path: '',
             url: 'https://' + host,
             req,
-            startTime: new Date().getTime()
+            startTime: new Date().getTime(),
+            protocol: 'https'
           };
           resourceInfoId = recorder.appendRecord(resourceInfo);
         }

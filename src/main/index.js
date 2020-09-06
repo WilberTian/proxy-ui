@@ -9,6 +9,12 @@ import {
   ipcMain
 } from 'electron'
 import _manager from '../proxy/index'
+import showProxySettingWindow from './proxy-setting-window'
+import showCacheSettingWindow from './cache-setting-window'
+import showVconsoleSettingWindow from './vconsole-setting-window'
+import showWeinreSettingWindow from './weinre-setting-window'
+import showProxyRuleWindow from './proxy-rule-window'
+import {showLoadingWindow, hideLoadingWindow} from './loading-window'
 
 import pkg from '../../package.json'
 
@@ -25,8 +31,6 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 let mainWindow
-let loadingWindow
-let cacheSettingWindow
 // let httpsSettingWindow
 let tray
 
@@ -35,20 +39,18 @@ const winURL =
     ? `http://localhost:9080`
     : `file://${__dirname}/index.html`
 
-const cacheSettingURL =
-  process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080/cache-setting.html`
-    : `file://${__dirname}/cache-setting.html`
+const MAINWIN_WIDTH = 1000
+const MAINWIN_HEIGHT = 700
 
 function createWindow () {
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 660,
-    width: 900,
-    minHeight: 660,
-    minWidth: 900,
+    height: MAINWIN_HEIGHT,
+    width: MAINWIN_WIDTH,
+    minHeight: MAINWIN_HEIGHT,
+    minWidth: MAINWIN_WIDTH,
     frame: false,
     useContentSize: true,
     show: false
@@ -61,10 +63,8 @@ function createWindow () {
   mainWindow.webContents.on('did-finish-load', () => {
     setTimeout(() => {
       mainWindow.show()
-      if (loadingWindow) {
-        loadingWindow.close()
-      }
-    }, 1500)
+      hideLoadingWindow(true)
+    }, 1000)
   })
 
   mainWindow.on('closed', () => {
@@ -121,28 +121,92 @@ function createMenu () {
       ]
     },
     {
+      label: '代理',
+      submenu: [
+        {
+          label: '代理设置',
+          click () {
+            showProxySettingWindow()
+          }
+        },
+        {
+          label: 'HTTPS设置',
+          click () {
+            //
+          }
+        }
+      ]
+    },
+    {
+      label: '代理规则',
+      submenu: [
+        {
+          label: '规则管理',
+          click () {
+            //
+          }
+        },
+        {
+          label: '新建规则',
+          click () {
+            showProxyRuleWindow()
+          }
+        },
+        {
+          label: '导出规则',
+          click () {
+            //
+          }
+        },
+        {
+          label: '导入规则',
+          click () {
+            //
+          }
+        }
+      ]
+    },
+    {
+      label: '视图',
+      submenu: [
+        {
+          label: '按域名分组',
+          type: 'radio',
+          checked: true,
+          click () {
+            //
+          }
+        },
+        {
+          label: '按请求顺序',
+          type: 'radio',
+          click () {
+            //
+          }
+        }
+      ]
+    },
+    {
       label: '工具',
       submenu: [
         {
           label: '缓存设置',
           click () {
-            if (!cacheSettingWindow) {
-              createCacheSettingWindow()
-            } else {
-              cacheSettingWindow.show()
-            }
+            showCacheSettingWindow()
+          }
+        },
+        {
+          label: 'vconsole设置',
+          click () {
+            showVconsoleSettingWindow()
+          }
+        },
+        {
+          label: 'weinre设置',
+          click () {
+            showWeinreSettingWindow()
           }
         }
-        // {
-        //   label: 'HTTPS设置',
-        //   click () {
-        //     if (!httpsSettingWindow) {
-        //       createHttpsSettingWindow()
-        //     } else {
-        //       httpsSettingWindow.show()
-        //     }
-        //   }
-        // }
       ]
     }
   ])
@@ -155,58 +219,6 @@ function createTray () {
     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
   })
   global.tray = tray
-}
-
-function createLoadingWindow () {
-  loadingWindow = new BrowserWindow(
-    Object.assign({
-      height: 360,
-      frame: false,
-      width: 500,
-      show: false,
-      movable: false,
-      resizable: false
-    })
-  )
-
-  if (process.env.NODE_ENV === 'development') {
-    loadingWindow.loadURL('http://localhost:9080/loading.html')
-  } else {
-    loadingWindow.loadURL(`file://${__dirname}/loading.html`)
-  }
-
-  loadingWindow.on('closed', () => (loadingWindow = null))
-  loadingWindow.webContents.on('did-finish-load', () => {
-    loadingWindow.show()
-  })
-}
-
-function createCacheSettingWindow () {
-  cacheSettingWindow = new BrowserWindow({
-    height: 300,
-    width: 500,
-    minHeight: 300,
-    minWidth: 500,
-    frame: false,
-    useContentSize: true,
-    show: false
-  })
-
-  global.cacheSettingWindow = cacheSettingWindow
-
-  cacheSettingWindow.loadURL(cacheSettingURL)
-
-  cacheSettingWindow.webContents.on('did-finish-load', () => {})
-
-  cacheSettingWindow.on('closed', () => {
-    cacheSettingWindow = null
-  })
-
-  cacheSettingWindow.show()
-
-  ipcMain.on('cache-setting-close', () => {
-    cacheSettingWindow.hide()
-  })
 }
 
 // function createHttpsSettingWindow () {
@@ -232,10 +244,25 @@ function createCacheSettingWindow () {
 // }
 
 app.on('ready', () => {
-  createLoadingWindow()
+  showLoadingWindow()
   createWindow()
   createMenu()
   createTray()
+  ipcMain.on('show-proxy-setting-window', () => {
+    showProxySettingWindow()
+  })
+  ipcMain.on('show-cache-setting-window', () => {
+    showCacheSettingWindow()
+  })
+  ipcMain.on('show-vconsole-setting-window', () => {
+    showVconsoleSettingWindow()
+  })
+  ipcMain.on('show-weinre-setting-window', () => {
+    showWeinreSettingWindow()
+  })
+  ipcMain.on('show-proxy-rule-window', (_, data) => {
+    showProxyRuleWindow(data)
+  })
 })
 
 app.on('window-all-closed', () => {
@@ -257,10 +284,12 @@ app.on('quit', () => {
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
-  }
-  if (!mainWindow.isVisible() && !loadingWindow) {
+  } else {
     mainWindow.show()
   }
+  // if (!mainWindow.isVisible()) {
+  //   showLoadingWindow()
+  // }
 })
 
 /**

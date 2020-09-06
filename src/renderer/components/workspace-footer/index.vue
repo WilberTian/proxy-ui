@@ -1,6 +1,5 @@
 <template>
   <div class="workspace-footer">
-    footer
   </div>
 </template>
 
@@ -11,6 +10,7 @@ export default {
 
 <style scoped>
 .workspace-footer {
-  background-color: #d7d7d7;
+  background-color: #e1e1e1;
+  height: 24px;
 }
 </style>

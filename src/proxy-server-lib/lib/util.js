@@ -54,10 +54,21 @@ module.exports.getAnyProxyPath = function (pathName) {
   return targetPath;
 }
 
+function mkdirsSync(dirname) {
+  if (fs.existsSync(dirname)) {
+    return true;
+  } else {
+    if (mkdirsSync(path.dirname(dirname))) {
+      fs.mkdirSync(dirname);
+      return true;
+    }
+  }
+}
+
 module.exports.getAnyProxyTmpPath = function () {
   const targetPath = path.join(os.tmpdir(), 'anyproxy', 'cache');
   if (!fs.existsSync(targetPath)) {
-    fs.mkdirSync(targetPath, { recursive: true });
+    mkdirsSync(targetPath);
   }
   return targetPath;
 }

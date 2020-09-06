@@ -275,21 +275,21 @@ class webInterface extends events.EventEmitter {
       }
     });
 
-    app.use((req, res, next) => {
-      const indexTpl = fs.readFileSync(path.join(staticDir, '/index.html'), { encoding: 'utf8' }),
-        opt = {
-          rule: ruleSummary || '',
-          customMenu: customMenu || [],
-          ipAddress: ipAddress || '127.0.0.1'
-        };
+    // app.use((req, res, next) => {
+    //   const indexTpl = fs.readFileSync(path.join(staticDir, '/index.html'), { encoding: 'utf8' }),
+    //     opt = {
+    //       rule: ruleSummary || '',
+    //       customMenu: customMenu || [],
+    //       ipAddress: ipAddress || '127.0.0.1'
+    //     };
 
-      if (url.parse(req.url).pathname === '/') {
-        res.setHeader('Content-Type', 'text/html');
-        res.end(juicer(indexTpl, opt));
-      } else {
-        next();
-      }
-    });
+    //   if (url.parse(req.url).pathname === '/') {
+    //     res.setHeader('Content-Type', 'text/html');
+    //     res.end(juicer(indexTpl, opt));
+    //   } else {
+    //     next();
+    //   }
+    // });
     app.use(express.static(staticDir));
     return app;
   }

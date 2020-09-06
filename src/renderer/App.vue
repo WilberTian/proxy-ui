@@ -67,13 +67,6 @@ body {
 .import-dialog .el-dialog__body .el-textarea textarea {
   height: 100%;
 }
-.CodeMirror {
-  font-size: 13px;
-  line-height: 20px;
-}
-.CodeMirror-cursor {
-  height: 20px;
-}
 .el-tabs .el-tabs__header {
   margin: 0 !important;
 }

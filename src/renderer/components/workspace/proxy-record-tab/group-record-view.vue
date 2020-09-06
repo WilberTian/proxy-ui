@@ -4,14 +4,20 @@
       <div
         v-for="(hostItem, idx) in hostList"
         :key="idx"
-        :class="{'selected-host': hostItem.host === selectedHost, 'host-item': true}"
-        @click="handleHostChange(hostItem.host)"
+        :class="{'selected-host': hostItem.hostWithProtocol === selectedHost, 'host-item': true}"
+        @click="handleHostChange(hostItem.hostWithProtocol)"
       >
-        <i v-if="hostItem.isHttps && !hostsWithHttps.includes(`${hostItem.host}:443`)" class="el-icon-lock lock-icon" @click="enableHttps4Host(`${hostItem.host}:443`)"></i>
-        <i v-if="hostItem.isHttps && hostsWithHttps.includes(`${hostItem.host}:443`)" class="el-icon-unlock lock-icon"></i>
-        <i v-if="!hostItem.isHttps" class="el-icon-link lock-icon"></i>
-        {{hostItem.host}}
-        <i v-if="hostItem.host === selectedHost" class="el-icon-arrow-right"></i>
+        <div class="icon-wrapper icon-wrapper--border">
+          <i v-if="hostItem.protocol === 'https' && !hostsWithHttps.includes(`${hostItem.host}:443`)" class="el-icon-lock lock-icon" @click="enableHttps4Host(`${hostItem.host}:443`)"></i>
+          <i v-if="hostItem.protocol === 'https' && hostsWithHttps.includes(`${hostItem.host}:443`)" class="el-icon-unlock lock-icon"></i>
+          <i v-if="hostItem.protocol !== 'https'" class="el-icon-link lock-icon"></i>
+        </div>
+        <div class="host-item-name">
+          {{hostItem.hostWithProtocol}}
+        </div>
+        <div class="icon-wrapper">
+          <i v-if="hostItem.hostWithProtocol === selectedHost" class="el-icon-arrow-right"></i>
+        </div>
       </div>
     </div>
     <div :class="{'dividor': true, 'active': isCursorMove}" @mousedown.stop.prevent="handleCursorDown"></div>
@@ -86,10 +92,11 @@ export default {
           filteredRecordsCount: data.filteredRecordsCount
         })
         const filteredGroupRecords = data.filteredGroupRecords
-        this.hostList = Object.keys(filteredGroupRecords).map((host) => {
+        this.hostList = Object.keys(filteredGroupRecords).map((hostWithProtocol) => {
           return {
-            host,
-            isHttps: filteredGroupRecords[host][0] && filteredGroupRecords[host][0].isHttps
+            hostWithProtocol,
+            host: filteredGroupRecords[hostWithProtocol][0] && filteredGroupRecords[hostWithProtocol][0].host,
+            protocol: filteredGroupRecords[hostWithProtocol][0] && filteredGroupRecords[hostWithProtocol][0].protocol
           }
         })
         if (this.hostList === 0) {
@@ -202,12 +209,14 @@ export default {
   flex-shrink: 0;
 }
 .host-list .host-item {
-  position: relative;
   cursor: pointer;
+  display: flex;
+  align-items: center;
   height: 24px;
-  line-height: 24px;
-  padding: 0px 20px;
   border-bottom: 1px solid #ccc;
+}
+.host-list .host-item .host-item-name {
+  flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -217,15 +226,22 @@ export default {
   color: #fff;
   font-weight: bold;
 }
-.host-list .host-item i.lock-icon {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 5px 2px;
+.host-list .host-item .icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  margin: 0 4px;
+}
+.host-list .host-item .icon-wrapper--border {
+  border-radius: 4px;
   background-color: #fff;
-  border-right: 1px solid #ddd;
+  border: 1px solid #ccc;
+}
+.host-list .host-item i.lock-icon {
+  font-weight: bold;
+  font-size: 12px;
 }
 .host-list .host-item i.el-icon-lock {
   color: #777;
@@ -240,9 +256,7 @@ export default {
   cursor: default;
 }
 .host-list .host-item.selected-host i.el-icon-arrow-right {
-  position: absolute;
-  right: 0;
-  top: 6px;
+  font-size: 14px;
   font-weight: bold;
   background: #409eff;
 }

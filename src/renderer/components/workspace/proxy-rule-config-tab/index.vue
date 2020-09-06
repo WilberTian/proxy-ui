@@ -1,6 +1,6 @@
 <template>
   <div class="rule-config">
-    <div class="rule-config-list-wrapper" v-if="!ruleSettingVisible">
+    <div class="rule-config-list-wrapper">
       <rule-config-filter
         v-if="ruleConfigListDisplayMode === 'list'"
         :tags="tags"
@@ -22,13 +22,6 @@
       />
       <div class="no-config-rule-msg" v-if="filteredRuleConfigs.length === 0">没有规则！</div>
     </div>
-    <rule-config-setting
-      v-if="ruleSettingVisible"
-      :operation="operation"
-      :ruleConfig="selectedRuleConfig"
-      @submitRuleConfig="handleSubmitRuleConfig"
-      @cancelRuleConfig="handleCancelRuleConfig"
-    />
   </div>
 </template>
 
@@ -37,7 +30,6 @@ import { mapGetters } from 'vuex'
 import RuleConfigFilter from './rule-config-filter'
 import ListedRuleConfig from './listed-rule-config'
 import GroupedRuleConfigList from './grouped-rule-config-list'
-import RuleConfigSetting from './rule-config-setting'
 import createGUID from '@/utils/uuidv4'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
@@ -47,7 +39,7 @@ export default {
     ...mapGetters({
       ruleConfigs: 'getRuleConfigs',
       ruleConfigListDisplayMode: 'getRuleConfigListDisplayMode',
-      ruleSettingVisible: 'getRuleSettingVisible'
+      ruleEditMode: 'getRuleEditMode'
     }),
     filteredRuleConfigs () {
       let result = []
@@ -86,14 +78,14 @@ export default {
       return tags
     }
   },
-  watch: {
-    ruleConfigs: {
-      deep: true,
-      handler (val) {
-        this.$proxyApi.writeRuleConfig(val)
-      }
-    }
-  },
+  // watch: {
+  //   ruleConfigs: {
+  //     deep: true,
+  //     handler (val) {
+  //       this.$proxyApi.writeRuleConfigs(val)
+  //     }
+  //   }
+  // },
   data () {
     return {
       selectedRuleConfig: null,
@@ -102,12 +94,18 @@ export default {
     }
   },
   mounted () {
-    const ruleConfigs = this.$proxyApi.readRuleConfigs()
-    this.$store.commit('setRuleConfigs', ruleConfigs)
     eventBus.$on(events.CREATE_RULE_CONFIG, this.handleCreateConfigRule)
+
+    this.proxyRuleConfigUpdateHandler = () => {
+      const ruleConfigs = this.$proxyApi.readRuleConfigs()
+      this.$store.commit('setRuleConfigs', ruleConfigs)
+    }
+    this.$ipcRenderer.on('proxy-rule-config-updated', this.proxyRuleConfigUpdateHandler)
+    this.proxyRuleConfigUpdateHandler()
   },
   beforeDestroy () {
     eventBus.$off(events.CREATE_RULE_CONFIG, this.handleCreateConfigRule)
+    this.$ipcRenderer.removeListener('proxy-rule-config-updated', this.proxyRuleConfigUpdateHandler)
   },
   methods: {
     handleFilterChange (filterData) {
@@ -115,7 +113,7 @@ export default {
     },
     handleSubmitRuleConfig (ruleConfig) {
       let _ruleConfig = ruleConfig
-      this.$store.commit('setRuleSettingVisible', false)
+      this.$store.commit('setRuleEditMode', false)
       this.selectedRuleConfig = null
       if ('guid' in ruleConfig) {
         this.$store.commit('updateRuleConfig', ruleConfig)
@@ -130,29 +128,28 @@ export default {
       if (_ruleConfig.type === 'customize') {
         const result = this.$proxyApi.writeCustomizeRule(_ruleConfig)
         if (result) {
-          // this.$store.commit('setWorkspaceFooterVisible', true)
         } else {
           this.$message.error('创建/修改自定义规则失败，请重试')
         }
       } else {
-        // this.$store.commit('setWorkspaceFooterVisible', true)
       }
     },
     handleCancelRuleConfig () {
-      this.$store.commit('setRuleSettingVisible', false)
-      // this.$store.commit('setWorkspaceFooterVisible', true)
+      // this.$store.commit('setRuleEditMode', false)
     },
     handleEditRuleConfig (selectedRuleConfig) {
       this.selectedRuleConfig = selectedRuleConfig
-      this.operation = 'edit'
-      this.$store.commit('setRuleSettingVisible', true)
-      // this.$store.commit('setWorkspaceFooterVisible', false)
+      this.$ipcRenderer.send('show-proxy-rule-window', {
+        operation: 'edit',
+        ruleConfig: this.selectedRuleConfig
+      })
+      // this.$store.commit('setRuleEditMode', true)
     },
     handleCreateConfigRule () {
       this.selectedRuleConfig = null
       this.operation = 'create'
-      this.$store.commit('setRuleSettingVisible', true)
-      // this.$store.commit('setWorkspaceFooterVisible', false)
+      this.$ipcRenderer.send('show-proxy-rule-window')
+      // this.$store.commit('setRuleEditMode', true)
     },
     toggleSelectedRules (isEnabled) {
       if (this.filteredRuleConfigs.length > 0) {
@@ -169,7 +166,6 @@ export default {
   components: {
     ListedRuleConfig,
     GroupedRuleConfigList,
-    RuleConfigSetting,
     RuleConfigFilter
   }
 }
@@ -177,7 +173,7 @@ export default {
 
 <style scoped>
 .rule-config {
-  flex: 1;
+  height: 100%;
   overflow: auto;
 }
 .rule-config .rule-config-list-wrapper {

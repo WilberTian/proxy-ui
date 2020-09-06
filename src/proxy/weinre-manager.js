@@ -13,6 +13,7 @@ const WEINRE_CONFIG_FILE = 'weinre-config.json'
 const userDataPath = app.getPath('userData')
 
 let weinreLog = []
+let isWeinreRunning = false
 
 const _emitWeinreLogUpdatedEvent = throttle(mainWindow => {
   mainWindow.webContents.send('weinre-log-updated')
@@ -22,6 +23,13 @@ const _addWeinreLog = weinreLogItem => {
   weinreLog.push(weinreLogItem)
   if (global.mainWindow) {
     _emitWeinreLogUpdatedEvent(global.mainWindow)
+  }
+}
+
+const _setWeinreStatus = (status) => {
+  isWeinreRunning = status
+  if (global.weinreWindow) {
+    global.weinreWindow.webContents.send('weinre-status-updated')
   }
 }
 
@@ -81,6 +89,7 @@ export default {
               detail: data,
               isErr: false
             })
+            _setWeinreStatus(true)
             resolve('weinre已经启动')
           })
           global.weinreProcess.stderr.on('data', (err) => {
@@ -89,6 +98,7 @@ export default {
               isErr: true
             })
             global.weinreProcess = null
+            _setWeinreStatus(false)
             log.error(`startWeinre: ${err.message}`)
             reject(new Error('weinre启动失败'))
           })
@@ -99,6 +109,7 @@ export default {
               isErr: true
             })
             global.weinreProcess = null
+            _setWeinreStatus(false)
             log.error(`startWeinre: ${err.message}`)
             reject(new Error('weinre启动失败'))
           })
@@ -118,6 +129,7 @@ export default {
           log.info(`stopWeinre: kill ${global.weinreProcess.pid}`)
           process.kill(-global.weinreProcess.pid)
           global.weinreProcess = null
+          _setWeinreStatus(false)
         }
         resolve('weinre已经关闭')
       } catch (e) {
@@ -128,5 +140,8 @@ export default {
   },
   getWeinreLog () {
     return [...weinreLog]
+  },
+  getWeinreStatus () {
+    return isWeinreRunning
   }
 }

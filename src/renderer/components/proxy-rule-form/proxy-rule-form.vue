@@ -1,7 +1,13 @@
 <template>
-  <div>
+  <div class="proxy-rule">
+    <div class="proxy-rule-header">
+      <div class="header-content">
+        {{operation === 'create' ? '新建代理规则' : '编辑代理规则'}}
+      </div>
+      <window-btn-group @close="handleClose" disableMinimize disableMaximize />
+    </div>
     <el-form
-      class="rule-config-setting"
+      class="proxy-rule-form"
       :model="ruleConfigData"
       :rules="validators"
       ref="ruleConfigForm"
@@ -198,7 +204,7 @@
           @click="submitForm('ruleConfigForm')"
         >{{this.operation === 'create' ? '立即创建' : '修改'}}</el-button>
         <el-button @click="resetForm('ruleConfigForm')">重置</el-button>
-        <el-button @click="() => {this.$emit('cancelRuleConfig')}">取消</el-button>
+        <el-button @click="cancelForm">取消</el-button>
       </el-form-item>
     </el-form>
     <el-dialog
@@ -224,6 +230,8 @@
 </template>
 
 <script>
+import WindowBtnGroup from '../common/window-btn-group'
+import createGUID from '@/utils/uuidv4'
 import { defaultRuleConfigs } from '@/configs/constants'
 import HttpHeaderEditor from './http-header-editor'
 import CodeMirror from 'codemirror/lib/codemirror.js'
@@ -234,33 +242,28 @@ import 'codemirror/theme/monokai.css'
 import 'codemirror/addon/selection/active-line.js'
 
 export default {
-  props: {
-    operation: {
-      type: String,
-      default: 'create'
-    },
-    ruleConfig: {
-      type: Object
-    }
-  },
   beforeCreate () {
     this.matchers = this.$proxyApi.getMatchers()
   },
   mounted () {
-    if (this.ruleConfigType === 'customize') {
-      this.customizeRuleEditor = CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
-        tabSize: 2,
-        mode: 'text/javascript',
-        theme: 'monokai',
-        lineNumbers: true,
-        line: true,
-        styleActiveLine: true
-      })
-      this.customizeRuleEditor.on('change', (cm) => {
-        this.ruleConfigData.customizeRule = cm.getValue()
-      })
-      this.customizeRuleEditor.setValue(this.ruleConfigData.customizeRule)
+    this.setProxyRuleConfigHandler = (_, data) => {
+      if (data) {
+        this.operation = data.operation
+        this.ruleConfigData = JSON.parse(JSON.stringify(data.ruleConfig))
+        this.ruleConfigType = this.ruleConfigData.type
+
+        this.renderRuleEditor(this.ruleConfigType)
+      } else {
+        this.operation = 'create'
+        const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
+        this.ruleConfigType = 'mock'
+        this.ruleConfigData = clonedDefaultRuleConfigs['mock']
+      }
     }
+    this.$ipcRenderer.on('set-proxy-rule-config', this.setProxyRuleConfigHandler)
+  },
+  beforeDestroy () {
+    this.$ipcRenderer.removeListener('set-proxy-rule-config', this.setProxyRuleConfigHandler)
   },
   data () {
     const isValidJSON = (rule, value, callback) => {
@@ -295,14 +298,11 @@ export default {
 
     let ruleConfigData
     let ruleConfigType = 'mock'
-    if (this.ruleConfig) {
-      ruleConfigData = JSON.parse(JSON.stringify(this.ruleConfig))
-      ruleConfigType = ruleConfigData.type
-    } else {
-      const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
-      ruleConfigData = clonedDefaultRuleConfigs[ruleConfigType]
-    }
+    const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
+    ruleConfigData = clonedDefaultRuleConfigs[ruleConfigType]
+
     return {
+      operation: 'create',
       ruleConfigType,
       ruleConfigData,
       validators: {
@@ -339,21 +339,26 @@ export default {
     }
   },
   methods: {
-    selectRuleConfigType (value) {
-      this.ruleConfigData = defaultRuleConfigs[value]
+    selectRuleConfigType (type) {
+      this.ruleConfigData = defaultRuleConfigs[type]
+      this.renderRuleEditor(type)
+    },
+    renderRuleEditor (type) {
       this.$nextTick(() => {
-        if (value === 'customize' && !this.customizeRuleEditor) {
-          this.customizeRuleEditor = CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
-            tabSize: 2,
-            mode: 'text/javascript',
-            theme: 'monokai',
-            lineNumbers: true,
-            line: true,
-            styleActiveLine: true
-          })
-          this.customizeRuleEditor.on('change', (cm) => {
-            this.ruleConfigData.customizeRule = cm.getValue()
-          })
+        if (type === 'customize') {
+          if (!this.customizeRuleEditor) {
+            this.customizeRuleEditor = CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
+              tabSize: 2,
+              mode: 'text/javascript',
+              theme: 'monokai',
+              lineNumbers: true,
+              line: true,
+              styleActiveLine: true
+            })
+            this.customizeRuleEditor.on('change', (cm) => {
+              this.ruleConfigData.customizeRule = cm.getValue()
+            })
+          }
           this.customizeRuleEditor.setValue(this.ruleConfigData.customizeRule)
         } else {
           const cmEditorEl = this.$el.querySelector('.CodeMirror')
@@ -367,7 +372,8 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$emit('submitRuleConfig', this.ruleConfigData)
+          this.submitRuleConfig(this.ruleConfigData)
+          this.handleClose()
         } else {
           return false
         }
@@ -375,6 +381,34 @@ export default {
     },
     resetForm (formName) {
       this.$refs[formName].resetFields()
+    },
+    cancelForm () {
+      this.handleClose()
+    },
+    submitRuleConfig (ruleConfig) {
+      let _ruleConfig = ruleConfig
+
+      if ('guid' in ruleConfig) {
+        this.$proxyApi.updateRuleConfig(ruleConfig)
+      } else {
+        _ruleConfig = {
+          ...ruleConfig,
+          guid: createGUID()
+        }
+        this.$proxyApi.addRuleConfig(_ruleConfig)
+      }
+
+      if (_ruleConfig.type === 'customize') {
+        const result = this.$proxyApi.writeCustomizeRule(_ruleConfig)
+        if (result) {
+          //
+        } else {
+          this.$message.error('创建/修改自定义规则失败，请重试')
+        }
+      } else {
+        //
+      }
+      this.handleClose()
     },
     strToJSON (val) {
       let result
@@ -435,16 +469,44 @@ export default {
       this.sampleRuleDialogVisible = false
       const currentSampleRule = this.sampleRules[this.activeSampleRuleIdx]
       this.customizeRuleEditor.setValue(currentSampleRule.sampleContent)
+    },
+    handleClose () {
+      this.$ipcRenderer.send('proxy-rule-form-close')
     }
   },
   components: {
-    HttpHeaderEditor
+    HttpHeaderEditor,
+    WindowBtnGroup
   }
 }
 </script>
 
 <style scoped>
-.rule-config-setting {
+.proxy-rule {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.proxy-rule-header {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  min-height: 24px;
+  background: -webkit-linear-gradient(top, #eee, #bbb);
+  -webkit-app-region: drag;
+  padding: 0 8px;
+}
+.proxy-rule-header .header-content {
+  flex: 1;
+  font-size: 12px;
+  font-weight: bold;
+  color: #333;
+  padding-left: 4px;
+}
+.proxy-rule-form {
+  flex: 1;
+  overflow-y: auto;
   padding: 16px 8px;
 }
 .url-pattern-wrapper {

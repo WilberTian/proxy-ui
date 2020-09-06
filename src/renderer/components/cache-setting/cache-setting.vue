@@ -74,9 +74,8 @@ export default {
 .cache-setting-header {
   display: flex;
   align-items: center;
-  height: 30px;
-  background: -webkit-linear-gradient(top, #eee, #bbb);
-  -webkit-app-region: drag;
+  height: 24px;
+  min-height: 24px;
   padding: 0 8px;
 }
 .cache-setting-header .header-content {
@@ -84,7 +83,7 @@ export default {
   font-size: 12px;
   font-weight: bold;
   color: #333;
-  padding-left: 4px;
+  text-align: center;
 }
 .host-input-wrapper {
   display: flex;

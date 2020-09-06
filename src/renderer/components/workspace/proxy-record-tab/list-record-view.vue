@@ -7,9 +7,9 @@
             {{(currentPage - 1) * pageSize + 1 + idx}}
           </span>
           <span class="icon-column column">
-            <i v-if="record.isHttps && !hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-lock lock-icon" @click="enableHttps4Host(`${record.host}:443`)"></i>
-            <i v-if="record.isHttps && hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-unlock lock-icon"></i>
-            <i v-if="!record.isHttps" class="el-icon-link lock-icon"></i>
+            <i v-if="record.protocol === 'https' && !hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-lock lock-icon" @click="enableHttps4Host(`${record.host}:443`)"></i>
+            <i v-if="record.protocol === 'https' && hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-unlock lock-icon"></i>
+            <i v-if="record.protocol !== 'https'" class="el-icon-link lock-icon"></i>
           </span>
           <span class="method-column column">
             {{record.method}}
@@ -18,7 +18,7 @@
             {{record.statusCode}}
           </span>
            <span class="host-column column">
-            {{record.host}}
+            {{`${record.protocol}://${record.host}`}}
           </span>
           <span class="path-column column">
             {{record.path}}

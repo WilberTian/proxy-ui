@@ -25,7 +25,11 @@ let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
     renderer: path.join(__dirname, '../src/renderer/main.js'),
-    'cache-setting': path.join(__dirname, '../src/renderer/cache-setting-window.js')
+    'cache-setting-window': path.join(__dirname, '../src/renderer/cache-setting-window.js'),
+    'vconsole-setting-window': path.join(__dirname, '../src/renderer/vconsole-setting-window.js'),
+    'weinre-setting-window': path.join(__dirname, '../src/renderer/weinre-setting-window.js'),
+    'proxy-setting-window': path.join(__dirname, '../src/renderer/proxy-setting-window.js'),
+    'proxy-rule-window': path.join(__dirname, '../src/renderer/proxy-rule-window.js'),
   },
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
@@ -137,14 +141,66 @@ let rendererConfig = {
         : false
     }),
     new HtmlWebpackPlugin({
-      filename: 'cache-setting.html',
-      template: path.resolve(__dirname, '../src/cache-setting.ejs'),
+      filename: 'cache-setting-window.html',
+      template: path.resolve(__dirname, '../src/cache-setting-window.ejs'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
         removeComments: true
       },
-      chunks: ['cache-setting'],
+      chunks: ['cache-setting-window'],
+      nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'vconsole-setting-window.html',
+      template: path.resolve(__dirname, '../src/vconsole-setting-window.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      chunks: ['vconsole-setting-window'],
+      nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'weinre-setting-window.html',
+      template: path.resolve(__dirname, '../src/weinre-setting-window.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      chunks: ['weinre-setting-window'],
+      nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'proxy-setting-window.html',
+      template: path.resolve(__dirname, '../src/proxy-setting-window.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      chunks: ['proxy-setting-window'],
+      nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'proxy-rule-window.html',
+      template: path.resolve(__dirname, '../src/proxy-rule-window.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      chunks: ['proxy-rule-window'],
       nodeModules: process.env.NODE_ENV !== 'production'
         ? path.resolve(__dirname, '../node_modules')
         : false
