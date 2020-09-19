@@ -1,8 +1,5 @@
 <template>
   <div class="record-detail" v-loading="loading">
-    <div class="close-icon">
-      <i class="el-icon-error" @click="emitClose" />
-    </div>
     <el-tabs class="record-detail-tab" v-model="selectedTab">
       <el-tab-pane label="请求数据" name="request">
         <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
@@ -74,9 +71,6 @@ export default {
     this.getRecordDetail(this.id)
   },
   methods: {
-    emitClose () {
-      this.$emit('close')
-    },
     getRecordDetail (recordId) {
       const self = this
       this.$proxyApi.getRecordById(recordId).then((record) => {
@@ -113,29 +107,9 @@ export default {
 </script>
 
 <style scoped>
-.record-detail {
-  position: fixed;
-  top: 0;
-  right: 0;
+.record-detail, .record-detail-tab {
   height: 100%;
-  width: 80vw;
-  background-color: #fff;
-  z-index: 999;
-}
-
-.close-icon {
-  position: absolute;
-  right: 8px;
-  top: 6px;
-  color: #333;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.record-detail-tab {
   width: 100%;
-  height: 100%;
 }
 .request-record-btn {
   position: absolute;
@@ -146,5 +120,12 @@ export default {
 .data-wrapper {
   height: 100%;
   overflow-y: auto;
+}
+</style>
+<style>
+.record-detail-tab .el-tabs__item {
+  height: 28px !important;
+  line-height: 28px !important;
+  font-size: 12px !important;
 }
 </style>

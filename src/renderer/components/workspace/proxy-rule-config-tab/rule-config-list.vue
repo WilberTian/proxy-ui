@@ -78,10 +78,7 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          this.$store.commit('deleteRuleConfig', ruleConfig.guid)
-          if (ruleConfig.type === 'customize') {
-            this.$proxyApi.deleteCustomizeRule(ruleConfig)
-          }
+          this.$proxyApi.deleteRuleConfig(ruleConfig)
         })
         .catch(() => {
           //
@@ -96,19 +93,14 @@ export default {
         .then(() => {
           const clonedRuleConfig = JSON.parse(JSON.stringify(ruleConfig))
           clonedRuleConfig.guid = createGUID()
-          const result = this.$proxyApi.writeCustomizeRule(clonedRuleConfig)
-          if (result) {
-            this.$store.commit('cloneRuleConfig', clonedRuleConfig)
-          } else {
-            this.$message.error('复制自定义规则失败，请重试')
-          }
+          this.$proxyApi.addRuleConfig(clonedRuleConfig)
         })
         .catch(() => {
           //
         })
     },
     updateRuleConfigStatus (ruleConfig, status) {
-      this.$store.commit('updateRuleConfig', {
+      this.$proxyApi.updateRuleConfig({
         ...ruleConfig,
         enabled: status
       })

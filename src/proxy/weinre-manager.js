@@ -28,8 +28,8 @@ const _addWeinreLog = weinreLogItem => {
 
 const _setWeinreStatus = (status) => {
   isWeinreRunning = status
-  if (global.weinreWindow) {
-    global.weinreWindow.webContents.send('weinre-status-updated')
+  if (global.weinreSettingWindow) {
+    global.weinreSettingWindow.webContents.send('weinre-status-updated')
   }
 }
 

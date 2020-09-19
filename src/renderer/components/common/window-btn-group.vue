@@ -1,33 +1,18 @@
 <template>
   <div class="window-btn-group" @mouseenter="setIconVisible(true)" @mouseleave="setIconVisible(false)">
-    <div v-if="!disableClose" class="close-btn" @click="handleClose">
-      <svgicon
-          v-show="iconVisible"
-          icon="close"
-          width="12" height="12" color="#333"
-        ></svgicon>
+    <div v-if="!disableClose" class="icon-wrapper close-btn" @click="handleClose">
+      <i class="el-icon-close" v-show="iconVisible" />
     </div>
-    <div v-if="!disableMinimize" class="minimize-btn" @click="handleMinimize">
-      <svgicon
-          v-show="iconVisible"
-          icon="minimize"
-          width="12" height="12" color="#333"
-        ></svgicon>
+    <div v-if="!disableMinimize" class="icon-wrapper minimize-btn" @click="handleMinimize">
+     <i class="el-icon-minus" v-show="iconVisible" />
     </div>
-    <div v-if="!disableMaximize" class="maximize-btn"  @click="handleMaximize">
-      <svgicon
-          v-show="iconVisible"
-          icon="maximize"
-          width="10" height="10" color="#333"
-        ></svgicon>
+    <div v-if="!disableMaximize" class="icon-wrapper maximize-btn"  @click="handleMaximize">
+      <i class="el-icon-d-caret" v-show="iconVisible" />
     </div>
   </div>
 </template>
   
 <script>
-import '@/assets/icons/close'
-import '@/assets/icons/minimize'
-import '@/assets/icons/maximize'
 
 export default {
   name: 'window-btn-group',
@@ -71,26 +56,36 @@ export default {
 .window-btn-group {
   display: flex;
 }
-.close-btn, .minimize-btn, .maximize-btn {
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0 4px;
   border-radius: 50%;
   height: 14px;
   width: 14px;
-  line-height: 14px;
-  text-align: center;
   cursor: pointer;
+  font-size: 12px;
+  color: #444;
 }
 .close-btn {
   background-color: #FF5722;
 }
+.close-btn i {
+  margin-top: 1px;
+  font-weight: bold;
+}
 .minimize-btn {
   background-color: #fba420;
+}
+.minimize-btn i {
+  margin-top: 1px;
+  font-weight: bold;
 }
 .maximize-btn {
   background-color: #13ce66;
   transform: rotate(45deg);
+  font-size: 14px;
 }
-.maximize-btn svg {
-  padding: 2px;
-}
+
 </style>

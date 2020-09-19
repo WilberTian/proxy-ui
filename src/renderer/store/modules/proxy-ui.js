@@ -1,14 +1,10 @@
-import Vue from 'vue'
-
 const state = {
-  currentStep: 2,
   ruleConfigs: {},
   proxyConfig: {},
-  proxyServerStatus: 0,
-  workspaceFooterVisible: true,
   ruleEditMode: false,
   weinreServerStatus: 0,
-  ruleConfigListDisplayMode: window.localStorage.getItem('displayMode') || 'group',
+  recordCount: 0,
+  proxyServerStatus: false,
   proxyServerData: {
     hittedRuleCount: 0,
     proxyServerLogCount: 0,
@@ -19,20 +15,11 @@ const state = {
 window.state = state
 
 const getters = {
-  getCurrentStep (state) {
-    return state.currentStep
-  },
   getRuleConfigs (state) {
     return state.ruleConfigs
   },
   getProxyConfig (state) {
     return state.proxyConfig
-  },
-  getProxyServerStatus (state) {
-    return state.proxyServerStatus
-  },
-  getWorkspaceFooterVisible (state) {
-    return state.workspaceFooterVisible
   },
   getRuleEditMode (state) {
     return state.ruleEditMode
@@ -40,8 +27,11 @@ const getters = {
   getWeinreServerStatus (state) {
     return state.weinreServerStatus
   },
-  getRuleConfigListDisplayMode (state) {
-    return state.ruleConfigListDisplayMode
+  getRecordCount (state) {
+    return state.recordCount
+  },
+  getProxyServerStatus (state) {
+    return state.proxyServerStatus
   },
   getProxyServerData (state) {
     return state.proxyServerData
@@ -49,39 +39,11 @@ const getters = {
 }
 
 const mutations = {
-  setCurrentStep (state, currentStep) {
-    state.currentStep = currentStep
-  },
   setRuleConfigs (state, ruleConfigs) {
     state.ruleConfigs = ruleConfigs
   },
-  addRuleConfig (state, ruleConfig) {
-    state.ruleConfigs.push(ruleConfig)
-  },
-  deleteRuleConfig (state, guid) {
-    state.ruleConfigs = state.ruleConfigs.filter((ruleConfig) => {
-      return ruleConfig.guid !== guid
-    })
-  },
-  cloneRuleConfig (state, ruleConfig) {
-    state.ruleConfigs.push(ruleConfig)
-  },
-  updateRuleConfig (state, ruleConfigData) {
-    const foundIdx = state.ruleConfigs.findIndex((ruleConfig) => {
-      return ruleConfig.guid === ruleConfigData.guid
-    })
-    if (foundIdx > -1) {
-      Vue.set(state.ruleConfigs, foundIdx, ruleConfigData)
-    }
-  },
   setProxyConfig (state, proxyConfig) {
     state.proxyConfig = proxyConfig
-  },
-  setProxyServerStatus (state, status) {
-    state.proxyServerStatus = status
-  },
-  setWorkspaceFooterVisible (state, workspaceFooterVisible) {
-    state.workspaceFooterVisible = workspaceFooterVisible
   },
   setRuleEditMode (state, ruleEditMode) {
     state.ruleEditMode = ruleEditMode
@@ -89,8 +51,11 @@ const mutations = {
   setWeinreServerStatus (state, status) {
     state.weinreServerStatus = status
   },
-  setRuleConfigListDisplayMode (state, ruleConfigListDisplayMode) {
-    state.ruleConfigListDisplayMode = ruleConfigListDisplayMode
+  setRecordCount (state, count) {
+    state.recordCount = count
+  },
+  setProxyServerStatus (state, status) {
+    state.proxyServerStatus = status
   },
   updateProxyServerData (state, proxyServerData) {
     state.proxyServerData = {

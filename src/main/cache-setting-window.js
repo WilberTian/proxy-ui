@@ -24,10 +24,7 @@ function createCacheSettingWindow () {
   })
 
   cacheSettingWindow.loadURL(cacheSettingURL)
-
-  cacheSettingWindow.webContents.on('did-finish-load', () => {
-    cacheSettingWindow.show()
-  })
+  cacheSettingWindow.show()
 
   cacheSettingWindow.on('closed', () => {
     cacheSettingWindow = null

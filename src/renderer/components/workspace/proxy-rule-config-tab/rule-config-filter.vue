@@ -41,10 +41,10 @@
             </span>
           </div>
         </div>
-        <div style="float: right; margin-right: 16px;">
+        <!-- <div style="float: right; margin-right: 16px;">
           <el-button size="mini" @click="enableSelectedRules" round>开启选中</el-button>
           <el-button size="mini" @click="disableSelectedRules" round>禁用选中</el-button>
-        </div>
+        </div> -->
       </div>
     </transition>
   </div>

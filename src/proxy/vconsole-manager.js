@@ -9,6 +9,12 @@ const VCONSOLE_CONFIG_FILE = 'vconsole-config.json'
 
 const userDataPath = app.getPath('userData')
 
+const _updateVconsoleConfig = () => {
+  if (global.vconsoleSettingWindow) {
+    global.vconsoleSettingWindow.webContents.send('vconsole-config-updated')
+  }
+}
+
 export default {
   readVconsoleConfig: function () {
     try {
@@ -37,6 +43,7 @@ export default {
         JSON.stringify(vconsoleConfig)
       )
       global.vconsoleConfig = vconsoleConfig
+      _updateVconsoleConfig()
       log.info(`writeVconsoleConfig: ${JSON.stringify(vconsoleConfig)}`)
       return true
     } catch (e) {

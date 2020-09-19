@@ -69,6 +69,7 @@ body {
 }
 .el-tabs .el-tabs__header {
   margin: 0 !important;
+  user-select: none;
 }
 .el-tabs__content {
   padding: 0 !important;

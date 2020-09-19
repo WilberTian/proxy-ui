@@ -91,12 +91,13 @@ export default {
     },
     toggleRulesByTag (tag, status) {
       const taggedList = this.groupedRuleConfigList[tag]
-      taggedList.forEach((ruleConfig) => {
-        this.$store.commit('updateRuleConfig', {
+      const ruleConfigs = taggedList.map((ruleConfig) => {
+        return {
           ...ruleConfig,
           enabled: status
-        })
+        }
       })
+      this.$proxyApi.updateRuleConfigs(ruleConfigs)
     },
     toggleRuleConfigList (tag) {
       const foundIdx = this.tagList.findIndex((tagItem) => {
@@ -120,16 +121,17 @@ export default {
 <style scoped>
 .rule-config-list {
   padding-bottom: 16px;
-  border-bottom: 1px solid #d7d7d7;
 }
 .group-header {
   display: flex;
   align-items: center;
   height: 32px;
   cursor: pointer;
+  background-color: #eee;
 }
 .group-header.folded-item {
   border-bottom: 1px solid #d7d7d7;
+  background-color: #fff;
 }
 .group-header .tag-name {
   flex: 1;

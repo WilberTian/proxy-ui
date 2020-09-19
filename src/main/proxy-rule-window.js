@@ -1,5 +1,4 @@
 import { BrowserWindow, ipcMain } from 'electron'
-import { moveWindowToCenter } from './utils'
 
 let proxyRuleWindow
 
@@ -11,7 +10,7 @@ const proxyRuleURL =
 const WIN_WIDTH = 800
 const WIN_HEIGHT = 640
 
-function createProxyRuleWindow (data) {
+function createProxyRuleWindow () {
   proxyRuleWindow = new BrowserWindow({
     height: WIN_HEIGHT,
     width: WIN_WIDTH,
@@ -19,31 +18,28 @@ function createProxyRuleWindow (data) {
     minWidth: WIN_WIDTH,
     frame: false,
     useContentSize: true,
-    show: false
+    show: false,
+    parent: global.mainWindow,
+    modal: true
   })
 
   proxyRuleWindow.loadURL(proxyRuleURL)
-
-  proxyRuleWindow.webContents.on('did-finish-load', () => {
-    proxyRuleWindow.webContents.send('set-proxy-rule-config', data)
-    proxyRuleWindow.show()
-  })
+  proxyRuleWindow.show()
 
   proxyRuleWindow.on('closed', () => {
     proxyRuleWindow = null
   })
 }
 
-export default function showProxyRuleWindow (data) {
+export default function showProxyRuleWindow () {
   if (!proxyRuleWindow) {
-    createProxyRuleWindow(data)
+    createProxyRuleWindow()
     ipcMain.on('proxy-rule-form-close', () => {
-      proxyRuleWindow.hide()
+      if (proxyRuleWindow) {
+        proxyRuleWindow.close()
+      }
     })
   } else {
-    const {x, y} = moveWindowToCenter(WIN_WIDTH, WIN_HEIGHT)
-    proxyRuleWindow.setPosition(x, y)
-    proxyRuleWindow.webContents.send('set-proxy-rule-config', data)
-    proxyRuleWindow.show()
+    //
   }
 }

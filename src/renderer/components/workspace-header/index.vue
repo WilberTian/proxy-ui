@@ -5,7 +5,7 @@
     </div>
     <div class="header-toolbar">
       <div class="tool-icon-wrapper" v-if="!proxyServerStatus">
-        <div class="icon-wrapper" title="启动代理" @click="startProxyServer">
+        <div class="icon-wrapper" title="启动代理" @click.prevent.stop="startProxyServer">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="tool-icon-wrapper" v-if="proxyServerStatus">
-        <div class="icon-wrapper" title="停止代理" @click="stopProxyServer">
+        <div class="icon-wrapper" title="停止代理" @click.prevent.stop="stopProxyServer">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -25,7 +25,7 @@
             width="16" height="16" color="red"
           ></svgicon>
         </div>
-        <div class="icon-wrapper" title="重启代理" @click="restartProxyServer">
+        <div class="icon-wrapper" title="重启代理" @click.prevent.stop="restartProxyServer">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="tool-icon-wrapper">
-        <div class="icon-wrapper" title="代理设置" @click="showProxySetting">
+        <div class="icon-wrapper" title="代理设置" @click.prevent.stop="showProxySetting">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -45,7 +45,7 @@
             width="16" height="16" color="#606266"
           ></svgicon>
         </div>
-        <div class="icon-wrapper" title="新建代理规则" @click="showProxyRuleSetting">
+        <div class="icon-wrapper" title="新建代理规则" @click.prevent.stop="showProxyRuleSetting">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -54,7 +54,7 @@
             width="14" height="14" color="#333"
           ></svgicon>
         </div>
-        <div class="icon-wrapper" title="vconsole 设置" @click="showVconsoleSetting">
+        <div class="icon-wrapper" title="vconsole 设置" @click.prevent.stop="showVconsoleSetting">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -63,7 +63,7 @@
             width="16" height="16" color="#909399"
           ></svgicon>
         </div>
-        <div class="icon-wrapper" title="weinre 设置" @click="showWeinreSetting">
+        <div class="icon-wrapper" title="weinre 设置" @click.prevent.stop="showWeinreSetting">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -73,7 +73,7 @@
           ></svgicon>
         </div>
       </div>
-      <div class="tool-icon-wrapper" v-if="currentStep === 2 && !ruleEditMode">
+      <div class="tool-icon-wrapper" v-if="!ruleEditMode">
         <div class="icon-wrapper">
           <el-popover
             title="本机IP"
@@ -135,7 +135,8 @@ import '@/assets/icons/filter'
 import '@/assets/icons/online'
 import '@/assets/icons/offline'
 import '@/assets/icons/qrcode'
-import WindowBtnGroup from '../common/window-btn-group'
+import WindowBtnGroup from '@/components/common/window-btn-group'
+import {showLoading, closeLoading} from '@/components/common/loading'
 
 Vue.component(VueQrcode.name, VueQrcode)
 
@@ -149,7 +150,6 @@ export default {
   computed: {
     ...mapGetters({
       proxyConfig: 'getProxyConfig',
-      currentStep: 'getCurrentStep',
       ruleEditMode: 'getRuleEditMode'
     }),
     isOnline () {
@@ -163,8 +163,8 @@ export default {
     }
   },
   methods: {
-    startProxyServer () {
-      this.loading = true
+    startProxyServer (e) {
+      showLoading()
       this.$proxyApi.resetHookData()
       this.$proxyApi.resetProxyServerLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
@@ -172,38 +172,35 @@ export default {
         this.$notify({
           title: '提示',
           message: data.msg,
-          type: 'success'
+          type: 'success',
+          position: 'bottom-right'
         })
-        this.$store.commit('setProxyServerStatus', 1)
-        // this.$store.commit('setWorkspaceFooterVisible', false)
-        this.loading = false
+        closeLoading()
       }, (e) => {
         this.$notify({
           title: '错误信息',
           message: e.message,
-          type: 'error'
+          type: 'error',
+          position: 'bottom-right'
         })
-        this.$store.commit('setProxyServerStatus', 0)
-        // this.$store.commit('setWorkspaceFooterVisible', true)
-        this.loading = false
+        closeLoading()
       })
     },
     stopProxyServer () {
-      this.loading = true
+      showLoading()
       this.$proxyApi.stopProxyServer().then((data) => {
         this.$notify({
           title: '提示',
           message: data.msg,
-          type: 'success'
+          type: 'success',
+          position: 'bottom-right'
         })
-        this.$store.commit('setProxyServerStatus', 0)
-        // this.$store.commit('setWorkspaceFooterVisible', true)
-        this.loading = false
+        closeLoading()
         this.$proxyApi.setTrayTitle('')
       })
     },
     restartProxyServer () {
-      this.loading = true
+      showLoading()
       this.$proxyApi.resetHookData()
       this.$proxyApi.resetProxyServerLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
@@ -211,11 +208,10 @@ export default {
         this.$notify({
           title: '提示',
           message: data.msg,
-          type: 'success'
+          type: 'success',
+          position: 'bottom-right'
         })
-        this.$store.commit('setProxyServerStatus', 1)
-        // this.$store.commit('setWorkspaceFooterVisible', false)
-        this.loading = false
+        closeLoading()
       })
     },
     showProxySetting () {
@@ -246,7 +242,7 @@ export default {
       this.$ipcRenderer.send('window-minimize')
     },
     handleMaximize () {
-      this.$ipcRenderer.send('window-maximize')
+      this.$ipcRenderer.send('window-fullscreen')
     }
   },
   mounted () {
@@ -263,7 +259,7 @@ export default {
     this.proxyServerStatusUpdateHanlder()
   },
   beforeDestroy () {
-
+    this.$ipcRenderer.removeListener('proxy-server-status-updated', this.proxyServerStatusUpdateHanlder)
   },
   components: {
     WindowBtnGroup
@@ -305,12 +301,16 @@ export default {
   justify-content: center;
   align-items: center;
   margin-right: 40px;
+  overflow: hidden;
 }
 .icon-wrapper {
   height: 28px;
   line-height: 32px;
   padding: 0 12px;
   cursor: pointer;
+}
+.icon-wrapper:active {
+  background-color: #efefef;
 }
 .icon-wrapper:not(:last-child) {
   border-right: 1px solid #efefef;

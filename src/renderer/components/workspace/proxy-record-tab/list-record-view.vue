@@ -1,13 +1,19 @@
 <template>
   <div class="record-data-wrapper">
-    <div class="host-records">
-      <div class="list-wrapper" v-if="recordsCount > 0">
-        <div class="list-item" v-for="(record, idx) in pagedRecords" :key="record.id"> 
-          <span class="id-column column" @click="openRecordDetail(record.id)">
-            {{(currentPage - 1) * pageSize + 1 + idx}}
+    <div class="listed-records" :style="{height: `${listedRecordContainerHeight}px`}">
+      <div class="list-wrapper" v-if="listedRecords.length > 0">
+        <div
+          v-for="(record, idx) in listedRecords"
+          :key="record.id"
+          :class="{'list-item': true, 'selected-list-item': selectedRecordId === record.id}"
+          v-show="`${record.host}${record.path}`.includes(filterKeyword)"
+          @click="selectRecord(record.id)"
+        > 
+          <span class="id-column column">
+            {{idx + 1}}
           </span>
           <span class="icon-column column">
-            <i v-if="record.protocol === 'https' && !hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-lock lock-icon" @click="enableHttps4Host(`${record.host}:443`)"></i>
+            <i v-if="record.protocol === 'https' && !hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-lock lock-icon" @click.prevent.stop="enableHttps4Host(`${record.host}:443`)"></i>
             <i v-if="record.protocol === 'https' && hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-unlock lock-icon"></i>
             <i v-if="record.protocol !== 'https'" class="el-icon-link lock-icon"></i>
           </span>
@@ -17,127 +23,109 @@
           <span class="status-column column">
             {{record.statusCode}}
           </span>
-           <span class="host-column column">
+          <span class="host-column column" :title="`${record.protocol}://${record.host}`">
             {{`${record.protocol}://${record.host}`}}
           </span>
-          <span class="path-column column">
+          <span class="path-column column" :title="record.path">
             {{record.path}}
           </span>
         </div>
       </div>
-      <el-pagination
-        small
-        v-if="recordsCount > 0"
-        @size-change="handleSizeChange"
-        @current-change="handlePageChange"
-        :current-page="currentPage"
-        :page-sizes="[50, 100, 200, 300]"
-        :page-size="pageSize"
-        :pager-count="5"
-        layout="sizes, prev, pager, next, jumper"
-        :total="recordsCount"
-      >
-      </el-pagination>
       <div
         class="no-record-msg"
-        v-if="recordsCount === 0"
+        v-if="listedRecords.length === 0"
       >
-        当前没有数据！
+        当前没有网络数据！
+      </div>
+    </div>
+    <div :class="{'dividor': true, 'active': isCursorMove}" @mousedown.stop.prevent="handleCursorDown"></div>
+    <div class="record-detail-wrapper">
+      <record-detail v-if="selectedRecordId !== -1" :id="selectedRecordId" />
+      <div
+        class="no-selected-record"
+        v-if="selectedRecordId === -1"
+      >
+        没有选中网络数据！
       </div>
     </div>
   </div>
 </template>
 <script>
-import events from '@/configs/events'
-import eventBus from '@/utils/event-bus'
+import RecordDetail from './record-detail'
 
 export default {
   props: {
-    filterData: {
-      type: Object,
+    filterKeyword: {
+      type: String,
+      default: ''
+    },
+    hostsWithHttps: {
+      type: Array,
       default: function () {
-        return {}
+        return []
+      }
+    },
+    listedRecords: {
+      type: Array,
+      default: function () {
+        return []
       }
     }
-  },
-  watch: {
-    filterData: {
-      deep: true,
-      handler: function (val) {
-        this.recordUpdateListener(true)
-      }
-    }
-  },
-  mounted () {
-    this.recordUpdateListener = (forceUpdate = false) => {
-      this.$proxyApi.getLatestRecords(this.filterData).then((data) => {
-        this.$emit('updateRecordList', {
-          totalCount: data.totalCount,
-          filteredRecordsCount: data.filteredRecordsCount
-        })
-        const filteredListRecords = data.filteredListRecords
-
-        if (filteredListRecords.length === 0) {
-          this.pagedRecords = []
-          this.currentPage = 1
-          this.recordsCount = 0
-          return
-        }
-
-        this.recordsCount = filteredListRecords.length
-        if (forceUpdate || this.pagedRecords.length !== this.pageSize) {
-          const start = (this.currentPage - 1) * this.pageSize
-          this.pagedRecords = filteredListRecords.slice(start, start + this.pageSize)
-        }
-      }, (err) => {
-        this.$message.error(err)
-      })
-    }
-    this.$ipcRenderer.on('record-updated', this.recordUpdateListener)
-    eventBus.$on(events.CLEAR_RECORDS, this.recordUpdateListener)
-    this.recordUpdateListener()
-
-    this.httpsHostUpdated = () => {
-      this.hostsWithHttps = this.$proxyApi.getHostsEnabledHttps()
-    }
-    this.$ipcRenderer.on('https-host-updated', this.httpsHostUpdated)
-    this.httpsHostUpdated()
-  },
-  beforeDestroy () {
-    this.$ipcRenderer.removeListener('record-updated', this.recordUpdateListener)
-    eventBus.$off(events.CLEAR_RECORDS, this.recordUpdateListener)
-    this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
   },
   data: function () {
     return {
-      currentPage: 1,
-      pageSize: 50,
-      pagedRecords: [],
-      recordsCount: 0,
-      hostsWithHttps: []
+      selectedRecordId: -1,
+      isCursorMove: false,
+      listedRecordContainerHeight: 240
     }
   },
+  created () {
+    this.mouseOffY = 0
+  },
   methods: {
-    handlePageChange (currentPage) {
-      this.currentPage = currentPage
-      this.recordUpdateListener(true)
+    handleCursorDown (e) {
+      this.isCursorMove = true
+      this.mouseY = e.pageY || e.clientY + document.documentElement.scrollTop
+      this.lastMouseY = this.mouseY
+      document.documentElement.addEventListener('mousemove', this.handleCursorMove, true)
+      document.documentElement.addEventListener('mouseup', this.handleCursorUp, true)
     },
-    handleSizeChange (size) {
-      this.pageSize = size
-      this.recordUpdateListener(true)
+    handleCursorMove (e) {
+      this.mouseY = e.pageY || e.clientY + document.documentElement.scrollTop
+      let diffY = this.mouseY - this.lastMouseY
+      this.mouseOffY = 0
+
+      this.lastMouseY = this.mouseY
+      if (this.isCursorMove) {
+        if ((this.listedRecordContainerHeight + diffY) >= 100 && (this.listedRecordContainerHeight + diffY) <= 600) {
+          this.listedRecordContainerHeight += diffY
+        }
+      }
     },
-    openRecordDetail (id) {
-      this.$emit('selectRecord', id)
+    handleCursorUp () {
+      this.isCursorMove = false
+      document.documentElement.removeEventListener('mousemove', this.handleCursorMove, true)
+      document.documentElement.removeEventListener('mouseup', this.handleCursorUp, true)
+    },
+    selectRecord (id) {
+      this.selectedRecordId = id
     },
     enableHttps4Host (host) {
       this.$proxyApi.enableHttps4Host(host)
     }
+  },
+  components: {
+    RecordDetail
   }
 }
 </script>
 <style scoped>
-.host-records {
+.record-data-wrapper {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.listed-records {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -152,6 +140,12 @@ export default {
   display: flex;
   height: 24px;
   line-height: 24px;
+  cursor: pointer;
+  background-color: #fff;
+}
+.selected-list-item {
+  background-color: #777 !important;
+  color: #fff;
 }
 .list-item:nth-child(2n+1) {
   background-color: #efefef;
@@ -178,12 +172,9 @@ export default {
 }
 .id-column {
   width: 40px;
-  text-decoration: underline;
   text-align: center;
-  background-color: #606266;
-  color: #fff;
+  color: #333;
   font-weight: bold;
-  cursor: pointer;
 }
 .method-column {
   width: 80px;
@@ -203,12 +194,43 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.el-pagination {
-  border-top: 1px solid #ccc;
-  padding: 4px;
-  text-align: center;
-}
 .proxy-server-record .no-record-msg {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #999;
+}
+.dividor {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  background: transparent;
+  cursor: row-resize;
+}
+.dividor::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #999;
+}
+.dividor.active::after {
+  background: #3a8ee6;
+}
+.dividor:hover::after {
+  background: #3a8ee6;
+}
+.record-detail-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+.proxy-server-record .no-selected-record {
   flex: 1;
   display: flex;
   justify-content: center;

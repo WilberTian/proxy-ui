@@ -43,12 +43,6 @@
         </el-select>
       </el-form-item>
       <el-form-item
-        label="数据web端口"
-        prop="webInterface.webPort"
-      >
-        <el-input v-model.number="proxyConfigData.webInterface.webPort"></el-input>
-      </el-form-item>
-      <el-form-item
         label="开启全局代理"
         prop="enableGlobalProxy"
       >
@@ -143,9 +137,6 @@ export default {
         ],
         throttle: [
           { validator: isValidThrottle, trigger: 'blur' }
-        ],
-        'webInterface.webPort': [
-          { validator: isValidPort, trigger: 'blur' }
         ]
       },
       tagInputVisible: false,
@@ -156,9 +147,25 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          // this.$emit('submitProxyConfig', this.proxyConfigData)
-          this.$proxyApi.writeProxyConfig(this.proxyConfigData)
-          this.handleClose()
+          const proxyServerStatus = this.$proxyApi.getPoxyServerStatus()
+          if (proxyServerStatus) {
+            this.$confirm('修改配置会重启代理服务器，确认修改?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            })
+              .then(() => {
+                this.$proxyApi.writeProxyConfig(this.proxyConfigData)
+                this.$proxyApi.restartProxyServer(this.proxyConfigData)
+                this.handleClose()
+              })
+              .catch(() => {
+                //
+              })
+          } else {
+            this.$proxyApi.writeProxyConfig(this.proxyConfigData)
+            this.handleClose()
+          }
         } else {
           return false
         }

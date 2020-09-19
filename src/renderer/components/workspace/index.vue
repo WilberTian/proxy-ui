@@ -1,6 +1,9 @@
 <template>
   <div class="workspace" v-loading.fullscreen="loading">
     <el-tabs class="workspace-tab-container" v-model="activeTab" type="border-card">
+      <el-tab-pane label="网络数据" name="proxy-server-record" v-if="proxyServerStatus">
+        <proxy-server-record />
+      </el-tab-pane>
       <el-tab-pane label="代理配置信息" name="proxy-config-info">
         <div class="proxy-config-info-wrapper">
           <div class="proxy-config-info">
@@ -30,14 +33,6 @@
             </div>
             <div class="proxy-config-item">
               <div class="label">
-                数据web端口
-              </div>
-              <div class="content">
-                {{proxyConfig.webInterface && proxyConfig.webInterface.webPort}}
-              </div>
-            </div>
-            <div class="proxy-config-item">
-              <div class="label">
                 开启全局代理
               </div>
               <div class="content">
@@ -58,10 +53,7 @@
       <el-tab-pane label="代理规则配置" name="proxy-rule-config">
         <proxy-rule-config />
       </el-tab-pane>
-      <el-tab-pane label="网络数据" name="proxy-server-record" v-if="proxyServerStatus === 1">
-        <proxy-server-record />
-      </el-tab-pane>
-      <el-tab-pane name="proxy-rule-data" v-if="proxyServerStatus === 1">
+      <el-tab-pane name="proxy-rule-data" v-if="proxyServerStatus">
         <span slot="label" style="display: flex; align-items: center;">
           命中规则
           <span class="hitted-rule-count" v-if="proxyServerData.hittedRuleCount > 0">
@@ -70,7 +62,7 @@
         </span>
         <proxy-rule-data />
       </el-tab-pane>
-      <el-tab-pane name="proxy-server-log" v-if="proxyServerStatus === 1">
+      <el-tab-pane name="proxy-server-log" v-if="proxyServerStatus">
         <span slot="label" style="display: flex; align-items: center;">
           代理服务器日志
           <span class="proxy-server-log-number" v-if="proxyServerData.proxyServerLogCount > 0">
@@ -79,7 +71,7 @@
         </span>
         <proxy-server-log />
       </el-tab-pane>
-      <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus === 1">
+      <el-tab-pane label="Weinre日志" name="weinre-data" v-if="weinreServerStatus">
         <weinre-data-tab />
       </el-tab-pane>
       <el-tab-pane name="request-list">
@@ -156,16 +148,17 @@ export default {
       activeTab: 'proxy-config-info',
       importDialogVisible: false,
       exportDialogVisible: false,
-      contentToImport: ''
+      contentToImport: '',
+
+      weinreServerStatus: false
     }
   },
   computed: {
     ...mapGetters({
-      proxyServerStatus: 'getProxyServerStatus',
-      weinreServerStatus: 'getWeinreServerStatus',
       proxyConfig: 'getProxyConfig',
       proxyServerData: 'getProxyServerData',
-      ruleConfigs: 'getRuleConfigs'
+      ruleConfigs: 'getRuleConfigs',
+      proxyServerStatus: 'getProxyServerStatus'
     }),
     networkSpeedValue () {
       let val = ''
@@ -199,7 +192,7 @@ export default {
       }
     },
     proxyServerStatus (val) {
-      if (val === 1) {
+      if (val) {
         this.activeTab = 'proxy-server-record'
       } else {
         this.activeTab = 'proxy-config-info'
@@ -218,9 +211,47 @@ export default {
     this.$ipcRenderer.on('proxy-config-updated', this.proxySettingSubmitHandler)
 
     this.proxySettingSubmitHandler()
+
+    this.$ipcRenderer.on('export-rule-config', this.showExportDialog)
+    this.$ipcRenderer.on('import-rule-config', this.showImportDialog)
+
+    this.proxyServerStatusUpdateHanlder = () => {
+      const proxyServerStatus = this.$proxyApi.getPoxyServerStatus()
+      this.$store.commit('setProxyServerStatus', proxyServerStatus)
+    }
+    this.$ipcRenderer.on('proxy-server-status-updated', this.proxyServerStatusUpdateHanlder)
+    this.proxyServerStatusUpdateHanlder()
+
+    this.proxyRuleConfigUpdateHandler = () => {
+      if (this.proxyServerStatus) {
+        this.$confirm('确认重启代理服务器应用代理规则变更?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          .then(() => {
+            this.$proxyApi.restartProxyServer(this.proxyConfig)
+          })
+          .catch(() => {
+            //
+          })
+      }
+    }
+    this.$ipcRenderer.on('proxy-rule-config-updated', this.proxyRuleConfigUpdateHandler)
+
+    this.weinreStatusUpdateHandler = () => {
+      this.weinreServerStatus = this.$proxyApi.getWeinreStatus()
+    }
+    this.$ipcRenderer.on('weinre-status-updated', this.weinreStatusUpdateHandler)
+    this.weinreStatusUpdateHandler()
   },
   beforeDestroy () {
     this.$ipcRenderer.removeListener('proxy-config-updated', this.proxySettingSubmitHandler)
+    this.$ipcRenderer.removeListener('export-rule-config', this.showExportDialog)
+    this.$ipcRenderer.removeListener('import-rule-config', this.showImportDialog)
+    this.$ipcRenderer.removeListener('proxy-server-status-updated', this.proxyServerStatusUpdateHanlder)
+    this.$ipcRenderer.removeListener('proxy-rule-config-updated', this.proxyRuleConfigUpdateHandler)
+    this.$ipcRenderer.removeListener('weinre-status-updated', this.weinreStatusUpdateHandler)
   },
   methods: {
     processImport () {
@@ -246,6 +277,12 @@ export default {
     },
     onError: function (e) {
       this.$message.success('复制失败！')
+    },
+    showImportDialog () {
+      this.exportDialogVisible = true
+    },
+    showExportDialog () {
+      this.importDialogVisible = true
     }
   },
   components: {

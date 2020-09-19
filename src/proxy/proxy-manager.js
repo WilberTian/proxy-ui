@@ -33,7 +33,6 @@ let hookData = {
 const proxyServerLog = []
 let localIPAddress = '127.0.0.1'
 
-let clearId = 0
 const MAX_RECORD_COUNT = 6000
 
 const hostsEnalbedHttps = ['www.proxyui-weinre.com:443']
@@ -85,29 +84,8 @@ const _getResponseFile = responseFilePath => {
   }
 }
 
-const _writeCustomizeRule = ruleConfig => {
-  try {
-    fs.writeFileSync(
-      path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`),
-      ruleConfig.customizeRule,
-      {
-        encoding: 'utf8'
-      }
-    )
-    return true
-  } catch (e) {
-    log.error(`_writeCustomizeRule: ${e.message}`)
-    _addProxyServerLog({
-      info: `自定义规则写入失败：${ruleConfig.name}`,
-      detail: `规则内容：${ruleConfig.customizeRule}`,
-      isErr: true
-    })
-    return false
-  }
-}
-
-const _requireFn = (moduleName) => {
-  let code = fs.readFileSync(path.resolve(userDataPath, moduleName), 'utf8')
+const _requireFn = (ruleConfig) => {
+  let code = ruleConfig.customizeRule
   const module = {}
   code = `(function (module, require){${code}})(module, require)`
   // eslint-disable-next-line no-new-func
@@ -118,12 +96,6 @@ const _requireFn = (moduleName) => {
 
 const _requireCustomizeRule = ruleConfig => {
   let customizeRuleModule = null
-  const customizeRuleFileExist = fs.existsSync(
-    path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
-  )
-  if (!customizeRuleFileExist) {
-    _writeCustomizeRule(ruleConfig)
-  }
   try {
     // /* eslint-disable */
     // const requireFunc =
@@ -139,7 +111,7 @@ const _requireCustomizeRule = ruleConfig => {
     // customizeRuleModule = requireFunc(
     //   path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
     // )
-    customizeRuleModule = _requireFn(`__customize_${ruleConfig.guid}.js`)
+    customizeRuleModule = _requireFn(ruleConfig)
   } catch (e) {
     _addProxyServerLog({
       info: `引入自定义规则失败：${ruleConfig.name}`,
@@ -194,6 +166,21 @@ const _emitProxyServerLogUpdatedEvent = throttle(mainWindow => {
   mainWindow.webContents.send('proxy-log-updated')
 }, 500)
 
+const _updatedRecords = []
+const _emitRecordUpdateEvent = throttle(() => {
+  if (global.mainWindow) {
+    global.mainWindow.webContents.send('record-update', [..._updatedRecords])
+    _updatedRecords.length = 0
+  }
+}, 500)
+const _appenddedRecords = []
+const _emitRecordAppendEvent = throttle(() => {
+  if (global.mainWindow) {
+    global.mainWindow.webContents.send('record-append', [..._appenddedRecords])
+    _appenddedRecords.length = 0
+  }
+}, 500)
+
 const _addProxyServerLog = logItem => {
   proxyServerLog.push(logItem)
   if (global.mainWindow) {
@@ -229,10 +216,11 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
 
   return {
     *beforeDealHttpsRequest (requestDetail) {
-      if (hostsEnalbedHttps.includes(requestDetail.host)) {
-        return true
-      }
-      return false
+      // if (hostsEnalbedHttps.includes(requestDetail.host)) {
+      //   return true
+      // }
+      // return false
+      return true
     },
     *beforeSendRequest (requestDetail) {
       const requestOptions = requestDetail.requestOptions
@@ -377,9 +365,9 @@ const generateRootCA = (successCb, errorCb) => {
   })
 }
 
-const _emitRecordUpdatedEvent = throttle((mainWindow) => {
-  mainWindow.webContents.send('record-updated')
-}, 500)
+// const _emitRecordUpdatedEvent = throttle((mainWindow) => {
+//   mainWindow.webContents.send('record-updated')
+// }, 500)
 
 const proxyServerManager = (action = 'start', options = {}) => {
   return new Promise((resolve, reject) => {
@@ -392,7 +380,6 @@ const proxyServerManager = (action = 'start', options = {}) => {
         const createProxyServer = () => {
           proxyServer = proxyServerCreator(options)
           proxyServerRecorder = proxyServer.recorder
-          clearId = 0
           proxyServer.on('ready', () => {
             if (options.enableGlobalProxy) {
               if (options.forceProxyHttps) {
@@ -426,10 +413,27 @@ const proxyServerManager = (action = 'start', options = {}) => {
             reject(e)
             _updateProxyServerStatus()
           })
-          proxyServerRecorder.on('update', () => {
-            if (global.mainWindow) {
-              _emitRecordUpdatedEvent(global.mainWindow)
-            }
+          proxyServerRecorder.on('update', (record) => {
+            _updatedRecords.push({
+              id: record.id,
+              method: record.method,
+              statusCode: record.statusCode,
+              host: record.host,
+              path: record.path,
+              protocol: record.protocol
+            })
+            _emitRecordUpdateEvent()
+          })
+          proxyServerRecorder.on('append', (record) => {
+            _appenddedRecords.push({
+              id: record.id,
+              method: record.method,
+              statusCode: record.statusCode,
+              host: record.host,
+              path: record.path,
+              protocol: record.protocol
+            })
+            _emitRecordAppendEvent()
           })
           proxyServer.start()
         }
@@ -463,7 +467,6 @@ const proxyServerManager = (action = 'start', options = {}) => {
         proxyServer.close()
         proxyServer = null
         proxyServerRecorder = null
-        clearId = 0
         AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
         AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
         resolve({
@@ -550,6 +553,13 @@ export default {
     ruleConfigs.push(ruleConfig)
     this.writeRuleConfigs(ruleConfigs)
   },
+  deleteRuleConfig: function (ruleConfig) {
+    let ruleConfigs = this.readRuleConfigs()
+    ruleConfigs = ruleConfigs.filter((_ruleConfig) => {
+      return _ruleConfig.guid !== ruleConfig.guid
+    })
+    this.writeRuleConfigs(ruleConfigs)
+  },
   updateRuleConfig: function (ruleConfig) {
     const ruleConfigs = this.readRuleConfigs()
     const foundIdx = ruleConfigs.findIndex((_ruleConfig) => {
@@ -558,6 +568,20 @@ export default {
     if (foundIdx > -1) {
       ruleConfigs[foundIdx] = ruleConfig
       this.writeRuleConfigs(ruleConfigs)
+    }
+  },
+  updateRuleConfigs: function (ruleConfigs) {
+    if (Array.isArray(ruleConfigs)) {
+      const _ruleConfigs = this.readRuleConfigs()
+      ruleConfigs.forEach((ruleConfig) => {
+        const foundIdx = _ruleConfigs.findIndex((_ruleConfig) => {
+          return _ruleConfig.guid === ruleConfig.guid
+        })
+        if (foundIdx > -1) {
+          _ruleConfigs[foundIdx] = ruleConfig
+        }
+      })
+      this.writeRuleConfigs(_ruleConfigs)
     }
   },
   getDefaultRuleConfigs: function () {
@@ -707,42 +731,6 @@ export default {
     })
     return sampleRules
   },
-  readCustomizeRule (guid) {
-    try {
-      const customizeRule = fs.readFileSync(
-        path.resolve(userDataPath, `__customize_${guid}.js`),
-        {
-          encoding: 'utf8'
-        }
-      )
-      return customizeRule
-    } catch (e) {
-      log.error(`readCustomizeRule: ${e.message}`)
-      return ''
-    }
-  },
-  writeCustomizeRule (ruleConfig) {
-    return _writeCustomizeRule(ruleConfig)
-  },
-  deleteCustomizeRule (ruleConfig) {
-    const customizeRulePath = path.resolve(
-      userDataPath,
-      `__customize_${ruleConfig.guid}.js`
-    )
-    const customizeRuleFileExist = fs.existsSync(customizeRulePath)
-    if (customizeRuleFileExist) {
-      try {
-        fs.unlinkSync(customizeRulePath)
-      } catch (e) {
-        log.error(`deleteCustomizeRule: ${e.message}`)
-        _addProxyServerLog({
-          info: `删除自定义规则失败：${ruleConfig.name}`,
-          detail: e.message,
-          isErr: true
-        })
-      }
-    }
-  },
   getProxyServerLog () {
     return [...proxyServerLog]
   },
@@ -768,70 +756,22 @@ export default {
       }
     })
   },
-  getLatestRecords (filterData) {
+  getLatestRecords () {
     return new Promise((resolve, reject) => {
       if (proxyServerRecorder) {
-        proxyServerRecorder.db.remove({id: {$lte: clearId}}, { multi: true }, (err, numRemoved) => {
+        proxyServerRecorder.getRecords(0, MAX_RECORD_COUNT, (err, docs) => {
           if (err) {
-            //
-          }
-          proxyServerRecorder.getRecords(0, MAX_RECORD_COUNT, (err, docs) => {
-            if (err) {
-              reject(err.toString())
-            } else {
-              const { method, host, path } = filterData
-              const filteredGroupRecords = {}
-              const filteredListRecords = []
-              let filteredRecordsCount = 0
+            reject(err.toString())
+          } else {
+            const filteredGroupRecords = {}
+            const filteredListRecords = []
+            let filteredRecordsCount = 0
 
-              if (docs.length >= MAX_RECORD_COUNT) {
-                clearId = docs[MAX_RECORD_COUNT / 2].id
-              }
-
-              docs.filter((item) => {
-                let passed = true
-                if (method) {
-                  passed = (item.method.toLowerCase().indexOf(method.toLowerCase()) > -1) && passed
-                  if (!passed) {
-                    return passed
-                  }
-                }
-                if (host) {
-                  passed = (item.host.toLowerCase().indexOf(host.toLowerCase()) > -1) && passed
-                  if (!passed) {
-                    return passed
-                  }
-                }
-                if (path) {
-                  passed = (item.path.toLowerCase().indexOf(path.toLowerCase()) > -1) && passed
-                  if (!passed) {
-                    return passed
-                  }
-                }
-                return passed
-              }).map((item) => {
-                filteredRecordsCount += 1
-                const hostWithProtocol = `${item.protocol}://${item.host}`
-                if (hostWithProtocol in filteredGroupRecords) {
-                  filteredGroupRecords[hostWithProtocol].push({
-                    id: item.id,
-                    method: item.method,
-                    statusCode: item.statusCode,
-                    host: item.host,
-                    path: item.path,
-                    protocol: item.protocol
-                  })
-                } else {
-                  filteredGroupRecords[hostWithProtocol] = [{
-                    id: item.id,
-                    method: item.method,
-                    statusCode: item.statusCode,
-                    host: item.host,
-                    path: item.path,
-                    protocol: item.protocol
-                  }]
-                }
-                filteredListRecords.push({
+            docs.map((item) => {
+              filteredRecordsCount += 1
+              const hostWithProtocol = `${item.protocol}://${item.host}`
+              if (hostWithProtocol in filteredGroupRecords) {
+                filteredGroupRecords[hostWithProtocol].push({
                   id: item.id,
                   method: item.method,
                   statusCode: item.statusCode,
@@ -839,15 +779,32 @@ export default {
                   path: item.path,
                   protocol: item.protocol
                 })
+              } else {
+                filteredGroupRecords[hostWithProtocol] = [{
+                  id: item.id,
+                  method: item.method,
+                  statusCode: item.statusCode,
+                  host: item.host,
+                  path: item.path,
+                  protocol: item.protocol
+                }]
+              }
+              filteredListRecords.push({
+                id: item.id,
+                method: item.method,
+                statusCode: item.statusCode,
+                host: item.host,
+                path: item.path,
+                protocol: item.protocol
               })
-              resolve({
-                totalCount: docs.length,
-                filteredRecordsCount,
-                filteredGroupRecords,
-                filteredListRecords
-              })
-            }
-          })
+            })
+            resolve({
+              totalCount: docs.length,
+              filteredRecordsCount,
+              filteredGroupRecords,
+              filteredListRecords
+            })
+          }
         })
       } else {
         reject(new Error('获取记录失败'))

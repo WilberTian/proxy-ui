@@ -20,15 +20,15 @@
         prop="port"
         
       >
-        <el-input v-model.number="weinreConfigData.port" :disabled="weinreServerStatus === 1"></el-input>
+        <el-input v-model.number="weinreConfigData.port" :disabled="weinreServerStatus"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
           @click="startWeinre('weinreConfigForm')"
-          v-if="weinreServerStatus === 0"
+          v-if="!weinreServerStatus"
         >开启weinre</el-button>
-        <el-button v-if="weinreServerStatus === 1" @click="stopWeinre">关闭weinre</el-button>
+        <el-button v-if="weinreServerStatus" @click="stopWeinre">关闭weinre</el-button>
         <el-button @click="handleCancel">取消</el-button>
       </el-form-item>
     </el-form>
@@ -94,7 +94,8 @@ export default {
             this.$notify({
               title: '提示',
               message: data,
-              type: 'success'
+              type: 'success',
+              position: 'bottom-right'
             })
           }, (e) => {
             this.$notify({
@@ -113,7 +114,8 @@ export default {
         this.$notify({
           title: '提示',
           message: data,
-          type: 'success'
+          type: 'success',
+          position: 'bottom-right'
         })
       }, (e) => {
         console.log(e)

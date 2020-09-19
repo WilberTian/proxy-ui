@@ -32,7 +32,7 @@
                   </div>
                   <div :style="{margin: '4px 8px'}">
                     <el-checkbox
-                      :value="typeof request.withProxy === 'undefined' ? proxyServerStatus === 1 : request.withProxy"
+                      :value="typeof request.withProxy === 'undefined' ? proxyServerStatus : request.withProxy"
                       @change="(value) => {updateWithProxy(value, idx)}"
                     >
                       请求通过代理服务器
@@ -91,7 +91,7 @@ import HttpBodyViewer from '@/components/workspace/common/http-body-viewer'
 export default {
   props: {
     proxyServerStatus: {
-      type: Number
+      type: Boolean
     }
   },
   data () {
@@ -117,7 +117,8 @@ export default {
       this.$notify({
         title: '提示',
         message: '请求录制成功',
-        type: 'success'
+        type: 'success',
+        position: 'bottom-right'
       })
     },
     removeRequest (idx) {
@@ -170,7 +171,7 @@ export default {
       })
       try {
         const proxyConfig = await this.$proxyApi.readProxyConfig()
-        const withProxy = typeof requestInfo.withProxy === 'undefined' ? this.proxyServerStatus === 1 : requestInfo.withProxy
+        const withProxy = typeof requestInfo.withProxy === 'undefined' ? this.proxyServerStatus : requestInfo.withProxy
         const response = await this.$proxyApi.processRequest(requestInfo, proxyConfig, withProxy)
 
         this.$set(this.requestList, idx, {

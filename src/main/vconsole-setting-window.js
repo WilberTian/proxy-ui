@@ -24,10 +24,7 @@ function createVconsoleSettingWindow () {
   })
 
   vconsoleSettingWindow.loadURL(vconsoleSettingURL)
-
-  vconsoleSettingWindow.webContents.on('did-finish-load', () => {
-    vconsoleSettingWindow.show()
-  })
+  vconsoleSettingWindow.show()
 
   vconsoleSettingWindow.on('closed', () => {
     vconsoleSettingWindow = null

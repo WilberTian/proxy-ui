@@ -30,6 +30,10 @@ if (process.env.NODE_ENV !== 'development') {
     .replace(/\\/g, '\\\\')
 }
 
+global.gDataStore = {
+  selectedRuleConfig: null
+}
+
 let mainWindow
 // let httpsSettingWindow
 let tray
@@ -40,15 +44,13 @@ const winURL =
     : `file://${__dirname}/index.html`
 
 const MAINWIN_WIDTH = 1000
-const MAINWIN_HEIGHT = 700
+const MAINWIN_HEIGHT = 760
 
 function createWindow () {
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: MAINWIN_HEIGHT,
-    width: MAINWIN_WIDTH,
     minHeight: MAINWIN_HEIGHT,
     minWidth: MAINWIN_WIDTH,
     frame: false,
@@ -62,9 +64,10 @@ function createWindow () {
 
   mainWindow.webContents.on('did-finish-load', () => {
     setTimeout(() => {
+      mainWindow.maximize()
       mainWindow.show()
       hideLoadingWindow(true)
-    }, 1000)
+    }, 500)
   })
 
   mainWindow.on('closed', () => {
@@ -82,6 +85,13 @@ function createWindow () {
       mainWindow.unmaximize()
     } else {
       mainWindow.maximize()
+    }
+  })
+  ipcMain.on('window-fullscreen', () => {
+    if (mainWindow.isFullScreen()) {
+      mainWindow.setFullScreen(false)
+    } else {
+      mainWindow.setFullScreen(true)
     }
   })
 }
@@ -155,13 +165,13 @@ function createMenu () {
         {
           label: '导出规则',
           click () {
-            //
+            mainWindow.webContents.send('export-rule-config')
           }
         },
         {
           label: '导入规则',
           click () {
-            //
+            mainWindow.webContents.send('import-rule-config')
           }
         }
       ]
@@ -221,28 +231,6 @@ function createTray () {
   global.tray = tray
 }
 
-// function createHttpsSettingWindow () {
-//   httpsSettingWindow = new BrowserWindow({
-//     height: 300,
-//     width: 500,
-//     minHeight: 300,
-//     minWidth: 500,
-//     frame: false,
-//     useContentSize: true,
-//     show: false
-//   })
-
-//   httpsSettingWindow.loadURL('http://localhost:9080/loading.html')
-
-//   httpsSettingWindow.webContents.on('did-finish-load', () => {})
-
-//   httpsSettingWindow.on('closed', () => {
-//     httpsSettingWindow = null
-//   })
-
-//   httpsSettingWindow.show()
-// }
-
 app.on('ready', () => {
   showLoadingWindow()
   createWindow()
@@ -261,7 +249,8 @@ app.on('ready', () => {
     showWeinreSettingWindow()
   })
   ipcMain.on('show-proxy-rule-window', (_, data) => {
-    showProxyRuleWindow(data)
+    global.gDataStore.selectedRuleConfig = data
+    showProxyRuleWindow()
   })
 })
 

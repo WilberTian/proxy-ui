@@ -14,7 +14,7 @@
           <i class="el-icon-info"></i>
         </el-tooltip>
       </span>
-      <el-radio-group :value="vconsoleConfigData.injected" @change="vconsoleChangeHandler">
+      <el-radio-group v-model="vsonsoleStatus" @change="vconsoleChangeHandler">
         <el-radio :label="true">开启</el-radio>
         <el-radio :label="false">不开启</el-radio>
       </el-radio-group>
@@ -25,21 +25,29 @@
 import WindowBtnGroup from '../common/window-btn-group'
 
 export default {
-  computed: {
-    vconsoleConfigData: function () {
-      return this.vconsoleConfig || {}
+  data () {
+    return {
+      vsonsoleStatus: false
     }
   },
-  beforeCreate () {
-    this.vconsoleConfig = this.$proxyApi.readVconsoleConfig()
+  mounted () {
+    this.vconsoleConfigUpdateHandler = () => {
+      this.vsonsoleStatus = !!(this.$proxyApi.readVconsoleConfig().injected)
+    }
+    this.$ipcRenderer.on('vconsole-config-updated', this.vconsoleConfigUpdateHandler)
+    this.vconsoleConfigUpdateHandler()
+  },
+  beforeDestroy () {
+    this.$ipcRenderer.removeListener('vconsole-config-updated', this.vconsoleConfigUpdateHandler)
   },
   methods: {
     handleClose () {
       this.$ipcRenderer.send('vconsole-setting-close')
     },
     vconsoleChangeHandler (value) {
+      const vconsoleConfigData = this.$proxyApi.readVconsoleConfig()
       this.$proxyApi.writeVconsoleConfig({
-        ...this.vconsoleConfigData,
+        ...vconsoleConfigData,
         injected: value
       })
     }

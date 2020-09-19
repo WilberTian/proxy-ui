@@ -27,10 +27,7 @@ function createProxySettingWindow () {
   })
 
   proxySettingWindow.loadURL(proxySettingURL)
-
-  proxySettingWindow.webContents.on('did-finish-load', () => {
-    proxySettingWindow.show()
-  })
+  proxySettingWindow.show()
 
   proxySettingWindow.on('closed', () => {
     proxySettingWindow = null

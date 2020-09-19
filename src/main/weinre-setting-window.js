@@ -24,14 +24,11 @@ function createWeinreSettingWindow () {
   })
 
   weinreSettingWindow.loadURL(weinreSettingURL)
-
-  weinreSettingWindow.webContents.on('did-finish-load', () => {})
+  weinreSettingWindow.show()
 
   weinreSettingWindow.on('closed', () => {
     weinreSettingWindow = null
   })
-
-  weinreSettingWindow.show()
 }
 
 export default function showWeinreSettingWindow () {

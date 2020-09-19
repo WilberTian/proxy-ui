@@ -1,14 +1,8 @@
 <template>
   <div class="proxy-server-record">
-    <record-filter @filterChange="handleFilterChange" />
-    <group-record-view v-if="displayMode === 'group'" :filterData="filterData" @updateRecordList="recordUpdateHandler" @selectRecord="recordSelectHandler" />
-    <list-record-view v-if="displayMode === 'list'" :filterData="filterData" @updateRecordList="recordUpdateHandler" @selectRecord="recordSelectHandler" />
-    <div class="record-status">
-      <div class="record-info">
-        共 {{totalRecordsCount}} 条数据<span v-if="totalRecordsCount !== filteredRecordsCount">，已筛选 {{filteredRecordsCount}} 条数据</span>
-      </div>
-      <el-radio-group v-model="displayMode" size="mini" :style="{position: 'absolute', right: '120px', top: '6px'}">
-        <el-radio-button label="group">
+    <div class="record-status-toolbar">
+      <el-radio-group v-model="displayMode" size="mini">
+        <el-radio-button label="tree">
           分组
         </el-radio-button>
         <el-radio-button label="list">
@@ -16,74 +10,164 @@
         </el-radio-button>
       </el-radio-group>
       <div class="clear-record-btn">
-        <el-button type="danger" size="mini" :disabled="filteredRecordsCount === 0" @click="clearRecords">清空数据</el-button>
+        <el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="recordCount === 0" @click="clearRecords"></el-button>
+      </div>
+      <div class="block-placeholder" />
+      <div class="record-filter">
+        <el-input size="mini" style="width: 200px; margin-right: 16px;" v-model="filterKeyword" />
+        <el-button size="mini" type="primary" @click="processFilterHandler">查询</el-button>
+        <el-button size="mini" @click="resetFilterHandler">重置</el-button>
       </div>
     </div>
-    <transition name="slide-fade">
-      <record-detail v-if="showRecordDetail" :id="selectedRecordId" @close="showRecordDetail = false" />
-    </transition>
-    <div class="overlay" v-if="showRecordDetail" @click="showRecordDetail = false"></div>
+    <tree-record-view
+      v-if="displayMode === 'tree'"
+      :filterKeyword="filterKeyword"
+      :hostsWithHttps="hostsWithHttps"
+      :recordTreeData="recordTreeData"
+    />
+    <list-record-view
+      v-if="displayMode === 'list'"
+      :filterKeyword="filterKeyword"
+      :hostsWithHttps="hostsWithHttps"
+      :listedRecords="listedRecords"
+    />
   </div>
 </template>
 
 <script>
-import RecordFilter from './record-filter'
-import RecordDetail from './record-detail'
-import GroupRecordView from './group-record-view'
-import ListRecordView from './list-record-view'
+import { mapGetters } from 'vuex'
 import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
+import TreeRecordView from './tree-record-view'
+import ListRecordView from './list-record-view'
+import {insertTree} from './record-tree'
+
+const throttle = require('lodash.throttle')
 
 export default {
   data: function () {
     return {
-      filterData: {},
-      showRecordDetail: false,
-      selectedRecordId: -1,
-      totalRecordsCount: 0,
-      filteredRecordsCount: 0,
-      displayMode: 'group'
+      filterKeyword: '',
+      displayMode: 'tree',
+      hostsWithHttps: [],
+      recordTreeData: [],
+      listedRecords: []
     }
   },
+  computed: {
+    ...mapGetters({
+      recordCount: 'getRecordCount'
+    })
+  },
+  mounted () {
+    this.noneReactiveRecordTreeData = {
+      label: 'root',
+      children: []
+    }
+    this.noneReactiveRecordsCount = 0
+    this.noneReactiveListedRecord = []
+
+    const treeRecordDataUpdater = throttle(() => {
+      this.recordTreeData = [...this.noneReactiveRecordTreeData.children]
+      this.$store.commit('setRecordCount', this.noneReactiveRecordsCount)
+      this.$proxyApi.setTrayTitle(`${this.noneReactiveRecordsCount}`)
+    }, 500)
+    const listedRecordsUpdater = throttle(() => {
+      this.listedRecords = [...this.noneReactiveListedRecord]
+      this.$store.commit('setRecordCount', this.noneReactiveListedRecord.length)
+      this.$proxyApi.setTrayTitle(`${this.noneReactiveListedRecord.length}`)
+    }, 500)
+
+    this.recordAppendHandler = (_, records) => {
+      records.forEach(record => {
+        insertTree(this.noneReactiveRecordTreeData, record)
+      })
+      this.noneReactiveRecordsCount += records.length
+      treeRecordDataUpdater()
+
+      records.forEach(record => {
+        this.noneReactiveListedRecord.push(record)
+      })
+      listedRecordsUpdater()
+    }
+    this.recordUpdateHandler = (_, records) => {
+      records.forEach(record => {
+        const idx = this.noneReactiveListedRecord.findIndex(_record => {
+          return _record.id === record.id
+        })
+        if (idx > -1) {
+          this.noneReactiveListedRecord[idx] = record
+        }
+      })
+      listedRecordsUpdater()
+    }
+    this.$ipcRenderer.on('record-append', this.recordAppendHandler)
+    this.$ipcRenderer.on('record-update', this.recordUpdateHandler)
+
+    this.recordClearHandler = () => {
+      this.noneReactiveRecordTreeData = {
+        label: 'root',
+        children: []
+      }
+      this.noneReactiveRecordsCount = 0
+      this.recordTreeData = []
+      this.expendedKeys = []
+      this.selectedRecordId = -1
+
+      this.noneReactiveListedRecord = []
+      this.listedRecords = []
+    }
+    eventBus.$on(events.CLEAR_RECORDS, this.recordClearHandler)
+
+    this.filterRecordHandler = (filterKeyword) => {
+      this.filterKeyword = filterKeyword
+    }
+    eventBus.$on(events.FILTER_RECORD, this.filterRecordHandler)
+
+    this.httpsHostUpdated = () => {
+      this.hostsWithHttps = this.$proxyApi.getHostsEnabledHttps()
+    }
+    this.$ipcRenderer.on('https-host-updated', this.httpsHostUpdated)
+    this.httpsHostUpdated()
+  },
+  beforeDestroy () {
+    eventBus.$off(events.CLEAR_RECORDS, this.recordClearHandler)
+    eventBus.$off(events.FILTER_RECORD, this.filterRecordHandler)
+    this.$ipcRenderer.removeListener('record-append', this.recordAppendHandler)
+    this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
+  },
   methods: {
-    handleFilterChange (filterData) {
-      this.filterData = filterData
-    },
-    recordUpdateHandler (data) {
-      this.totalRecordsCount = data.totalCount
-      this.filteredRecordsCount = data.filteredRecordsCount
-      this.$proxyApi.setTrayTitle(`${data.totalCount}`)
-    },
-    recordSelectHandler (id) {
-      this.selectedRecordId = id
-      this.showRecordDetail = true
-    },
     clearRecords () {
       this.$proxyApi.clearRecords().then((num) => {
         this.$notify({
           title: '提示',
           message: `${num}条记录被删除！`,
-          type: 'success'
+          type: 'success',
+          position: 'bottom-right'
         })
 
-        this.selectedRecordId = -1
-        this.totalRecordsCount = 0
-        this.filteredRecordsCount = 0
+        this.$store.commit('setRecordCount', 0)
         this.$proxyApi.setTrayTitle('0')
-        eventBus.$emit(events.CLEAR_RECORDS, true)
+        eventBus.$emit(events.CLEAR_RECORDS)
       }, (err) => {
         this.$notify({
           title: '错误信息',
           message: err,
-          type: 'error'
+          type: 'error',
+          position: 'bottom-right'
         })
       })
+    },
+    processFilterHandler () {
+      eventBus.$emit(events.FILTER_RECORD, this.filterKeyword)
+    },
+    resetFilterHandler () {
+      this.filterKeyword = ''
+      eventBus.$emit(events.FILTER_RECORD, '')
     }
   },
   components: {
-    RecordFilter,
-    RecordDetail,
-    GroupRecordView,
+    TreeRecordView,
     ListRecordView
   }
 }
@@ -96,51 +180,20 @@ export default {
   display: flex;
   flex-direction: column;
 }
-.record-filter {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  user-select: none;
-}
-.record-status {
-  position: relative;
+.record-status-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
   height: 40px;
   box-shadow: 0 0 2px rgba(0,0,0,0.2);
   background-color: #fafafa;
+  z-index: 1;
 }
-.record-status .record-info {
-  display: inline-block;
-  line-height: 40px;
-  margin-left: 8px;
-  font-weight: bold;
-  font-size: 14px;
+.clear-record-btn {
+  margin-left: 28px;
 }
-.record-status .clear-record-btn {
-  position: absolute;
-  right: 8px;
-  top: 6px;
-}
-.record-data-wrapper {
+.block-placeholder {
   flex: 1;
-  display: flex;
-}
-.slide-fade-enter-active {
-  transition: all .3s ease;
-}
-.slide-fade-leave-active {
-  transition: all .3s ease;
-}
-.slide-fade-enter, .slide-fade-leave-active {
-  transform: translate3d(200px, 0, 0);
-  opacity: 0;
-}
-.overlay {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: #333;
-  opacity: .7;
-  z-index: 900;
 }
 </style>

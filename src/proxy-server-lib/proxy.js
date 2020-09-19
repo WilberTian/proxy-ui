@@ -10,7 +10,6 @@ const http = require('http'),
   util = require('./lib/util'),
   events = require('events'),
   co = require('co'),
-  WebInterface = require('./lib/webInterface'),
   wsServerMgr = require('./lib/wsServerMgr'),
   ThrottleGroup = require('stream-throttle').ThrottleGroup;
 
@@ -303,7 +302,6 @@ class ProxyServer extends ProxyCore {
 
     super(configForCore);
 
-    this.proxyWebinterfaceConfig = config.webInterface;
     this.recorder = recorder;
     this.webServerInstance = null;
   }
@@ -313,21 +311,7 @@ class ProxyServer extends ProxyCore {
       this.recorder.setDbAutoCompact();
     }
 
-    // start web interface if neeeded
-    if (this.proxyWebinterfaceConfig && this.proxyWebinterfaceConfig.enable) {
-      this.webServerInstance = new WebInterface(this.proxyWebinterfaceConfig, this.recorder);
-      // start web server
-      this.webServerInstance.start()
-      // start proxy core
-        .then(() => {
-          super.start();
-        })
-        .catch((e) => {
-          this.emit('error', e);
-        });
-    } else {
-      super.start();
-    }
+    super.start();
   }
 
   close() {
@@ -340,23 +324,13 @@ class ProxyServer extends ProxyCore {
     self.recorder = null;
 
     // close ProxyCore
-    return super.close()
-      // release webInterface
-      .then(() => {
-        if (self.webServerInstance) {
-          const tmpWebServer = self.webServerInstance;
-          self.webServerInstance = null;
-          logUtil.printLog('closing webInterface...');
-          return tmpWebServer.close();
-        }
-      });
+    return super.close();
   }
 }
 
 module.exports.ProxyCore = ProxyCore;
 module.exports.ProxyServer = ProxyServer;
 module.exports.ProxyRecorder = Recorder;
-module.exports.ProxyWebServer = WebInterface;
 module.exports.utils = {
   systemProxyMgr: require('./lib/systemProxyMgr'),
   certMgr,

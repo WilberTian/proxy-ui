@@ -246,24 +246,19 @@ export default {
     this.matchers = this.$proxyApi.getMatchers()
   },
   mounted () {
-    this.setProxyRuleConfigHandler = (_, data) => {
-      if (data) {
-        this.operation = data.operation
-        this.ruleConfigData = JSON.parse(JSON.stringify(data.ruleConfig))
-        this.ruleConfigType = this.ruleConfigData.type
+    const selectedRuleConfig = this.$gDataStore.selectedRuleConfig
+    if (selectedRuleConfig) {
+      this.operation = 'edit'
+      this.ruleConfigData = JSON.parse(JSON.stringify(selectedRuleConfig))
+      this.ruleConfigType = this.ruleConfigData.type
 
-        this.renderRuleEditor(this.ruleConfigType)
-      } else {
-        this.operation = 'create'
-        const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
-        this.ruleConfigType = 'mock'
-        this.ruleConfigData = clonedDefaultRuleConfigs['mock']
-      }
+      this.renderRuleEditor(this.ruleConfigType)
+    } else {
+      this.operation = 'create'
+      const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
+      this.ruleConfigType = 'mock'
+      this.ruleConfigData = clonedDefaultRuleConfigs['mock']
     }
-    this.$ipcRenderer.on('set-proxy-rule-config', this.setProxyRuleConfigHandler)
-  },
-  beforeDestroy () {
-    this.$ipcRenderer.removeListener('set-proxy-rule-config', this.setProxyRuleConfigHandler)
   },
   data () {
     const isValidJSON = (rule, value, callback) => {
@@ -398,16 +393,6 @@ export default {
         this.$proxyApi.addRuleConfig(_ruleConfig)
       }
 
-      if (_ruleConfig.type === 'customize') {
-        const result = this.$proxyApi.writeCustomizeRule(_ruleConfig)
-        if (result) {
-          //
-        } else {
-          this.$message.error('创建/修改自定义规则失败，请重试')
-        }
-      } else {
-        //
-      }
       this.handleClose()
     },
     strToJSON (val) {
@@ -493,8 +478,6 @@ export default {
   align-items: center;
   height: 24px;
   min-height: 24px;
-  background: -webkit-linear-gradient(top, #eee, #bbb);
-  -webkit-app-region: drag;
   padding: 0 8px;
 }
 .proxy-rule-header .header-content {
@@ -502,7 +485,7 @@ export default {
   font-size: 12px;
   font-weight: bold;
   color: #333;
-  padding-left: 4px;
+  text-align: center;
 }
 .proxy-rule-form {
   flex: 1;

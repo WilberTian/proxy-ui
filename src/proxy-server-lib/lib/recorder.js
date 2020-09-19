@@ -102,14 +102,14 @@ class Recorder extends events.EventEmitter {
     }
   }
 
-  emitUpdate(id, info) {
+  emitUpdate(id, info, type = 'update') {
     const self = this;
     if (info) {
-      self.emit('update', info);
+      self.emit(type, info);
     } else {
       self.getSingleRecord(id, (err, doc) => {
         if (!err && !!doc && !!doc[0]) {
-          self.emit('update', doc[0]);
+          self.emit(type, doc[0]);
         }
       });
     }
@@ -177,7 +177,7 @@ class Recorder extends events.EventEmitter {
     db.insert(finalInfo);
     self.updateRecordBody(thisId, info);
 
-    self.emitUpdate(thisId, finalInfo);
+    self.emitUpdate(thisId, finalInfo, 'append');
     return thisId;
   }
 
