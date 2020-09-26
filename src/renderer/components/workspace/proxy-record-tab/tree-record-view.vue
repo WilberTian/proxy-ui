@@ -23,9 +23,37 @@
         没有选中网络数据！
       </div>
     </div>
+    <context-menu id="context-menu" ref="ctxMenu">
+      <li
+        v-if="selectedHostStatus.isHttps"
+        :class="{'checked': selectedHostStatus.enableHttps}"
+        @click="(e) => {
+          if (selectedHostStatus.enableHttps) {
+            this.disableHttps4Host(e, selectedHostStatus.host)
+          } else {
+            this.enableHttps4Host(e, selectedHostStatus.host)
+          }
+        }"
+      >
+        开启HTTPS
+      </li>
+      <li
+        :class="{'checked': selectedHostStatus.disableCache}"
+        @click="(e) => {
+          if (selectedHostStatus.disableCache) {
+            this.restCache4Host(e, selectedHostStatus.host)
+          } else {
+            this.disableCache4Host(e, selectedHostStatus.host)
+          }
+        }"
+      >禁用缓存</li>
+      <li @click.stop.prevent="deleteRecordsByHost(selectedHostStatus.host)">删除该记录</li>
+      <li @click.stop.prevent="deleteRecordsByHost(selectedHostStatus.host, true)">删除其他记录</li>
+    </context-menu>
   </div>
 </template>
 <script>
+import contextMenu from 'vue-context-menu'
 import RecordDetail from './record-detail'
 
 export default {
@@ -40,11 +68,21 @@ export default {
         return []
       }
     },
+    hostsDisabledCache: {
+      type: Array,
+      default: function () {
+        return []
+      }
+    },
     recordTreeData: {
       type: Array,
       default: function () {
         return []
       }
+    },
+    deleteRecordsByHost: {
+      type: Function,
+      default: () => {}
     }
   },
   data: function () {
@@ -52,7 +90,20 @@ export default {
       isCursorMove: false,
       treeContainerWidth: 240,
       expendedKeys: [],
-      selectedRecordId: -1
+      selectedRecordId: -1,
+      selectedHostStatus: {
+        isHttps: false,
+        enableHttps: false,
+        disableCache: false,
+        host: ''
+      }
+    }
+  },
+  watch: {
+    recordTreeData: function (val) {
+      if (val.length === 0) {
+        this.expendedKeys = []
+      }
     }
   },
   created () {
@@ -83,8 +134,25 @@ export default {
       document.documentElement.removeEventListener('mousemove', this.handleCursorMove, true)
       document.documentElement.removeEventListener('mouseup', this.handleCursorUp, true)
     },
-    enableHttps4Host (host) {
+    enableHttps4Host (e, host) {
+      e.preventDefault()
+      e.stopPropagation()
       this.$proxyApi.enableHttps4Host(host)
+    },
+    disableHttps4Host (e, host) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.$proxyApi.disableHttps4Host(host)
+    },
+    disableCache4Host (e, host) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.$proxyApi.disableCache4Host(host)
+    },
+    restCache4Host (e, host) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.$proxyApi.restCache4Host(host)
     },
     nodeExpandHandler (node) {
       if (!this.expendedKeys.includes(node.key)) {
@@ -106,32 +174,73 @@ export default {
       }
     },
     renderRecordNode (h, { node, data, store }) {
-      let iconClass = ['tree-node-icon', 'el-icon-folder-opened']
+      const self = this
+      let selectedHostStatus = {
+        isHttps: false,
+        enableHttps: false,
+        disableCache: false,
+        host: ''
+      }
+      const nodeConfig = {
+        class: ['record-tree-node']
+      }
+      const iconConfig = {
+        class: ['tree-node-icon', 'el-icon-folder-opened']
+      }
       if (node.level === 1) {
         if (node.label.startsWith('https')) {
-          if (this.hostsWithHttps.includes(`${node.label}:443`)) {
-            iconClass = ['tree-node-icon', 'el-icon-unlock']
+          if (this.hostsWithHttps.includes(data.host)) {
+            iconConfig.class = ['tree-node-icon', 'el-icon-unlock']
+            iconConfig.on = {
+              click: (e) => {
+                self.disableHttps4Host(e, data.host)
+              }
+            }
+            selectedHostStatus.isHttps = true
+            selectedHostStatus.enableHttps = true
           } else {
-            iconClass = ['tree-node-icon', 'el-icon-lock']
+            iconConfig.class = ['tree-node-icon', 'el-icon-lock']
+            iconConfig.on = {
+              click: (e) => {
+                self.enableHttps4Host(e, data.host)
+              }
+            }
+            selectedHostStatus.isHttps = true
+            selectedHostStatus.enableHttps = false
           }
         } else {
-          iconClass = ['tree-node-icon', 'el-icon-link']
+          iconConfig.class = ['tree-node-icon', 'el-icon-link']
+          selectedHostStatus.isHttps = false
         }
+
+        if (this.hostsDisabledCache.includes(data.host)) {
+          selectedHostStatus.disableCache = true
+        } else {
+          selectedHostStatus.disableCache = false
+        }
+
         if (this.filterKeyword && !node.label.includes(this.filterKeyword)) {
           node.visible = false
         } else {
           node.visible = true
         }
+
+        selectedHostStatus.host = data.host
+
+        nodeConfig.on = {
+          contextmenu: (e) => {
+            e.preventDefault()
+
+            this.selectedHostStatus = selectedHostStatus
+            self.$refs.ctxMenu.open()
+          }
+        }
       } else if (node.isLeaf) {
-        iconClass = ['tree-node-icon', 'el-icon-document']
+        iconConfig.class = ['tree-node-icon', 'el-icon-document']
       }
 
-      return h('div', {
-        class: ['record-tree-node']
-      }, [
-        h('i', {
-          class: iconClass
-        }),
+      return h('div', nodeConfig, [
+        h('i', iconConfig),
         h('div', {
           class: ['tree-node-label'],
           attrs: {
@@ -142,6 +251,7 @@ export default {
     }
   },
   components: {
+    contextMenu,
     RecordDetail
   }
 }
@@ -215,7 +325,44 @@ export default {
 .record-tree .record-tree-node .tree-node-icon.el-icon-lock {
   color: #777;
 }
+.record-tree .record-tree-node .tree-node-icon.el-icon-lock:hover {
+  color: rgb(103, 194, 58);
+  font-weight: bold;
+}
 .record-tree .record-tree-node .tree-node-icon.el-icon-unlock {
   color: rgb(103, 194, 58);
+}
+
+.ctx-menu {
+  min-width: auto;
+}
+.ctx-menu li.disabled, .ctx-menu li.disabled:focus, .ctx-menu li.disabled:hover {
+    color: #818a91;
+}
+.ctx-menu li {
+  position: relative;
+  display: block;
+  list-style: none;
+  padding: 0px 18px;
+  font-size: 12px;
+  line-height: 24px;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ctx-menu li:focus, .ctx-menu li:hover {
+  color: #2b2d2f;
+  text-decoration: none;
+  background-color: #f5f5f5;
+}
+.ctx-menu li.checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgb(103, 194, 58);
 }
 </style>

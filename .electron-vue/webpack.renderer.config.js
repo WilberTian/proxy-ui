@@ -26,6 +26,7 @@ let rendererConfig = {
   entry: {
     renderer: path.join(__dirname, '../src/renderer/main.js'),
     'cache-setting-window': path.join(__dirname, '../src/renderer/cache-setting-window.js'),
+    'https-setting-window': path.join(__dirname, '../src/renderer/https-setting-window.js'),
     'vconsole-setting-window': path.join(__dirname, '../src/renderer/vconsole-setting-window.js'),
     'weinre-setting-window': path.join(__dirname, '../src/renderer/weinre-setting-window.js'),
     'proxy-setting-window': path.join(__dirname, '../src/renderer/proxy-setting-window.js'),
@@ -142,7 +143,7 @@ let rendererConfig = {
     }),
     new HtmlWebpackPlugin({
       filename: 'cache-setting-window.html',
-      template: path.resolve(__dirname, '../src/cache-setting-window.ejs'),
+      template: path.resolve(__dirname, '../src/index.ejs'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
@@ -154,8 +155,21 @@ let rendererConfig = {
         : false
     }),
     new HtmlWebpackPlugin({
+      filename: 'https-setting-window.html',
+      template: path.resolve(__dirname, '../src/index.ejs'),
+      minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+      },
+      chunks: ['https-setting-window'],
+      nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+    }),
+    new HtmlWebpackPlugin({
       filename: 'vconsole-setting-window.html',
-      template: path.resolve(__dirname, '../src/vconsole-setting-window.ejs'),
+      template: path.resolve(__dirname, '../src/index.ejs'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
@@ -168,7 +182,7 @@ let rendererConfig = {
     }),
     new HtmlWebpackPlugin({
       filename: 'weinre-setting-window.html',
-      template: path.resolve(__dirname, '../src/weinre-setting-window.ejs'),
+      template: path.resolve(__dirname, '../src/index.ejs'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
@@ -181,7 +195,7 @@ let rendererConfig = {
     }),
     new HtmlWebpackPlugin({
       filename: 'proxy-setting-window.html',
-      template: path.resolve(__dirname, '../src/proxy-setting-window.ejs'),
+      template: path.resolve(__dirname, '../src/index.ejs'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
@@ -194,7 +208,7 @@ let rendererConfig = {
     }),
     new HtmlWebpackPlugin({
       filename: 'proxy-rule-window.html',
-      template: path.resolve(__dirname, '../src/proxy-rule-window.ejs'),
+      template: path.resolve(__dirname, '../src/index.ejs'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,

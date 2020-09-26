@@ -35,10 +35,13 @@ export default function showVconsoleSettingWindow () {
   if (!vconsoleSettingWindow) {
     createVconsoleSettingWindow()
     ipcMain.on('vconsole-setting-close', () => {
-      vconsoleSettingWindow.hide()
+      if (vconsoleSettingWindow) {
+        global.vconsoleSettingWindow = null
+        vconsoleSettingWindow.close()
+      }
     })
     global.vconsoleSettingWindow = vconsoleSettingWindow
   } else {
-    vconsoleSettingWindow.show()
+    // vconsoleSettingWindow.show()
   }
 }

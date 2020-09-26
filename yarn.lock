@@ -8344,6 +8344,11 @@ vue-clipboard2@^0.3.0:
   dependencies:
     clipboard "^2.0.0"
 
+vue-context-menu@^2.0.6:
+  version "2.0.6"
+  resolved "https://r.cnpmjs.org/vue-context-menu/download/vue-context-menu-2.0.6.tgz#185107cd3ae51f25c53266a2751008fa7da4f34e"
+  integrity sha1-GFEHzTrlHyXFMmaidRAI+n2k804=
+
 vue-electron@^1.0.6:
   version "1.0.6"
   resolved "https://r.cnpmjs.org/vue-electron/download/vue-electron-1.0.6.tgz#e798e03180b8933539defe31f92e53b9242b9406"

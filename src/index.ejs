@@ -58,12 +58,14 @@
       const electron = require("electron");
       const remote = electron.remote;
       const ipcRenderer = electron.ipcRenderer;
+      const shell = electron.shell;
       const proxyApi = remote.require("./proxy-api").default;
       const gDataStore = remote.getGlobal('gDataStore')
 
       // only explose these variable
       global.proxyApi = proxyApi;
       global.ipcRenderer = ipcRenderer;
+      global.shell = shell;
       global.gDataStore = gDataStore;
     </script>
     <% } %>

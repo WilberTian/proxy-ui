@@ -1,26 +1,26 @@
 
 <template>
-  <div class="cache-setting">
-    <div class="cache-setting-header">
+  <div class="https-setting">
+    <div class="https-setting-header">
       <div class="header-content">
-        缓存设置
+        HTTPS设置
       </div>
       <window-btn-group @close="handleClose" disableMinimize disableMaximize />
     </div>
     <div class="host-input-wrapper">
-      <el-input size="mini" style="margin-right: 20px;" v-model="hostToAdd" placeholder="请输入要禁用缓存的域名" />
-      <el-button type="primary" size="mini" @click="disableCache4Host" :disabled="!hostToAdd.trim()">添加</el-button>
+      <el-input size="mini" style="margin-right: 20px;" v-model="hostToAdd" placeholder="请输入要支持HTTPS域名" />
+      <el-button type="primary" size="mini" @click="enableHttps4Host" :disabled="!hostToAdd.trim()">添加</el-button>
     </div>
     <div class="info-label">
-      已禁用缓存的域名
+      已支持HTTPS的域名
     </div>
     <div class="host-list">
-      <div class="host-item" v-for="(host, idx) in hostsDisabledCache" :key="idx">
+      <div class="host-item" v-for="(host, idx) in hostsEnalbedHttps" :key="idx">
         <div class="host-item-label">
           {{host}}
         </div>
         <div class="icon-wrapper">
-          <i class="el-icon-error" @click="restCache4Host(host)"></i>
+          <i class="el-icon-error" @click="disableHttps4Host(host)"></i>
         </div>
       </div>
     </div>
@@ -33,30 +33,29 @@ export default {
   data () {
     return {
       hostToAdd: '',
-      hostsDisabledCache: []
+      hostsEnalbedHttps: []
     }
   },
   mounted () {
-    this.disableCacheUpdated = () => {
-      console.log(this.$proxyApi.getHostsDisabledCache())
-      this.hostsDisabledCache = this.$proxyApi.getHostsDisabledCache()
+    this.httpsHostUpdated = () => {
+      this.hostsEnalbedHttps = this.$proxyApi.getHostsEnabledHttps()
     }
-    this.$ipcRenderer.on('disable-cache-updated', this.disableCacheUpdated)
-    this.disableCacheUpdated()
+    this.$ipcRenderer.on('https-host-updated', this.httpsHostUpdated)
+    this.httpsHostUpdated()
   },
   beforeDestroy () {
-    this.$ipcRenderer.removeListener('disable-cache-updated', this.disableCacheUpdated)
+    this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
   },
   methods: {
     handleClose () {
-      this.$ipcRenderer.send('cache-setting-close')
+      this.$ipcRenderer.send('https-setting-close')
     },
-    disableCache4Host () {
-      this.$proxyApi.disableCache4Host(this.hostToAdd)
+    enableHttps4Host () {
+      this.$proxyApi.enableHttps4Host(this.hostToAdd)
       this.hostToAdd = ''
     },
-    restCache4Host (host) {
-      this.$proxyApi.restCache4Host(host)
+    disableHttps4Host (host) {
+      this.$proxyApi.disableHttps4Host(host)
     }
   },
   components: {
@@ -65,20 +64,20 @@ export default {
 }
 </script>
 <style scoped>
-.cache-setting {
+.https-setting {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
 }
-.cache-setting-header {
+.https-setting-header {
   display: flex;
   align-items: center;
   height: 24px;
   min-height: 24px;
   padding: 0 8px;
 }
-.cache-setting-header .header-content {
+.https-setting-header .header-content {
   flex: 1;
   font-size: 12px;
   font-weight: bold;

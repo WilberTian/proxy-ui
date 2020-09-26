@@ -1,5 +1,5 @@
 <template>
-  <i :class="classObject" @click="toggleIcon"></i>
+  <i :title="title" :class="classObject" @click="toggleIcon"></i>
 </template>
 
 <script>
@@ -8,6 +8,10 @@ export default {
     value: {
       type: Boolean,
       default: true
+    },
+    title: {
+      type: String,
+      default: ''
     },
     cb: {
       type: Function,

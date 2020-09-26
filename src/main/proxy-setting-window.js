@@ -38,10 +38,13 @@ export default function showProxySettingWindow () {
   if (!proxySettingWindow) {
     createProxySettingWindow()
     ipcMain.on('proxy-setting-close', () => {
-      proxySettingWindow.hide()
+      if (proxySettingWindow) {
+        global.proxySettingWindow = null
+        proxySettingWindow.close()
+      }
     })
     global.proxySettingWindow = proxySettingWindow
   } else {
-    proxySettingWindow.show()
+    // proxySettingWindow.show()
   }
 }

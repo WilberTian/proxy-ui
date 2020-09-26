@@ -10,7 +10,7 @@
         </el-radio-button>
       </el-radio-group>
       <div class="clear-record-btn">
-        <el-button type="danger" size="mini" icon="el-icon-delete" circle :disabled="recordCount === 0" @click="clearRecords"></el-button>
+        <el-button type="danger" size="mini" icon="el-icon-delete" :disabled="recordCount === 0" @click="clearRecords"></el-button>
       </div>
       <div class="block-placeholder" />
       <div class="record-filter">
@@ -23,12 +23,15 @@
       v-if="displayMode === 'tree'"
       :filterKeyword="filterKeyword"
       :hostsWithHttps="hostsWithHttps"
+      :hostsDisabledCache="hostsDisabledCache"
       :recordTreeData="recordTreeData"
+      :deleteRecordsByHost="deleteRecordsByHost"
     />
     <list-record-view
       v-if="displayMode === 'list'"
       :filterKeyword="filterKeyword"
       :hostsWithHttps="hostsWithHttps"
+      :hostsDisabledCache="hostsDisabledCache"
       :listedRecords="listedRecords"
     />
   </div>
@@ -50,6 +53,7 @@ export default {
       filterKeyword: '',
       displayMode: 'tree',
       hostsWithHttps: [],
+      hostsDisabledCache: [],
       recordTreeData: [],
       listedRecords: []
     }
@@ -60,64 +64,37 @@ export default {
     })
   },
   mounted () {
-    this.noneReactiveRecordTreeData = {
-      label: 'root',
-      children: []
-    }
-    this.noneReactiveRecordsCount = 0
-    this.noneReactiveListedRecord = []
+    this.recordClearHandler()
 
-    const treeRecordDataUpdater = throttle(() => {
+    this.treeRecordDataUpdater = throttle(() => {
       this.recordTreeData = [...this.noneReactiveRecordTreeData.children]
-      this.$store.commit('setRecordCount', this.noneReactiveRecordsCount)
-      this.$proxyApi.setTrayTitle(`${this.noneReactiveRecordsCount}`)
-    }, 500)
-    const listedRecordsUpdater = throttle(() => {
-      this.listedRecords = [...this.noneReactiveListedRecord]
-      this.$store.commit('setRecordCount', this.noneReactiveListedRecord.length)
-      this.$proxyApi.setTrayTitle(`${this.noneReactiveListedRecord.length}`)
+      this.listedRecords = [...this.noneReactiveRecordTreeData.leaves]
+      this.updateRecordCount(this.listedRecords.length)
     }, 500)
 
     this.recordAppendHandler = (_, records) => {
       records.forEach(record => {
         insertTree(this.noneReactiveRecordTreeData, record)
       })
-      this.noneReactiveRecordsCount += records.length
-      treeRecordDataUpdater()
-
-      records.forEach(record => {
-        this.noneReactiveListedRecord.push(record)
-      })
-      listedRecordsUpdater()
+      this.treeRecordDataUpdater()
     }
     this.recordUpdateHandler = (_, records) => {
-      records.forEach(record => {
-        const idx = this.noneReactiveListedRecord.findIndex(_record => {
+      const recordList = [...this.recordsForUpdate, ...records]
+      this.recordsForUpdate.length = 0
+      recordList.forEach(record => {
+        const found = this.noneReactiveRecordTreeData.leaves.find(_record => {
           return _record.id === record.id
         })
-        if (idx > -1) {
-          this.noneReactiveListedRecord[idx] = record
+        if (found) {
+          found.statusCode = record.statusCode
+        } else {
+          this.recordsForUpdate.push(record)
         }
       })
-      listedRecordsUpdater()
+      this.treeRecordDataUpdater()
     }
     this.$ipcRenderer.on('record-append', this.recordAppendHandler)
     this.$ipcRenderer.on('record-update', this.recordUpdateHandler)
-
-    this.recordClearHandler = () => {
-      this.noneReactiveRecordTreeData = {
-        label: 'root',
-        children: []
-      }
-      this.noneReactiveRecordsCount = 0
-      this.recordTreeData = []
-      this.expendedKeys = []
-      this.selectedRecordId = -1
-
-      this.noneReactiveListedRecord = []
-      this.listedRecords = []
-    }
-    eventBus.$on(events.CLEAR_RECORDS, this.recordClearHandler)
 
     this.filterRecordHandler = (filterKeyword) => {
       this.filterKeyword = filterKeyword
@@ -129,12 +106,20 @@ export default {
     }
     this.$ipcRenderer.on('https-host-updated', this.httpsHostUpdated)
     this.httpsHostUpdated()
+
+    this.hostsDisabledCacheUpdated = () => {
+      this.hostsDisabledCache = this.$proxyApi.getHostsDisabledCache()
+    }
+    this.$ipcRenderer.on('disable-cache-updated', this.hostsDisabledCacheUpdated)
+    this.hostsDisabledCacheUpdated()
   },
   beforeDestroy () {
-    eventBus.$off(events.CLEAR_RECORDS, this.recordClearHandler)
+    this.recordClearHandler()
     eventBus.$off(events.FILTER_RECORD, this.filterRecordHandler)
     this.$ipcRenderer.removeListener('record-append', this.recordAppendHandler)
+    this.$ipcRenderer.removeListener('record-update', this.recordUpdateHandler)
     this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
+    this.$ipcRenderer.removeListener('disable-cache-updated', this.hostsDisabledCacheUpdated)
   },
   methods: {
     clearRecords () {
@@ -146,9 +131,7 @@ export default {
           position: 'bottom-right'
         })
 
-        this.$store.commit('setRecordCount', 0)
-        this.$proxyApi.setTrayTitle('0')
-        eventBus.$emit(events.CLEAR_RECORDS)
+        this.recordClearHandler()
       }, (err) => {
         this.$notify({
           title: '错误信息',
@@ -164,6 +147,34 @@ export default {
     resetFilterHandler () {
       this.filterKeyword = ''
       eventBus.$emit(events.FILTER_RECORD, '')
+    },
+    updateRecordCount (count) {
+      this.$store.commit('setRecordCount', count)
+      this.$proxyApi.setTrayTitle(count === 0 ? '' : `${count}`)
+    },
+    recordClearHandler () {
+      this.noneReactiveRecordTreeData = {
+        label: 'root',
+        children: [],
+        leaves: []
+      }
+      this.recordTreeData = []
+      this.listedRecords = []
+      this.recordsForUpdate = []
+      this.selectedRecordId = -1
+      this.updateRecordCount(0)
+    },
+    deleteRecordsByHost (host, isOpposite = false) {
+      this.noneReactiveRecordTreeData.children = this.noneReactiveRecordTreeData.children.filter((item) => {
+        return isOpposite ? item.host === host : item.host !== host
+      })
+      this.noneReactiveRecordTreeData.leaves = this.noneReactiveRecordTreeData.leaves.filter((item) => {
+        return isOpposite ? item.host === host : item.host !== host
+      })
+      this.treeRecordDataUpdater()
+    },
+    deleteRecordsById (recordId, isOpposite = false) {
+      //
     }
   },
   components: {

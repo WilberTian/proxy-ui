@@ -35,10 +35,13 @@ export default function showCacheSettingWindow () {
   if (!cacheSettingWindow) {
     createCacheSettingWindow()
     ipcMain.on('cache-setting-close', () => {
-      cacheSettingWindow.hide()
+      if (cacheSettingWindow) {
+        global.cacheSettingWindow = null
+        cacheSettingWindow.close()
+      }
     })
     global.cacheSettingWindow = cacheSettingWindow
   } else {
-    cacheSettingWindow.show()
+    //
   }
 }

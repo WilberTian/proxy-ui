@@ -13,8 +13,8 @@
             {{idx + 1}}
           </span>
           <span class="icon-column column">
-            <i v-if="record.protocol === 'https' && !hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-lock lock-icon" @click.prevent.stop="enableHttps4Host(`${record.host}:443`)"></i>
-            <i v-if="record.protocol === 'https' && hostsWithHttps.includes(`${record.host}:443`)" class="el-icon-unlock lock-icon"></i>
+            <i v-if="record.protocol === 'https' && !hostsWithHttps.includes(record.host)" class="el-icon-lock lock-icon" @click.prevent.stop="enableHttps4Host(record.host)"></i>
+            <i v-if="record.protocol === 'https' && hostsWithHttps.includes(record.host)" class="el-icon-unlock lock-icon" @click.prevent.stop="disableHttps4Host(record.host)"></i>
             <i v-if="record.protocol !== 'https'" class="el-icon-link lock-icon"></i>
           </span>
           <span class="method-column column">
@@ -112,6 +112,9 @@ export default {
     },
     enableHttps4Host (host) {
       this.$proxyApi.enableHttps4Host(host)
+    },
+    disableHttps4Host (host) {
+      this.$proxyApi.disableHttps4Host(host)
     }
   },
   components: {

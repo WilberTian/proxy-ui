@@ -11,6 +11,7 @@ import {
 import _manager from '../proxy/index'
 import showProxySettingWindow from './proxy-setting-window'
 import showCacheSettingWindow from './cache-setting-window'
+import showHttpsSettingWindow from './https-setting-window'
 import showVconsoleSettingWindow from './vconsole-setting-window'
 import showWeinreSettingWindow from './weinre-setting-window'
 import showProxyRuleWindow from './proxy-rule-window'
@@ -206,6 +207,12 @@ function createMenu () {
           }
         },
         {
+          label: 'HTTPS设置',
+          click () {
+            showHttpsSettingWindow()
+          }
+        },
+        {
           label: 'vconsole设置',
           click () {
             showVconsoleSettingWindow()
@@ -241,6 +248,9 @@ app.on('ready', () => {
   })
   ipcMain.on('show-cache-setting-window', () => {
     showCacheSettingWindow()
+  })
+  ipcMain.on('show-https-setting-window', () => {
+    showHttpsSettingWindow()
   })
   ipcMain.on('show-vconsole-setting-window', () => {
     showVconsoleSettingWindow()

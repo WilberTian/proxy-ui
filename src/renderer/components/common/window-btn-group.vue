@@ -55,6 +55,7 @@ export default {
 <style scoped>
 .window-btn-group {
   display: flex;
+  -webkit-app-region: no-drag;
 }
 .icon-wrapper {
   display: flex;

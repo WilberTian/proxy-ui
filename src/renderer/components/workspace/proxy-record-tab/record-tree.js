@@ -8,15 +8,16 @@ const isNodeExist = (parent, label) => {
 }
 
 const insertHost = (root, record) => {
-  const host = `${record.protocol}://${record.host}`
-  const found = isNodeExist(root, host)
+  const hostWithProtocol = `${record.protocol}://${record.host}`
+  const found = isNodeExist(root, hostWithProtocol)
   if (found) {
     return found
   }
 
   const node = {
-    label: host,
-    key: host,
+    label: hostWithProtocol,
+    host: record.host,
+    key: hostWithProtocol,
     children: []
   }
   root.children.push(node)
@@ -29,11 +30,18 @@ export function insertTree (root, record) {
   const path = record.path
   if (path === '/' || path === '') {
     const children = currentNode.children
-    children.push({
+    const leaf = {
       id: record.id,
       key: `${record.id}$${path}`,
-      label: '/'
-    })
+      label: '/',
+      method: record.method,
+      protocol: record.protocol,
+      host: record.host,
+      path: record.path,
+      statusCode: record.statusCode
+    }
+    children.push(leaf)
+    root.leaves.push(leaf)
   } else {
     const subPathArr = path.split('/')
     for (let i = 0; i < subPathArr.length; i++) {
@@ -43,11 +51,18 @@ export function insertTree (root, record) {
       }
       const children = currentNode.children
       if ((subPathArr.length - 1) === i) {
-        children.push({
+        const leaf = {
           id: record.id,
           key: `${record.id}$${subPath}`,
-          label: subPath
-        })
+          label: subPath,
+          method: record.method,
+          protocol: record.protocol,
+          host: record.host,
+          path: record.path,
+          statusCode: record.statusCode
+        }
+        children.push(leaf)
+        root.leaves.push(leaf)
       } else {
         if (!isNodeExist(currentNode, subPath)) {
           currentNode = {

@@ -35,10 +35,13 @@ export default function showWeinreSettingWindow () {
   if (!weinreSettingWindow) {
     createWeinreSettingWindow()
     ipcMain.on('weinre-setting-close', () => {
-      weinreSettingWindow.hide()
+      if (weinreSettingWindow) {
+        global.weinreSettingWindow = null
+        weinreSettingWindow.close()
+      }
     })
     global.weinreSettingWindow = weinreSettingWindow
   } else {
-    weinreSettingWindow.show()
+    // weinreSettingWindow.show()
   }
 }

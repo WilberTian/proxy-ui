@@ -192,11 +192,6 @@ class ProxyCore extends events.EventEmitter {
           const tipText = (self.proxyType === T_TYPE_HTTP ? 'Http' : 'Https') + ' proxy started on port ' + self.proxyPort;
           logUtil.printLog(color.green(tipText));
 
-          if (self.webServerInstance) {
-            const webTip = 'web interface started on port ' + self.webServerInstance.webPort;
-            logUtil.printLog(color.green(webTip));
-          }
-
           let ruleSummaryString = '';
           const ruleSummary = this.proxyRule.summary;
           if (ruleSummary) {
@@ -303,7 +298,6 @@ class ProxyServer extends ProxyCore {
     super(configForCore);
 
     this.recorder = recorder;
-    this.webServerInstance = null;
   }
 
   start() {

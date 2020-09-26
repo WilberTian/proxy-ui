@@ -196,7 +196,6 @@ export default {
           position: 'bottom-right'
         })
         closeLoading()
-        this.$proxyApi.setTrayTitle('')
       })
     },
     restartProxyServer () {
@@ -284,6 +283,7 @@ export default {
   background: rgba(255, 255, 255, 0.7);
   padding: 6px;
   margin: 0 10px;
+  user-select: none;
 }
 .workspace-header .logo-wrapper .logo {
   width: 20px;
@@ -302,6 +302,7 @@ export default {
   align-items: center;
   margin-right: 40px;
   overflow: hidden;
+  -webkit-app-region: no-drag;
 }
 .icon-wrapper {
   height: 28px;

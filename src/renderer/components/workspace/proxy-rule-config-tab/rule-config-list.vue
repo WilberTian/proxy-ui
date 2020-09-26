@@ -21,30 +21,26 @@
         </div> -->
       </div>
       <div class="rule-config-operation">
-        <el-tooltip class="item" effect="dark" content="编辑规则" placement="top">
-          <i
-            class="el-icon-edit"
-            @click="handleEditRuleConfig(ruleConfig)"
-          ></i>
-        </el-tooltip>
-        <el-tooltip class="item" effect="dark" content="复制规则" placement="top">
-          <i
-            class="el-icon-document-copy"
-            @click="handleCloneRuleConfig(ruleConfig)"
-          ></i>
-        </el-tooltip>
-        <el-tooltip class="item" effect="dark" content="删除规则" placement="top">
-          <i
-            class="el-icon-document-delete"
-            @click="handleDeleteRuleConfig(ruleConfig)"
-          ></i>
-        </el-tooltip>
-        <el-tooltip class="item" effect="dark" :content="`${ruleConfig.enabled ? '禁用规则' : '启用规则'}`" placement="top">
-          <preview-icon
-            :value="ruleConfig.enabled"
-            @input="(status) => { updateRuleConfigStatus(ruleConfig, status) }"
-          />
-        </el-tooltip>
+        <i
+          title="编辑规则"
+          class="el-icon-edit"
+          @click="handleEditRuleConfig(ruleConfig)"
+        ></i>
+        <i
+          title="复制规则"
+          class="el-icon-document-copy"
+          @click="handleCloneRuleConfig(ruleConfig)"
+        ></i>
+        <i
+          title="删除规则"
+          class="el-icon-document-delete"
+          @click="handleDeleteRuleConfig(ruleConfig)"
+        ></i>
+        <preview-icon
+          :title="`${ruleConfig.enabled ? '禁用规则' : '启用规则'}`"
+          :value="ruleConfig.enabled"
+          @input="(status) => { updateRuleConfigStatus(ruleConfig, status) }"
+        />
       </div>
     </div>
   </div>

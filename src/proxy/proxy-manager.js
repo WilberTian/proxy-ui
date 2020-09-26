@@ -35,8 +35,55 @@ let localIPAddress = '127.0.0.1'
 
 const MAX_RECORD_COUNT = 6000
 
-const hostsEnalbedHttps = ['www.proxyui-weinre.com:443']
-let hostsDisableCache = []
+let _hostsEnalbedHttps = ['www.proxyui-weinre.com']
+let _hostsDisabledCache = []
+
+const HOSTS_ENABLED_HTTPS = 'HOSTS_ENABLED_HTTPS'
+const HOSTS_DISABLED_CACHE = 'HOSTS_DISABLED_CACHE'
+
+const _getDataFromLocalStorage = (key) => {
+  return new Promise((resolve, reject) => {
+    if (global.mainWindow) {
+      global.mainWindow.webContents.executeJavaScript(`localStorage.getItem('${key}')`).then((value) => {
+        resolve(value)
+      }, () => {
+        reject(new Error('读取localstorage失败'))
+      })
+    } else {
+      reject(new Error('读取localstorage失败'))
+    }
+  })
+}
+
+const _setDataForLocalStorage = (key, value) => {
+  return new Promise((resolve, reject) => {
+    if (global.mainWindow) {
+      global.mainWindow.webContents.executeJavaScript(`localStorage.setItem('${key}', '${value}')`).then(() => {
+        resolve()
+      }, () => {
+        reject(new Error('写入localstorage失败'))
+      })
+    } else {
+      reject(new Error('写入localstorage失败'))
+    }
+  })
+}
+
+_getDataFromLocalStorage(HOSTS_ENABLED_HTTPS).then((data) => {
+  if (data) {
+    _hostsEnalbedHttps = JSON.parse(data)
+  }
+}, (e) => {
+  console.log(e)
+})
+
+_getDataFromLocalStorage(HOSTS_DISABLED_CACHE).then((data) => {
+  if (data) {
+    _hostsDisabledCache = JSON.parse(data)
+  }
+}, (e) => {
+  console.log(e)
+})
 
 setInterval(() => {
   const ipAddress = ip.address()
@@ -216,15 +263,14 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
 
   return {
     *beforeDealHttpsRequest (requestDetail) {
-      // if (hostsEnalbedHttps.includes(requestDetail.host)) {
-      //   return true
-      // }
-      // return false
-      return true
+      if (_hostsEnalbedHttps.includes(requestDetail.host.replace(/:443/g, ''))) {
+        return true
+      }
+      return false
     },
     *beforeSendRequest (requestDetail) {
       const requestOptions = requestDetail.requestOptions
-      if (hostsDisableCache.includes(requestOptions.hostname)) {
+      if (_hostsDisabledCache.includes(requestOptions.hostname)) {
         _disableRequestCache(requestOptions.headers)
       }
       for (let customizeRuleModule of customizeRuleModules) {
@@ -294,7 +340,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
     *beforeSendResponse (requestDetail, responseDetail) {
       const responseData = responseDetail.response
       const requestOptions = requestDetail.requestOptions
-      if (hostsDisableCache.includes(requestOptions.hostname)) {
+      if (_hostsDisabledCache.includes(requestOptions.hostname)) {
         _disableResponseCache(responseData.header)
       }
 
@@ -364,10 +410,6 @@ const generateRootCA = (successCb, errorCb) => {
     }
   })
 }
-
-// const _emitRecordUpdatedEvent = throttle((mainWindow) => {
-//   mainWindow.webContents.send('record-updated')
-// }, 500)
 
 const proxyServerManager = (action = 'start', options = {}) => {
   return new Promise((resolve, reject) => {
@@ -845,40 +887,85 @@ export default {
     return localIPAddress
   },
   getHostsEnabledHttps () {
-    return hostsEnalbedHttps
+    return _hostsEnalbedHttps
   },
   enableHttps4Host (host) {
     // need to close previous connection, otherwise the connection will be reused
+    const hostKey = `${host}:443`
     const connections = proxyServer.requestHandler.conns
-    if (connections && connections.has(host)) {
-      connections.get(host).end()
+    if (connections && connections.has(hostKey)) {
+      connections.get(hostKey).end()
     }
 
     const cltSockets = proxyServer.requestHandler.cltSockets
-    if (cltSockets && cltSockets.has(host)) {
-      cltSockets.get(host).end()
+    if (cltSockets && cltSockets.has(hostKey)) {
+      cltSockets.get(hostKey).end()
     }
 
-    if (!hostsEnalbedHttps.includes(host)) {
-      hostsEnalbedHttps.push(host)
-      global.mainWindow.webContents.send('https-host-updated')
+    if (!_hostsEnalbedHttps.includes(host)) {
+      const hostList = [..._hostsEnalbedHttps, host]
+      _setDataForLocalStorage(HOSTS_ENABLED_HTTPS, JSON.stringify(hostList)).then(() => {
+        _hostsEnalbedHttps = hostList
+        global.mainWindow.webContents.send('https-host-updated')
+        if (global.httpsSettingWindow) {
+          global.httpsSettingWindow.webContents.send('https-host-updated')
+        }
+      })
     }
   },
-  getHostsDisableCache () {
-    return hostsDisableCache
+  disableHttps4Host (host) {
+    // need to close previous connection, otherwise the connection will be reused
+    const hostKey = `${host}:443`
+    const connections = proxyServer.requestHandler.conns
+    if (connections && connections.has(hostKey)) {
+      connections.get(hostKey).end()
+    }
+
+    const cltSockets = proxyServer.requestHandler.cltSockets
+    if (cltSockets && cltSockets.has(hostKey)) {
+      cltSockets.get(hostKey).end()
+    }
+
+    if (_hostsEnalbedHttps.includes(host)) {
+      const hostList = _hostsEnalbedHttps.filter(item => {
+        return item !== host
+      })
+      _setDataForLocalStorage(HOSTS_ENABLED_HTTPS, JSON.stringify(hostList)).then(() => {
+        _hostsEnalbedHttps = hostList
+        global.mainWindow.webContents.send('https-host-updated')
+        if (global.httpsSettingWindow) {
+          global.httpsSettingWindow.webContents.send('https-host-updated')
+        }
+      })
+    }
+  },
+  get_hostsDisabledCache () {
+    return _hostsDisabledCache
   },
   disableCache4Host (host) {
-    if (!hostsDisableCache.includes(host)) {
-      hostsDisableCache.push(host)
-      global.cacheSettingWindow.webContents.send('disable-cache-updated')
+    if (!_hostsDisabledCache.includes(host)) {
+      const hostList = [..._hostsDisabledCache, host]
+      _setDataForLocalStorage(HOSTS_DISABLED_CACHE, JSON.stringify(hostList)).then(() => {
+        _hostsDisabledCache = hostList
+        global.mainWindow.webContents.send('disable-cache-updated')
+        if (global.cacheSettingWindow) {
+          global.cacheSettingWindow.webContents.send('disable-cache-updated')
+        }
+      })
     }
   },
-  removeHostFromHostsDisableCache (_host) {
-    if (hostsDisableCache.includes(_host)) {
-      hostsDisableCache = hostsDisableCache.filter(host => {
+  restCache4Host (_host) {
+    if (_hostsDisabledCache.includes(_host)) {
+      const hostList = _hostsDisabledCache.filter(host => {
         return host !== _host
       })
-      global.cacheSettingWindow.webContents.send('disable-cache-updated')
+      _setDataForLocalStorage(HOSTS_DISABLED_CACHE, JSON.stringify(hostList)).then(() => {
+        _hostsDisabledCache = hostList
+        global.mainWindow.webContents.send('disable-cache-updated')
+        if (global.cacheSettingWindow) {
+          global.cacheSettingWindow.webContents.send('disable-cache-updated')
+        }
+      })
     }
   }
 }
