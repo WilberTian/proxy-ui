@@ -74,47 +74,45 @@
         </div>
       </div>
       <div class="tool-icon-wrapper" v-if="!ruleEditMode">
-        <div class="icon-wrapper">
-          <el-popover
-            title="本机IP"
-            width="200"
-            trigger="hover"
-            :content="`${ipAddress}`"
-          >
+        <el-popover
+          title="本机IP"
+          width="200"
+          trigger="click"
+          :content="`${ipAddress}`"
+        >
+          <div title="本机IP" class="icon-wrapper" slot="reference">
             <svgicon
-              slot="reference"
               v-if="isOnline"
               class="online-icon"
               icon="online"
               width="16" height="16" color="#67c23a"
             ></svgicon>
             <svgicon
-              slot="reference"
               v-if="!isOnline"
               class="offline-icon"
               icon="offline"
               width="16" height="16" color="#e2210d"
             ></svgicon>
-          </el-popover>
-        </div>
-        <div class="icon-wrapper" v-if="showCertQr">
-          <el-popover
-            width="200"
-            trigger="hover"
-          >
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-              <qrcode :value="certUrl" :options="{ size: 150, foreground: '#333'}"></qrcode>
-              <span style="margin-top: 12px; color: #3A8EE8; cursor: pointer;" @click="downloadCert">点击下载HTTPS证书</span>
-              <span style="margin-top: 8px; color: #3A8EE8; cursor: pointer;" @click="openCertFolder">打开本地证书目录</span>
-            </div>
+          </div>
+        </el-popover>
+        <el-popover
+          v-if="showCertQr"
+          width="200"
+          trigger="click"
+        >
+          <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <qrcode :value="certUrl" :options="{ size: 150, foreground: '#333'}"></qrcode>
+            <span style="margin-top: 12px; color: #3A8EE8; cursor: pointer;" @click="downloadCert">点击下载HTTPS证书</span>
+            <span style="margin-top: 8px; color: #3A8EE8; cursor: pointer;" @click="openCertFolder">打开本地证书目录</span>
+          </div>
+          <div title="HTTPS证书" class="icon-wrapper" slot="reference">
             <svgicon
-              slot="reference"
               class="qrcode-icon"
               icon="qrcode"
               width="16" height="16" color="#333"
             ></svgicon>
-          </el-popover>
-        </div>
+          </div>
+        </el-popover>
       </div>
     </div>
     <window-btn-group @close="handleClose" @minimize="handleMinimize" @maximize="handleMaximize" />
@@ -137,6 +135,7 @@ import '@/assets/icons/offline'
 import '@/assets/icons/qrcode'
 import WindowBtnGroup from '@/components/common/window-btn-group'
 import {showLoading, closeLoading} from '@/components/common/loading'
+import showNotification from '@/utils/show-notification'
 
 Vue.component(VueQrcode.name, VueQrcode)
 
@@ -159,7 +158,7 @@ export default {
       return this.proxyServerStatus && this.proxyConfig && this.proxyConfig.forceProxyHttps
     },
     certUrl () {
-      return `http://${this.ipAddress}:${this.proxyConfig.webInterface.webPort}/fetchCrtFile`
+      return `http://${this.ipAddress}:${this.proxyConfig.webPort}/getRootCA`
     }
   },
   methods: {
@@ -169,32 +168,29 @@ export default {
       this.$proxyApi.resetProxyServerLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.startProxyServer(proxyConfig).then((data) => {
-        this.$notify({
-          title: '提示',
-          message: data.msg,
-          type: 'success',
-          position: 'bottom-right'
-        })
+        showNotification('提示', {
+          body: '代理服务器启动',
+          tag: 'simple-notification'
+        },
+        4000)
         closeLoading()
       }, (e) => {
-        this.$notify({
-          title: '错误信息',
-          message: e.message,
-          type: 'error',
-          position: 'bottom-right'
-        })
+        showNotification('错误信息', {
+          body: e.message,
+          tag: 'simple-notification'
+        },
+        4000)
         closeLoading()
       })
     },
     stopProxyServer () {
       showLoading()
       this.$proxyApi.stopProxyServer().then((data) => {
-        this.$notify({
-          title: '提示',
-          message: data.msg,
-          type: 'success',
-          position: 'bottom-right'
-        })
+        showNotification('提示', {
+          body: '代理服务器关闭',
+          tag: 'simple-notification'
+        },
+        4000)
         closeLoading()
       })
     },
@@ -204,12 +200,11 @@ export default {
       this.$proxyApi.resetProxyServerLog()
       const proxyConfig = this.$proxyApi.generateProxyConfig()
       this.$proxyApi.restartProxyServer(proxyConfig).then((data) => {
-        this.$notify({
-          title: '提示',
-          message: data.msg,
-          type: 'success',
-          position: 'bottom-right'
-        })
+        showNotification('提示', {
+          body: '代理服务器已重启',
+          tag: 'simple-notification'
+        },
+        4000)
         closeLoading()
       })
     },

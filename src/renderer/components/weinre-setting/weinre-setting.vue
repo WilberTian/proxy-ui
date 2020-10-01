@@ -36,6 +36,7 @@
 </template>
 <script>
 import WindowBtnGroup from '../common/window-btn-group'
+import showNotification from '@/utils/show-notification'
 
 export default {
   data () {
@@ -91,18 +92,17 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.$proxyApi.startWeinre().then((data) => {
-            this.$notify({
-              title: '提示',
-              message: data,
-              type: 'success',
-              position: 'bottom-right'
-            })
+            showNotification('提示', {
+              body: data,
+              tag: 'simple-notification'
+            },
+            4000)
           }, (e) => {
-            this.$notify({
-              title: '提示',
-              message: e.message,
-              type: 'error'
-            })
+            showNotification('错误提示', {
+              body: e.message,
+              tag: 'simple-notification'
+            },
+            4000)
           })
         } else {
           return false
@@ -111,12 +111,11 @@ export default {
     },
     stopWeinre () {
       this.$proxyApi.stopWeinre().then((data) => {
-        this.$notify({
-          title: '提示',
-          message: data,
-          type: 'success',
-          position: 'bottom-right'
-        })
+        showNotification('提示', {
+          body: data,
+          tag: 'simple-notification'
+        },
+        4000)
       }, (e) => {
         console.log(e)
       })

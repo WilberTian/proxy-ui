@@ -44,6 +44,7 @@ import eventBus from '@/utils/event-bus'
 import TreeRecordView from './tree-record-view'
 import ListRecordView from './list-record-view'
 import {insertTree} from './record-tree'
+import showNotification from '@/utils/show-notification'
 
 const throttle = require('lodash.throttle')
 
@@ -112,6 +113,8 @@ export default {
     }
     this.$ipcRenderer.on('disable-cache-updated', this.hostsDisabledCacheUpdated)
     this.hostsDisabledCacheUpdated()
+
+    this.$ipcRenderer.on('proxy-server-status-updated', this.recordClearHandler)
   },
   beforeDestroy () {
     this.recordClearHandler()
@@ -120,25 +123,24 @@ export default {
     this.$ipcRenderer.removeListener('record-update', this.recordUpdateHandler)
     this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
     this.$ipcRenderer.removeListener('disable-cache-updated', this.hostsDisabledCacheUpdated)
+    this.$ipcRenderer.removeListener('proxy-server-status-updated', this.recordClearHandler)
   },
   methods: {
     clearRecords () {
       this.$proxyApi.clearRecords().then((num) => {
-        this.$notify({
-          title: '提示',
-          message: `${num}条记录被删除！`,
-          type: 'success',
-          position: 'bottom-right'
-        })
+        showNotification('提示', {
+          body: `${num}条记录被删除！`,
+          tag: 'simple-notification'
+        },
+        4000)
 
         this.recordClearHandler()
       }, (err) => {
-        this.$notify({
-          title: '错误信息',
-          message: err,
-          type: 'error',
-          position: 'bottom-right'
-        })
+        showNotification('错误信息', {
+          body: err,
+          tag: 'simple-notification'
+        },
+        4000)
       })
     },
     processFilterHandler () {

@@ -87,6 +87,7 @@ import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 import KvViewer from '@/components/workspace/common/kv-viewer'
 import HttpBodyViewer from '@/components/workspace/common/http-body-viewer'
+import showNotification from '@/utils/show-notification'
 
 export default {
   props: {
@@ -114,12 +115,11 @@ export default {
       this.requestList.push(requestInfo)
       this.updateRequestListCount()
       this.$proxyApi.writeRequestList(this.formatRequestList())
-      this.$notify({
-        title: '提示',
-        message: '请求录制成功',
-        type: 'success',
-        position: 'bottom-right'
-      })
+      showNotification('提示', {
+        body: '请求录制成功',
+        tag: 'simple-notification'
+      },
+      4000)
     },
     removeRequest (idx) {
       this.$confirm('确认删除该记录?', '提示', {

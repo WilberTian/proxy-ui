@@ -1,15 +1,13 @@
-import { Loading } from 'element-ui'
-
-let loadingInstance
-
 export function showLoading () {
-  if (!loadingInstance) {
-    loadingInstance = Loading.service({ fullscreen: true })
+  const loadingEl = document.querySelector('.loading-view')
+  if (loadingEl) {
+    loadingEl.style.display = 'block'
   }
 }
 
 export function closeLoading () {
-  if (loadingInstance) {
-    loadingInstance.close()
+  const loadingEl = document.querySelector('.loading-view')
+  if (loadingEl) {
+    loadingEl.style.display = 'none'
   }
 }

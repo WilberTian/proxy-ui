@@ -1,10 +1,7 @@
 export const defaultProxyConfig = {
   port: 8001,
   rule: {},
-  webInterface: {
-    enable: true,
-    webPort: 8002
-  },
+  webPort: 8002,
   throttle: 30720,
   forceProxyHttps: true,
   wsIntercept: false,
@@ -67,3 +64,6 @@ export const defaultWeinreConfig = {
 export const defaultVconsoleConfig = {
   injected: false
 }
+
+export const HOSTS_ENABLED_HTTPS = 'HOSTS_ENABLED_HTTPS'
+export const HOSTS_DISABLED_CACHE = 'HOSTS_DISABLED_CACHE'

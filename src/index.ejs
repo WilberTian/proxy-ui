@@ -10,7 +10,8 @@
         right: 0;
         bottom: 0;
         left: 0;
-        background: #fff;
+        background: rgba(255,255,255,.4);
+        z-index: 9999;
       }
       .loading-view::after {
         content: '';
@@ -44,8 +45,8 @@
   </head>
   <body>
     <div id="app">
-      <div class="loading-view">
-      </div>
+    </div>
+    <div class="loading-view">
     </div>
     <!-- Set `__static` path to static files in production -->
     <% if (!process.browser) { %>

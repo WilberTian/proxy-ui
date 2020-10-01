@@ -51,7 +51,7 @@
 
 <script>
 import RuleConfigDetail from './rule-config-detail'
-import showNotification from '../../../utils/show-notification'
+import showNotification from '@/utils/show-notification'
 
 export default {
   data () {

@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import windowMixin from './window-mixin'
+
 export default {
   name: 'proxy-ui',
   beforeCreate () {
@@ -12,26 +14,7 @@ export default {
       window.localStorage.setItem('displayMode', 'group')
     }
   },
-  mounted () {
-    this.disableDragEvent()
-  },
-  methods: {
-    disableDragEvent () {
-      window.addEventListener('dragenter', this.disableDrag, false)
-      window.addEventListener('dragover', this.disableDrag)
-      window.addEventListener('drop', this.disableDrag)
-    },
-    disableDrag (e) {
-      e.preventDefault()
-      e.dataTransfer.effectAllowed = 'none'
-      e.dataTransfer.dropEffect = 'none'
-    }
-  },
-  beforeDestroy () {
-    window.removeEventListener('dragenter', this.disableDrag, false)
-    window.removeEventListener('dragover', this.disableDrag)
-    window.removeEventListener('drop', this.disableDrag)
-  }
+  mixins: [windowMixin]
 }
 </script>
 

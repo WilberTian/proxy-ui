@@ -5,30 +5,12 @@
 </template>
 
 <script>
+import windowMixin from './window-mixin'
 import CacheSetting from './components/cache-setting/cache-setting.vue'
 
 export default {
   name: 'cache-setting-window',
-  mounted () {
-    this.disableDragEvent()
-  },
-  methods: {
-    disableDragEvent () {
-      window.addEventListener('dragenter', this.disableDrag, false)
-      window.addEventListener('dragover', this.disableDrag)
-      window.addEventListener('drop', this.disableDrag)
-    },
-    disableDrag (e) {
-      e.preventDefault()
-      e.dataTransfer.effectAllowed = 'none'
-      e.dataTransfer.dropEffect = 'none'
-    }
-  },
-  beforeDestroy () {
-    window.removeEventListener('dragenter', this.disableDrag, false)
-    window.removeEventListener('dragover', this.disableDrag)
-    window.removeEventListener('drop', this.disableDrag)
-  },
+  mixins: [windowMixin],
   components: {
     CacheSetting
   }

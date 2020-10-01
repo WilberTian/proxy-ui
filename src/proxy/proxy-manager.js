@@ -1,5 +1,7 @@
 import { app } from 'electron'
-import { defaultProxyConfig, defaultRuleConfigs } from './constatns'
+import {startHttpServer, stopHttpServer, getHttpServerStatus} from './http-server'
+import { defaultProxyConfig, defaultRuleConfigs, HOSTS_ENABLED_HTTPS, HOSTS_DISABLED_CACHE } from './constatns'
+import {setDataForLocalStorage} from '../utils/local-storage'
 import ruleConfigSchema from './rule-config-schema'
 import getVconsoleRule from './get-vconsole-rule'
 import getWeinreRule from './get-weinre-rule'
@@ -34,56 +36,6 @@ const proxyServerLog = []
 let localIPAddress = '127.0.0.1'
 
 const MAX_RECORD_COUNT = 6000
-
-let _hostsEnalbedHttps = ['www.proxyui-weinre.com']
-let _hostsDisabledCache = []
-
-const HOSTS_ENABLED_HTTPS = 'HOSTS_ENABLED_HTTPS'
-const HOSTS_DISABLED_CACHE = 'HOSTS_DISABLED_CACHE'
-
-const _getDataFromLocalStorage = (key) => {
-  return new Promise((resolve, reject) => {
-    if (global.mainWindow) {
-      global.mainWindow.webContents.executeJavaScript(`localStorage.getItem('${key}')`).then((value) => {
-        resolve(value)
-      }, () => {
-        reject(new Error('读取localstorage失败'))
-      })
-    } else {
-      reject(new Error('读取localstorage失败'))
-    }
-  })
-}
-
-const _setDataForLocalStorage = (key, value) => {
-  return new Promise((resolve, reject) => {
-    if (global.mainWindow) {
-      global.mainWindow.webContents.executeJavaScript(`localStorage.setItem('${key}', '${value}')`).then(() => {
-        resolve()
-      }, () => {
-        reject(new Error('写入localstorage失败'))
-      })
-    } else {
-      reject(new Error('写入localstorage失败'))
-    }
-  })
-}
-
-_getDataFromLocalStorage(HOSTS_ENABLED_HTTPS).then((data) => {
-  if (data) {
-    _hostsEnalbedHttps = JSON.parse(data)
-  }
-}, (e) => {
-  console.log(e)
-})
-
-_getDataFromLocalStorage(HOSTS_DISABLED_CACHE).then((data) => {
-  if (data) {
-    _hostsDisabledCache = JSON.parse(data)
-  }
-}, (e) => {
-  console.log(e)
-})
 
 setInterval(() => {
   const ipAddress = ip.address()
@@ -144,20 +96,6 @@ const _requireFn = (ruleConfig) => {
 const _requireCustomizeRule = ruleConfig => {
   let customizeRuleModule = null
   try {
-    // /* eslint-disable */
-    // const requireFunc =
-    //   typeof __webpack_require__ === 'function'
-    //     ? __non_webpack_require__
-    //     : require
-    // delete requireFunc.cache[
-    //   requireFunc.resolve(
-    //     path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
-    //   )
-    // ]
-    // /* eslint-enable */
-    // customizeRuleModule = requireFunc(
-    //   path.resolve(userDataPath, `__customize_${ruleConfig.guid}.js`)
-    // )
     customizeRuleModule = _requireFn(ruleConfig)
   } catch (e) {
     _addProxyServerLog({
@@ -263,14 +201,14 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
 
   return {
     *beforeDealHttpsRequest (requestDetail) {
-      if (_hostsEnalbedHttps.includes(requestDetail.host.replace(/:443/g, ''))) {
+      if (global.gDataStore.hostsEnalbedHttps.includes(requestDetail.host.replace(/:443/g, ''))) {
         return true
       }
       return false
     },
     *beforeSendRequest (requestDetail) {
       const requestOptions = requestDetail.requestOptions
-      if (_hostsDisabledCache.includes(requestOptions.hostname)) {
+      if (global.gDataStore.hostsDisabledCache.includes(requestOptions.hostname)) {
         _disableRequestCache(requestOptions.headers)
       }
       for (let customizeRuleModule of customizeRuleModules) {
@@ -340,7 +278,7 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
     *beforeSendResponse (requestDetail, responseDetail) {
       const responseData = responseDetail.response
       const requestOptions = requestDetail.requestOptions
-      if (_hostsDisabledCache.includes(requestOptions.hostname)) {
+      if (global.gDataStore.hostsDisabledCache.includes(requestOptions.hostname)) {
         _disableResponseCache(responseData.header)
       }
 
@@ -413,6 +351,7 @@ const generateRootCA = (successCb, errorCb) => {
 
 const proxyServerManager = (action = 'start', options = {}) => {
   return new Promise((resolve, reject) => {
+    startHttpServer(options.webPort)
     if (action === 'start') {
       if (proxyServer) {
         resolve({
@@ -501,6 +440,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
         }
       }
     } else if (action === 'stop') {
+      stopHttpServer()
       if (!proxyServer) {
         resolve({
           msg: '代理服务器已经关闭'
@@ -548,6 +488,9 @@ export default {
   },
   getPoxyServerStatus: function () {
     return !!proxyServer
+  },
+  getHttpServerStatus: function () {
+    return getHttpServerStatus
   },
   readRuleConfigs: function () {
     try {
@@ -678,6 +621,13 @@ export default {
       return false
     }
   },
+  resetProxyConfig: function () {
+    const proxyServerStatus = this.getPoxyServerStatus()
+    const result = this.writeProxyConfig(defaultProxyConfig)
+    if (result && proxyServerStatus) {
+      this.restartProxyServer()
+    }
+  },
   getMatchers: function () {
     return Object.keys(matchers)
   },
@@ -690,10 +640,6 @@ export default {
     } else {
       exec('open .', { cwd: rootPath })
     }
-  },
-  getRootCAPath: function () {
-    const rootPath = AnyProxyUtils.getAnyProxyPath('certificates')
-    return rootPath
   },
   getHookData: function () {
     return JSON.parse(JSON.stringify(hookData))
@@ -887,7 +833,7 @@ export default {
     return localIPAddress
   },
   getHostsEnabledHttps () {
-    return _hostsEnalbedHttps
+    return global.gDataStore.hostsEnalbedHttps
   },
   enableHttps4Host (host) {
     // need to close previous connection, otherwise the connection will be reused
@@ -902,10 +848,10 @@ export default {
       cltSockets.get(hostKey).end()
     }
 
-    if (!_hostsEnalbedHttps.includes(host)) {
-      const hostList = [..._hostsEnalbedHttps, host]
-      _setDataForLocalStorage(HOSTS_ENABLED_HTTPS, JSON.stringify(hostList)).then(() => {
-        _hostsEnalbedHttps = hostList
+    if (!global.gDataStore.hostsEnalbedHttps.includes(host)) {
+      const hostList = [...global.gDataStore.hostsEnalbedHttps, host]
+      setDataForLocalStorage(global.mainWindow, HOSTS_ENABLED_HTTPS, JSON.stringify(hostList)).then(() => {
+        global.gDataStore.hostsEnalbedHttps = hostList
         global.mainWindow.webContents.send('https-host-updated')
         if (global.httpsSettingWindow) {
           global.httpsSettingWindow.webContents.send('https-host-updated')
@@ -926,12 +872,12 @@ export default {
       cltSockets.get(hostKey).end()
     }
 
-    if (_hostsEnalbedHttps.includes(host)) {
-      const hostList = _hostsEnalbedHttps.filter(item => {
+    if (global.gDataStore.hostsEnalbedHttps.includes(host)) {
+      const hostList = global.gDataStore.hostsEnalbedHttps.filter(item => {
         return item !== host
       })
-      _setDataForLocalStorage(HOSTS_ENABLED_HTTPS, JSON.stringify(hostList)).then(() => {
-        _hostsEnalbedHttps = hostList
+      setDataForLocalStorage(global.mainWindow, HOSTS_ENABLED_HTTPS, JSON.stringify(hostList)).then(() => {
+        global.gDataStore.hostsEnalbedHttps = hostList
         global.mainWindow.webContents.send('https-host-updated')
         if (global.httpsSettingWindow) {
           global.httpsSettingWindow.webContents.send('https-host-updated')
@@ -939,14 +885,14 @@ export default {
       })
     }
   },
-  get_hostsDisabledCache () {
-    return _hostsDisabledCache
+  getHostsDisabledCache () {
+    return global.gDataStore.hostsDisabledCache
   },
   disableCache4Host (host) {
-    if (!_hostsDisabledCache.includes(host)) {
-      const hostList = [..._hostsDisabledCache, host]
-      _setDataForLocalStorage(HOSTS_DISABLED_CACHE, JSON.stringify(hostList)).then(() => {
-        _hostsDisabledCache = hostList
+    if (!global.gDataStore.hostsDisabledCache.includes(host)) {
+      const hostList = [...global.gDataStore.hostsDisabledCache, host]
+      setDataForLocalStorage(global.mainWindow, HOSTS_DISABLED_CACHE, JSON.stringify(hostList)).then(() => {
+        global.gDataStore.hostsDisabledCache = hostList
         global.mainWindow.webContents.send('disable-cache-updated')
         if (global.cacheSettingWindow) {
           global.cacheSettingWindow.webContents.send('disable-cache-updated')
@@ -955,12 +901,12 @@ export default {
     }
   },
   restCache4Host (_host) {
-    if (_hostsDisabledCache.includes(_host)) {
-      const hostList = _hostsDisabledCache.filter(host => {
+    if (global.gDataStore.hostsDisabledCache.includes(_host)) {
+      const hostList = global.gDataStore.hostsDisabledCache.filter(host => {
         return host !== _host
       })
-      _setDataForLocalStorage(HOSTS_DISABLED_CACHE, JSON.stringify(hostList)).then(() => {
-        _hostsDisabledCache = hostList
+      setDataForLocalStorage(global.mainWindow, HOSTS_DISABLED_CACHE, JSON.stringify(hostList)).then(() => {
+        global.gDataStore.hostsDisabledCache = hostList
         global.mainWindow.webContents.send('disable-cache-updated')
         if (global.cacheSettingWindow) {
           global.cacheSettingWindow.webContents.send('disable-cache-updated')

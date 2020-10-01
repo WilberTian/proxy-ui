@@ -9,6 +9,8 @@ import {
   ipcMain
 } from 'electron'
 import _manager from '../proxy/index'
+import { HOSTS_ENABLED_HTTPS, HOSTS_DISABLED_CACHE } from '../proxy/constatns'
+import {getDataFromLocalStorage} from '../utils/local-storage'
 import showProxySettingWindow from './proxy-setting-window'
 import showCacheSettingWindow from './cache-setting-window'
 import showHttpsSettingWindow from './https-setting-window'
@@ -32,11 +34,12 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 global.gDataStore = {
-  selectedRuleConfig: null
+  selectedRuleConfig: null,
+  hostsEnalbedHttps: ['www.proxyui-weinre.com'],
+  hostsDisabledCache: []
 }
 
 let mainWindow
-// let httpsSettingWindow
 let tray
 
 const winURL =
@@ -69,6 +72,22 @@ function createWindow () {
       mainWindow.show()
       hideLoadingWindow(true)
     }, 500)
+
+    getDataFromLocalStorage(mainWindow, HOSTS_ENABLED_HTTPS).then((data) => {
+      if (data) {
+        global.gDataStore.hostsEnalbedHttps = JSON.parse(data)
+      }
+    }, (e) => {
+      console.log(e)
+    })
+
+    getDataFromLocalStorage(mainWindow, HOSTS_DISABLED_CACHE).then((data) => {
+      if (data) {
+        global.gDataStore.hostsDisabledCache = JSON.parse(data)
+      }
+    }, (e) => {
+      console.log(e)
+    })
   })
 
   mainWindow.on('closed', () => {
@@ -141,9 +160,9 @@ function createMenu () {
           }
         },
         {
-          label: 'HTTPS设置',
+          label: '重置代理设置',
           click () {
-            //
+            _manager.resetProxyConfig()
           }
         }
       ]
@@ -276,6 +295,7 @@ app.on('window-all-closed', () => {
 
 app.on('quit', () => {
   // try to clear global proxy config when quit
+  _manager.stopProxyServer()
   _manager.clearGlobalProxyConfig()
   _manager.stopWeinre()
 })
