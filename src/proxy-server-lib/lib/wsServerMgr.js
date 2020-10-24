@@ -1,9 +1,9 @@
+import logUtil from './log'
 /**
 * manage the websocket server
 *
 */
 const ws = require('ws');
-const logUtil = require('./log.js');
 
 const WsServer = ws.Server;
 
@@ -36,4 +36,6 @@ function getWsServer(config) {
   return wss;
 }
 
-module.exports.getWsServer = getWsServer;
+export default {
+  getWsServer
+};

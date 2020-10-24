@@ -60,6 +60,7 @@
       const remote = electron.remote;
       const ipcRenderer = electron.ipcRenderer;
       const shell = electron.shell;
+      const dialog = remote.dialog;
       const proxyApi = remote.require("./proxy-api").default;
       const gDataStore = remote.getGlobal('gDataStore')
 
@@ -67,6 +68,7 @@
       global.proxyApi = proxyApi;
       global.ipcRenderer = ipcRenderer;
       global.shell = shell;
+      global.dialog = dialog;
       global.gDataStore = gDataStore;
     </script>
     <% } %>

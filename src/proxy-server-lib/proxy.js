@@ -1,16 +1,16 @@
-'use strict';
+import certMgr from './lib/certMgr'
+import Recorder from './lib/recorder'
+import logUtil from './lib/log'
+import wsServerMgr from './lib/wsServerMgr'
+import systemProxyMgr from './lib/systemProxyMgr'
+import RequestHandler from './lib/requestHandler'
 
 const http = require('http'),
   https = require('https'),
   async = require('async'),
   color = require('colorful'),
-  certMgr = require('./lib/certMgr'),
-  Recorder = require('./lib/recorder'),
-  logUtil = require('./lib/log'),
-  util = require('./lib/util'),
   events = require('events'),
   co = require('co'),
-  wsServerMgr = require('./lib/wsServerMgr'),
   ThrottleGroup = require('stream-throttle').ThrottleGroup;
 
 const T_TYPE_HTTP = 'http',
@@ -93,7 +93,6 @@ class ProxyCore extends events.EventEmitter {
     this.recorder = config.recorder;
 
     // init request handler
-    const RequestHandler = require('./lib/requestHandler');
     this.requestHandler = new RequestHandler({
       wsIntercept: config.wsIntercept,
       httpServerPort: config.port, // the http server port for http proxy
@@ -322,10 +321,12 @@ class ProxyServer extends ProxyCore {
   }
 }
 
-module.exports.ProxyCore = ProxyCore;
-module.exports.ProxyServer = ProxyServer;
-module.exports.ProxyRecorder = Recorder;
-module.exports.utils = {
-  systemProxyMgr: require('./lib/systemProxyMgr'),
-  certMgr,
-};
+export default {
+  ProxyCore,
+  ProxyServer,
+  ProxyRecorder: Recorder,
+  utils: {
+    systemProxyMgr,
+    certMgr,
+  }
+}

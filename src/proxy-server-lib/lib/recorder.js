@@ -1,14 +1,13 @@
-'use strict'
+import proxyUtil from './util'
+import logUtil from './log'
 
 //start recording and share a list when required
 const Datastore = require('nedb'),
   path = require('path'),
   fs = require('fs'),
-  logUtil = require('./log'),
   events = require('events'),
   iconv = require('iconv-lite'),
-  fastJson = require('fast-json-stringify'),
-  proxyUtil = require('./util');
+  fastJson = require('fast-json-stringify');
 
 const wsMessageStingify = fastJson({
   title: 'ws message stringify',
@@ -363,4 +362,4 @@ class Recorder extends events.EventEmitter {
   }
 }
 
-module.exports = Recorder;
+export default Recorder;

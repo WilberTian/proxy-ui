@@ -279,10 +279,10 @@ export default {
       this.$message.success('复制失败！')
     },
     showImportDialog () {
-      this.exportDialogVisible = true
+      this.importDialogVisible = true
     },
     showExportDialog () {
-      this.importDialogVisible = true
+      this.exportDialogVisible = true
     }
   },
   components: {

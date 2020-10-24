@@ -18,9 +18,7 @@ function createProxyRuleWindow () {
     minWidth: WIN_WIDTH,
     frame: false,
     useContentSize: true,
-    show: false,
-    parent: global.mainWindow,
-    modal: true
+    show: false
   })
 
   proxyRuleWindow.loadURL(proxyRuleURL)
@@ -40,6 +38,6 @@ export default function showProxyRuleWindow () {
       }
     })
   } else {
-    //
+    proxyRuleWindow.show()
   }
 }

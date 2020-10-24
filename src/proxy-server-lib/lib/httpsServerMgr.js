@@ -1,4 +1,7 @@
-'use strict'
+import util from './util'
+import logUtil from './log'
+import certMgr from './certMgr'
+import wsServerMgr from './wsServerMgr'
 
 //manage https servers
 const async = require('async'),
@@ -7,10 +10,6 @@ const async = require('async'),
   assert = require('assert'),
   crypto = require('crypto'),
   color = require('colorful'),
-  certMgr = require('./certMgr'),
-  logUtil = require('./log'),
-  util = require('./util'),
-  wsServerMgr = require('./wsServerMgr'),
   constants = require('constants'),
   asyncTask = require('async-task-mgr');
 
@@ -162,4 +161,4 @@ class httpsServerMgr {
   }
 }
 
-module.exports = httpsServerMgr;
+export default httpsServerMgr;

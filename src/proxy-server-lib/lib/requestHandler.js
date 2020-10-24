@@ -1,4 +1,7 @@
-'use strict';
+import util from './util'
+import logUtil from './log'
+import HttpsServerMgr from './httpsServerMgr'
+import requestErrorHandler from './requestErrorHandler'
 
 const http = require('http'),
   https = require('https'),
@@ -7,16 +10,11 @@ const http = require('http'),
   zlib = require('zlib'),
   color = require('colorful'),
   Buffer = require('buffer').Buffer,
-  util = require('./util'),
   Stream = require('stream'),
-  logUtil = require('./log'),
   co = require('co'),
   WebSocket = require('ws'),
-  HttpsServerMgr = require('./httpsServerMgr'),
   brotliTorb = require('brotli'),
   Readable = require('stream').Readable;
-
-const requestErrorHandler = require('./requestErrorHandler');
 
 // to fix issue with TLS cache, refer to: https://github.com/nodejs/node/issues/8368
 https.globalAgent.maxCachedSessions = 0;
@@ -473,9 +471,7 @@ function getUserReqHandler(userRule, recorder) {
 
       .catch(co.wrap(function *(error) {
         logUtil.printLog(util.collectErrorLog(error), logUtil.T_ERR);
-
         let errorResponse = getErrorResponse(error, fullUrl);
-
         // call user rule
         try {
           const userResponse = yield userRule.onError(Object.assign({}, requestDetail), error);
@@ -902,4 +898,4 @@ class RequestHandler {
   }
 }
 
-module.exports = RequestHandler;
+export default RequestHandler;

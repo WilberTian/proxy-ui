@@ -76,6 +76,7 @@ export default {
   height: 24px;
   min-height: 24px;
   padding: 0 8px;
+  background: -webkit-linear-gradient(top, #eee, #bbb);
 }
 .https-setting-header .header-content {
   flex: 1;

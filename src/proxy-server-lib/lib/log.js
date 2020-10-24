@@ -1,7 +1,6 @@
-'use strict'
+import util from './util'
 
 const color = require('colorful');
-const util = require('./util');
 
 let ifPrint = true;
 let logLevel = 0;
@@ -74,32 +73,36 @@ function printLog(content, type) {
   }
 }
 
-module.exports.printLog = printLog;
+const __exports = {};
 
-module.exports.debug = (content) => {
+__exports.printLog = printLog;
+
+__exports.debug = (content) => {
   printLog(content, LogLevelMap.debug);
 };
 
-module.exports.info = (content) => {
+__exports.info = (content) => {
   printLog(content, LogLevelMap.tip);
 };
 
-module.exports.warn = (content) => {
+__exports.warn = (content) => {
   printLog(content, LogLevelMap.warn);
 };
 
-module.exports.error = (content) => {
+__exports.error = (content) => {
   printLog(content, LogLevelMap.system_error);
 };
 
-module.exports.ruleError = (content) => {
+__exports.ruleError = (content) => {
   printLog(content, LogLevelMap.rule_error);
 };
 
-module.exports.setPrintStatus = setPrintStatus;
-module.exports.setLogLevel = setLogLevel;
-module.exports.T_TIP = LogLevelMap.tip;
-module.exports.T_ERR = LogLevelMap.system_error;
-module.exports.T_RULE_ERROR = LogLevelMap.rule_error;
-module.exports.T_WARN = LogLevelMap.warn;
-module.exports.T_DEBUG = LogLevelMap.debug;
+__exports.setPrintStatus = setPrintStatus;
+__exports.setLogLevel = setLogLevel;
+__exports.T_TIP = LogLevelMap.tip;
+__exports.T_ERR = LogLevelMap.system_error;
+__exports.T_RULE_ERROR = LogLevelMap.rule_error;
+__exports.T_WARN = LogLevelMap.warn;
+__exports.T_DEBUG = LogLevelMap.debug;
+
+export default __exports

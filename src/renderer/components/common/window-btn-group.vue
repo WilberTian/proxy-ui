@@ -66,27 +66,28 @@ export default {
   height: 14px;
   width: 14px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 10px;
   color: #444;
 }
 .close-btn {
   background-color: #FF5722;
 }
 .close-btn i {
-  margin-top: 1px;
   font-weight: bold;
 }
 .minimize-btn {
   background-color: #fba420;
 }
 .minimize-btn i {
-  margin-top: 1px;
   font-weight: bold;
 }
 .maximize-btn {
   background-color: #13ce66;
+}
+.maximize-btn i {
   transform: rotate(45deg);
-  font-size: 14px;
+  transform-origin: center center;
+  font-size: 12px;
 }
 
 </style>

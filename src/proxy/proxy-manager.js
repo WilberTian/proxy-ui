@@ -5,6 +5,8 @@ import {setDataForLocalStorage} from '../utils/local-storage'
 import ruleConfigSchema from './rule-config-schema'
 import getVconsoleRule from './get-vconsole-rule'
 import getWeinreRule from './get-weinre-rule'
+import AnyProxy from '../proxy-server-lib/proxy.js'
+import AnyProxyUtils from '../proxy-server-lib/lib/util.js'
 
 const fs = require('fs')
 const path = require('path')
@@ -13,8 +15,6 @@ const throttle = require('lodash.throttle')
 const log = require('electron-log')
 const ip = require('ip')
 
-const AnyProxy = require('../proxy-server-lib/proxy.js')
-const AnyProxyUtils = require('../proxy-server-lib/lib/util.js')
 const matchers = require('./matchers')
 
 const RULE_CONFIG_FILE = 'rule-config.json'

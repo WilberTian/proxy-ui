@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = {
+export default {
 
   summary: 'the default rule for AnyProxy',
 

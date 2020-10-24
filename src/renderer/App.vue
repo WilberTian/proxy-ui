@@ -61,6 +61,9 @@ body {
 .el-tabs__content .el-tab-pane {
   height: 100%;
 }
+.el-tabs__item:focus.is-active.is-focus:not(:active) {
+  box-shadow: none !important;
+}
 .el-collapse-item__content {
   padding-bottom: 0 !important;
 }
@@ -75,6 +78,12 @@ body {
 .el-pagination--small .el-select.el-select--mini i {
   height: 22px;
   line-height: 22px;
+}
+.el-radio-button:focus:not(.is-focus):not(:active):not(.is-disabled) {
+  box-shadow: none !important;
+}
+.el-radio:focus:not(.is-focus):not(:active):not(.is-disabled) .el-radio__inner {
+  box-shadow: none !important;
 }
 textarea {
   border-radius: 0 !important;

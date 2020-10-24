@@ -212,6 +212,7 @@
       :visible.sync="sampleRuleDialogVisible"
       :fullscreen="true"
       custom-class="fullscreen-dialog"
+      center
     >
       <div v-if="!sampleRules">没有规则样例！</div>
       <div v-if="sampleRules">
@@ -479,6 +480,8 @@ export default {
   height: 24px;
   min-height: 24px;
   padding: 0 8px;
+  -webkit-app-region: drag;
+  background: -webkit-linear-gradient(top, #eee, #bbb);
 }
 .proxy-rule-header .header-content {
   flex: 1;

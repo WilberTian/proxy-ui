@@ -4,11 +4,8 @@
 * handle all request error here,
 *
 */
-const pug = require('pug');
-const path = require('path');
-
-const error502PugFn = pug.compileFile(path.join(__dirname, '../resource/502.pug'));
-const certPugFn = pug.compileFile(path.join(__dirname, '../resource/cert_error.pug'));
+const error502PugFn = require('pug-loader!../resource/502.pug')
+const certPugFn = require('pug-loader!../resource/cert_error.pug')
 
 /**
 * get error content for certification issues
@@ -66,7 +63,7 @@ function getDefaultErrorCotent(error, fullUrl) {
 /*
 * get mapped error content for each error
 */
-module.exports.getErrorContent = function (error, fullUrl) {
+const getErrorContent = function (error, fullUrl) {
   let content = '';
   error = error || {};
   switch (error.code) {
@@ -81,4 +78,8 @@ module.exports.getErrorContent = function (error, fullUrl) {
   }
 
   return content;
+}
+
+export default {
+  getErrorContent
 }

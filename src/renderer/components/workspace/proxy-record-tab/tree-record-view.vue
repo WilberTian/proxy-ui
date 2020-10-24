@@ -23,7 +23,7 @@
         没有选中网络数据！
       </div>
     </div>
-    <context-menu id="context-menu" ref="ctxMenu">
+    <context-menu id="host-context-menu" ref="hostCtxMenu">
       <li
         v-if="selectedHostStatus.isHttps"
         :class="{'checked': selectedHostStatus.enableHttps}"
@@ -232,7 +232,7 @@ export default {
             e.preventDefault()
 
             this.selectedHostStatus = selectedHostStatus
-            self.$refs.ctxMenu.open()
+            self.$refs.hostCtxMenu.open()
           }
         }
       } else if (node.isLeaf) {

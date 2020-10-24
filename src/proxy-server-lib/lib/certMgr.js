@@ -1,12 +1,10 @@
-'use strict'
+import util from './util'
+import logUtil from './log'
 
 const EasyCert = require('node-easy-cert');
 const co = require('co');
 const os = require('os');
 const inquirer = require('inquirer');
-
-const util = require('./util');
-const logUtil = require('./log');
 
 const options = {
   rootDirPath: util.getAnyProxyPath('certificates'),
@@ -100,4 +98,4 @@ crtMgr.trustRootCA = function *() {
   logUtil.info('The root CA file path is: ' + crtMgr.getRootCAFilePath());
 }
 
-module.exports = crtMgr;
+export default crtMgr;

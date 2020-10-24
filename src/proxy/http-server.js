@@ -1,8 +1,8 @@
+import AnyProxyUtils from '../proxy-server-lib/lib/util.js'
+
 const http = require('http')
 const fs = require('fs')
 const log = require('electron-log')
-
-const AnyProxyUtils = require('../proxy-server-lib/lib/util.js')
 
 const certPath = AnyProxyUtils.getAnyProxyPath('certificates') + '/rootCA.crt' || ''
 

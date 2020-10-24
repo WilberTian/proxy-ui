@@ -1,6 +1,5 @@
-'use strict';
+import proxyUtil from './util'
 
-const proxyUtil = require('./util');
 const path = require('path');
 const fs = require('fs');
 const request = require('request');
@@ -67,7 +66,7 @@ function requireModule(urlOrPath) {
   }).then(localPath => loadLocalPath(localPath));
 }
 
-module.exports = {
+export default {
   cacheRemoteFile,
   loadLocalPath,
   requireModule,

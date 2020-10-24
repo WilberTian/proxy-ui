@@ -1,4 +1,4 @@
-'use strict';
+import logUtil from './log'
 
 const fs = require('fs'),
   path = require('path'),
@@ -6,13 +6,14 @@ const fs = require('fs'),
   color = require('colorful'),
   child_process = require('child_process'),
   os = require('os'),
-  Buffer = require('buffer').Buffer,
-  logUtil = require('./log');
+  Buffer = require('buffer').Buffer;
 
 const networkInterfaces = os.networkInterfaces();
 
+const __exports = {}
+
 // {"Content-Encoding":"gzip"} --> {"content-encoding":"gzip"}
-module.exports.lower_keys = (obj) => {
+__exports.lower_keys = (obj) => {
   for (const key in obj) {
     const val = obj[key];
     delete obj[key];
@@ -23,7 +24,7 @@ module.exports.lower_keys = (obj) => {
   return obj;
 };
 
-module.exports.merge = function (baseObj, extendObj) {
+__exports.merge = function (baseObj, extendObj) {
   for (const key in extendObj) {
     baseObj[key] = extendObj[key];
   }
@@ -34,7 +35,7 @@ module.exports.merge = function (baseObj, extendObj) {
 function getUserHome() {
   return process.env.HOME || process.env.USERPROFILE;
 }
-module.exports.getUserHome = getUserHome;
+__exports.getUserHome = getUserHome;
 
 function getAnyProxyHome() {
   const home = path.join(getUserHome(), '/.anyproxy/');
@@ -43,9 +44,9 @@ function getAnyProxyHome() {
   }
   return home;
 }
-module.exports.getAnyProxyHome = getAnyProxyHome;
+__exports.getAnyProxyHome = getAnyProxyHome;
 
-module.exports.getAnyProxyPath = function (pathName) {
+__exports.getAnyProxyPath = function (pathName) {
   const home = getAnyProxyHome();
   const targetPath = path.join(home, pathName);
   if (!fs.existsSync(targetPath)) {
@@ -65,7 +66,7 @@ function mkdirsSync(dirname) {
   }
 }
 
-module.exports.getAnyProxyTmpPath = function () {
+__exports.getAnyProxyTmpPath = function () {
   const targetPath = path.join(os.tmpdir(), 'anyproxy', 'cache');
   if (!fs.existsSync(targetPath)) {
     mkdirsSync(targetPath);
@@ -73,7 +74,7 @@ module.exports.getAnyProxyTmpPath = function () {
   return targetPath;
 }
 
-module.exports.simpleRender = function (str, object, regexp) {
+__exports.simpleRender = function (str, object, regexp) {
   return String(str).replace(regexp || (/\{\{([^{}]+)\}\}/g), (match, name) => {
     if (match.charAt(0) === '\\') {
       return match.slice(1);
@@ -82,7 +83,7 @@ module.exports.simpleRender = function (str, object, regexp) {
   });
 };
 
-module.exports.filewalker = function (root, cb) {
+__exports.filewalker = function (root, cb) {
   root = root || process.cwd();
 
   const ret = {
@@ -118,14 +119,14 @@ module.exports.filewalker = function (root, cb) {
 * 获取文件所对应的content-type以及content-length等信息
 * 比如在useLocalResponse的时候会使用到
 */
-module.exports.contentType = function (filepath) {
+__exports.contentType = function (filepath) {
   return mime.contentType(path.extname(filepath));
 };
 
 /*
 * 读取file的大小，以byte为单位
 */
-module.exports.contentLength = function (filepath) {
+__exports.contentLength = function (filepath) {
   try {
     const stat = fs.statSync(filepath);
     return stat.size;
@@ -139,7 +140,7 @@ module.exports.contentLength = function (filepath) {
 /*
 * remove the cache before requiring, the path SHOULD BE RELATIVE TO UTIL.JS
 */
-module.exports.freshRequire = function (modulePath) {
+__exports.freshRequire = function (modulePath) {
   delete require.cache[require.resolve(modulePath)];
   return require(modulePath);
 };
@@ -149,7 +150,7 @@ module.exports.freshRequire = function (modulePath) {
 * @param date Date or timestamp
 * @param formatter YYYYMMDDHHmmss
 */
-module.exports.formatDate = function (date, formatter) {
+__exports.formatDate = function (date, formatter) {
   if (typeof date !== 'object') {
     date = new Date(date);
   }
@@ -183,7 +184,7 @@ module.exports.formatDate = function (date, formatter) {
 
 */
 
-module.exports.getHeaderFromRawHeaders = function (rawHeaders) {
+__exports.getHeaderFromRawHeaders = function (rawHeaders) {
   const headerObj = {};
   const _handleSetCookieHeader = function (key, value) {
     if (headerObj[key].constructor === Array) {
@@ -218,7 +219,7 @@ module.exports.getHeaderFromRawHeaders = function (rawHeaders) {
   return headerObj;
 };
 
-module.exports.getAllIpAddress = function getAllIpAddress() {
+__exports.getAllIpAddress = function getAllIpAddress() {
   const allIp = [];
 
   Object.keys(networkInterfaces).map((nic) => {
@@ -273,9 +274,9 @@ function deleteFolderContentsRecursive(dirPath, ifClearFolderItself) {
   }
 }
 
-module.exports.deleteFolderContentsRecursive = deleteFolderContentsRecursive;
+__exports.deleteFolderContentsRecursive = deleteFolderContentsRecursive;
 
-module.exports.getFreePort = function () {
+__exports.getFreePort = function () {
   return new Promise((resolve, reject) => {
     const server = require('net').createServer();
     server.unref();
@@ -289,7 +290,7 @@ module.exports.getFreePort = function () {
   });
 }
 
-module.exports.collectErrorLog = function (error) {
+__exports.collectErrorLog = function (error) {
   if (error && error.code && error.toString()) {
     return error.toString();
   } else {
@@ -304,7 +305,7 @@ module.exports.collectErrorLog = function (error) {
   }
 }
 
-module.exports.isFunc = function (source) {
+__exports.isFunc = function (source) {
   return source && Object.tostring.call(source) === '[object Function]';
 };
 
@@ -312,14 +313,14 @@ module.exports.isFunc = function (source) {
 * @param {object} content
 * @returns the size of the content
 */
-module.exports.getByteSize = function (content) {
+__exports.getByteSize = function (content) {
   return Buffer.byteLength(content);
 };
 
 /*
 * identify whether the
 */
-module.exports.isIp = function (domain) {
+__exports.isIp = function (domain) {
   if (!domain) {
     return false;
   }
@@ -328,7 +329,7 @@ module.exports.isIp = function (domain) {
   return ipReg.test(domain);
 };
 
-module.exports.execScriptSync = function (cmd) {
+__exports.execScriptSync = function (cmd) {
   let stdout,
     status = 0;
   try {
@@ -344,6 +345,8 @@ module.exports.execScriptSync = function (cmd) {
   };
 };
 
-module.exports.guideToHomePage = function () {
+__exports.guideToHomePage = function () {
   logUtil.info('Refer to http://anyproxy.io for more detail');
 };
+
+export default __exports

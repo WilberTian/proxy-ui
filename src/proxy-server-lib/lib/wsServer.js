@@ -1,9 +1,8 @@
-'use strict';
+import logUtil from './log'
 
 //websocket server manager
 
 const WebSocketServer = require('ws').Server;
-const logUtil = require('./log');
 
 function resToMsg(msg, recorder, cb) {
   let result = {},
@@ -177,4 +176,4 @@ class wsServer {
   }
 }
 
-module.exports = wsServer;
+export default wsServer;

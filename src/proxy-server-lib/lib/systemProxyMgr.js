@@ -149,4 +149,4 @@ winProxyManager.getProxyState = () => ''
 
 winProxyManager.getNetworkType = () => ''
 
-module.exports = /^win/.test(process.platform) ? winProxyManager : macProxyManager;
+export default /^win/.test(process.platform) ? winProxyManager : macProxyManager;
