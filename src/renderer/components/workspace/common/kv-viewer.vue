@@ -50,7 +50,7 @@ export default {
   margin: 0 4px;
   font-size: 12px;
   padding: 12px;
-  background-color: aliceblue;
+  background-color: #efefef;
 }
 .section-data-item {
   display: flex;

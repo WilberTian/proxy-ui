@@ -79,7 +79,7 @@ export default {
 .section-data {
   margin: 0 4px;
   padding: 12px;
-  background-color: aliceblue;
+  background-color: #efefef;
   white-space: pre-wrap;
   word-break: break-word;
   font-size: 12px;

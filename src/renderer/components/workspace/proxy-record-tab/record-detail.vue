@@ -3,6 +3,7 @@
     <el-tabs class="record-detail-tab" v-model="selectedTab">
       <el-tab-pane label="请求数据" name="request">
         <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
+          <el-button size="mini" type="primary" @click="resendRequestHandler">重发请求</el-button>
           <el-button size="mini" type="primary" @click="addRequestHandler">录制请求</el-button>
           <el-tooltip class="item" effect="dark" content="将请求信息记录下来，在“已录制请求”界面中，可以重新发送请求" placement="bottom">
             <i class="el-icon-info"></i>
@@ -97,6 +98,14 @@ export default {
         reqHeader: this.recordDetail.reqHeader,
         reqBody: this.recordDetail.reqBody
       })
+    },
+    async resendRequestHandler () {
+      try {
+        const proxyConfig = await this.$proxyApi.readProxyConfig()
+        await this.$proxyApi.processRequest(this.recordDetail, proxyConfig, true)
+      } catch (e) {
+        alert(e.message)
+      }
     }
   },
   components: {
@@ -120,12 +129,5 @@ export default {
 .data-wrapper {
   height: 100%;
   overflow-y: auto;
-}
-</style>
-<style>
-.record-detail-tab .el-tabs__item {
-  height: 28px !important;
-  line-height: 28px !important;
-  font-size: 12px !important;
 }
 </style>

@@ -42,7 +42,7 @@
             v-if="isOnline"
             class="settings-icon"
             icon="settings"
-            width="16" height="16" color="#606266"
+            width="16" height="16" color="#666"
           ></svgicon>
         </div>
         <div class="icon-wrapper" title="新建代理规则" @click.prevent.stop="showProxyRuleSetting">
@@ -51,7 +51,7 @@
             v-if="isOnline"
             class="filter-icon"
             icon="filter"
-            width="14" height="14" color="#333"
+            width="14" height="14" color="#666"
           ></svgicon>
         </div>
         <div class="icon-wrapper" title="vconsole 设置" @click.prevent.stop="showVconsoleSetting">
@@ -60,7 +60,7 @@
             v-if="isOnline"
             class="vconsole-icon"
             icon="vconsole"
-            width="16" height="16" color="#909399"
+            width="16" height="16" color="#666"
           ></svgicon>
         </div>
         <div class="icon-wrapper" title="weinre 设置" @click.prevent.stop="showWeinreSetting">
@@ -69,7 +69,7 @@
             v-if="isOnline"
             class="weinre-icon"
             icon="weinre"
-            width="12" height="12" color="#606266"
+            width="12" height="12" color="#666"
           ></svgicon>
         </div>
       </div>

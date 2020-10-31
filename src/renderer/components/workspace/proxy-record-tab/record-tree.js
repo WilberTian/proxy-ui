@@ -64,15 +64,19 @@ export function insertTree (root, record) {
         children.push(leaf)
         root.leaves.push(leaf)
       } else {
-        if (!isNodeExist(currentNode, subPath)) {
+        const found = isNodeExist(currentNode, subPath)
+        if (!found) {
           currentNode = {
             label: subPath,
             key: `${record.id}$${subPath}`,
             children: []
           }
           children.push(currentNode)
+        } else {
+          currentNode = found
         }
       }
     }
   }
+  root.updatedHosts.push(record.host)
 }

@@ -25,6 +25,7 @@
       :hostsWithHttps="hostsWithHttps"
       :hostsDisabledCache="hostsDisabledCache"
       :recordTreeData="recordTreeData"
+      :updatedHosts="updatedHosts"
       :deleteRecordsByHost="deleteRecordsByHost"
     />
     <list-record-view
@@ -56,7 +57,8 @@ export default {
       hostsWithHttps: [],
       hostsDisabledCache: [],
       recordTreeData: [],
-      listedRecords: []
+      listedRecords: [],
+      updatedHosts: []
     }
   },
   computed: {
@@ -70,6 +72,8 @@ export default {
     this.treeRecordDataUpdater = throttle(() => {
       this.recordTreeData = [...this.noneReactiveRecordTreeData.children]
       this.listedRecords = [...this.noneReactiveRecordTreeData.leaves]
+      this.updatedHosts = [...this.noneReactiveRecordTreeData.updatedHosts]
+      this.noneReactiveRecordTreeData.updatedHosts.length = 0
       this.updateRecordCount(this.listedRecords.length)
     }, 500)
 
@@ -158,7 +162,8 @@ export default {
       this.noneReactiveRecordTreeData = {
         label: 'root',
         children: [],
-        leaves: []
+        leaves: [],
+        updatedHosts: []
       }
       this.recordTreeData = []
       this.listedRecords = []
@@ -171,6 +176,9 @@ export default {
         return isOpposite ? item.host === host : item.host !== host
       })
       this.noneReactiveRecordTreeData.leaves = this.noneReactiveRecordTreeData.leaves.filter((item) => {
+        return isOpposite ? item.host === host : item.host !== host
+      })
+      this.noneReactiveRecordTreeData.updatedHosts = this.noneReactiveRecordTreeData.updatedHosts.filter((item) => {
         return isOpposite ? item.host === host : item.host !== host
       })
       this.treeRecordDataUpdater()

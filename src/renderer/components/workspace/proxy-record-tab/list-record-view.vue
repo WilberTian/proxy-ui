@@ -220,7 +220,7 @@ export default {
   left: 0;
   right: 0;
   height: 2px;
-  background: #999;
+  background: #ddd;
 }
 .dividor.active::after {
   background: #3a8ee6;

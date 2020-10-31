@@ -80,6 +80,12 @@ export default {
         return []
       }
     },
+    updatedHosts: {
+      type: Array,
+      default: function () {
+        return []
+      }
+    },
     deleteRecordsByHost: {
       type: Function,
       default: () => {}
@@ -225,6 +231,10 @@ export default {
           node.visible = true
         }
 
+        if (this.updatedHosts.includes(data.host)) {
+          nodeConfig.class = ['record-tree-node', 'node-highlight']
+        }
+
         selectedHostStatus.host = data.host
 
         nodeConfig.on = {
@@ -281,7 +291,7 @@ export default {
   left: 2px;
   bottom: 0;
   width: 2px;
-  background: #999;
+  background: #ddd;
 }
 .dividor.active::after {
   background: #3a8ee6;
@@ -305,12 +315,26 @@ export default {
 }
 </style>
 <style>
+.record-tree .el-tree-node__expand-icon {
+  color: #444;
+}
+.record-tree .el-tree-node__expand-icon.is-leaf {
+  color: transparent;
+}
 .record-tree .record-tree-node {
+  width: 100%;
   display: flex;
   align-items: center;
   line-height: 26px;
   color: #333;
   user-select: none;
+}
+.record-tree .record-tree-node.node-highlight {
+  animation: nodeHighlight 2s;
+}
+@keyframes nodeHighlight {
+  from {background: #ebeef5;}
+  to {background: #fff;}
 }
 .record-tree .record-tree-node .tree-node-label {
   flex: 1;
@@ -323,7 +347,7 @@ export default {
   color: rgb(103, 194, 58);
 }
 .record-tree .record-tree-node .tree-node-icon.el-icon-lock {
-  color: #777;
+  color: #999;
 }
 .record-tree .record-tree-node .tree-node-icon.el-icon-lock:hover {
   color: rgb(103, 194, 58);
@@ -331,6 +355,12 @@ export default {
 }
 .record-tree .record-tree-node .tree-node-icon.el-icon-unlock {
   color: rgb(103, 194, 58);
+}
+.record-tree .record-tree-node .tree-node-icon.el-icon-document {
+  color: #666;
+}
+.record-tree .record-tree-node .tree-node-icon.el-icon-folder-opened {
+  color: #067af5;
 }
 
 .ctx-menu {
