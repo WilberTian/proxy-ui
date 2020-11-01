@@ -1,14 +1,14 @@
 <template>
   <div class="record-detail" v-loading="loading">
+    <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
+      <el-button size="mini" @click="resendRequestHandler">重发请求</el-button>
+      <el-button size="mini" @click="addRequestHandler">录制请求</el-button>
+      <el-tooltip class="item" effect="dark" content="将请求信息记录下来，在“已录制请求”界面中，可以重新发送请求" placement="bottom">
+        <i class="el-icon-info"></i>
+      </el-tooltip>
+    </div>
     <el-tabs class="record-detail-tab" v-model="selectedTab">
       <el-tab-pane label="请求数据" name="request">
-        <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
-          <el-button size="mini" type="primary" @click="resendRequestHandler">重发请求</el-button>
-          <el-button size="mini" type="primary" @click="addRequestHandler">录制请求</el-button>
-          <el-tooltip class="item" effect="dark" content="将请求信息记录下来，在“已录制请求”界面中，可以重新发送请求" placement="bottom">
-            <i class="el-icon-info"></i>
-          </el-tooltip>
-        </div>
         <div class="data-wrapper">
           <kv-viewer title="通用" :kvData="{
             Method: recordDetail.method,
@@ -123,8 +123,14 @@ export default {
 .request-record-btn {
   position: absolute;
   z-index: 100;
-  top: 4px;
+  top: 42px;
   right: 24px;
+  background: #999;
+  padding: 4px 20px;
+  border-radius: 4px;
+}
+.request-record-btn > button {
+  border: none;
 }
 .data-wrapper {
   height: 100%;

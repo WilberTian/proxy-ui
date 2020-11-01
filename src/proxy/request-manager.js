@@ -1,9 +1,9 @@
 import { app } from 'electron'
-import axios from 'axios'
 
 const fs = require('fs')
 const path = require('path')
 const log = require('electron-log')
+const request = require('request')
 
 const REQUEST_INFO_LIST_FILE = 'request-info-list.json'
 
@@ -43,23 +43,47 @@ export default {
     }
   },
   processRequest: function (requestInfo, proxyConfig, withProxy = false) {
-    const proxyPort = proxyConfig.port
-    const proxy = {
-      host: '127.0.0.1',
-      port: proxyPort
-    }
+    return new Promise((resolve, reject) => {
+      const proxy = `http://127.0.0.1:${proxyConfig.port}`
+      const requestParams = {
+        url: `${requestInfo.protocol}://${requestInfo.host}${requestInfo.path}`,
+        method: requestInfo.method
+      }
 
-    const requestParams = {
-      method: requestInfo.method,
-      url: `${requestInfo.protocol}://${requestInfo.host}${requestInfo.path}`,
-      headers: requestInfo.reqHeader || {},
-      data: requestInfo.reqBody || {}
-    }
+      if (withProxy) {
+        requestParams.proxy = proxy
+        requestParams.strictSSL = false
+      }
 
-    if (withProxy) {
-      requestParams.proxy = proxy
-    }
+      request(requestParams, function (error, response, body) {
+        if (error) {
+          reject(error)
+        } else {
+          resolve({
+            headers: response.headers,
+            status: response.statusCode,
+            data: body
+          })
+        }
+      })
+    })
+    // const proxyPort = proxyConfig.port
+    // const proxy = {
+    //   host: '127.0.0.1',
+    //   port: proxyPort
+    // }
 
-    return axios(requestParams)
+    // const requestParams = {
+    //   method: requestInfo.method,
+    //   url: `${requestInfo.protocol}://${requestInfo.host}${requestInfo.path}`,
+    //   headers: requestInfo.reqHeader || {},
+    //   data: requestInfo.reqBody || {}
+    // }
+
+    // if (withProxy) {
+    //   requestParams.proxy = proxy
+    // }
+
+    // return axios(requestParams)
   }
 }
