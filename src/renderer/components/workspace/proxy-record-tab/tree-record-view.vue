@@ -270,6 +270,7 @@ export default {
 .record-data-wrapper {
   flex: 1;
   display: flex;
+  overflow: hidden;
 }
 .record-tree {
   height: 100%;

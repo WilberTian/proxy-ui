@@ -417,7 +417,23 @@ function getUserReqHandler(userRule, recorder) {
         }
 
         try {
-          resourceInfo.reqBody = reqData.toString(); //TODO: deal reqBody in webInterface.js
+          const reqHeaders = req.headers
+          const contentEncoding = reqHeaders['content-encoding'] || reqHeaders['Content-Encoding']
+          const ifGzipped = /gzip/i.test(contentEncoding);
+          const isDeflated = /deflate/i.test(contentEncoding);
+          const isBrotlied = /br/i.test(contentEncoding);
+
+          if (ifGzipped && reqData) {
+            resourceInfo.reqBody = zlib.gunzipSync(reqData).toString()
+          } else if (isDeflated && reqData) {
+            resourceInfo.reqBody = zlib.inflateSync(reqData).toString()
+          } else if (isBrotlied && reqData) {
+            const uint8Arr = brotliTorb.decompress(reqData)
+            resourceInfo.reqBody = String.fromCharCode.apply(null, uint8Arr)
+          } else {
+            resourceInfo.reqBody = reqData.toString()
+          }
+
           recorder && recorder.updateRecord(resourceInfoId, resourceInfo);
         } catch (e) { }
       })
