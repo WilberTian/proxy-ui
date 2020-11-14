@@ -61,6 +61,15 @@
       ]
     }
   },
+  "prettier": {
+    "stylelintIntegration": true,
+    "eslintIntegration": true,
+    "singleQuote": true,
+    "semi": false,
+    "insertPragma": false,
+    "trailingComma": "none",
+    "arrowParens": "avoid"
+  },
   "dependencies": {
     "@xkeshi/vue-qrcode": "^1.0.0",
     "adm-zip": "^0.4.13",

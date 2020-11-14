@@ -1,108 +1,110 @@
 import util from './util'
 
-const color = require('colorful');
+const color = require('colorful')
 
-let ifPrint = true;
-let logLevel = 0;
+let ifPrint = true
+let logLevel = 0
 const LogLevelMap = {
   tip: 0,
   system_error: 1,
   rule_error: 2,
   warn: 3,
-  debug: 4,
-};
+  debug: 4
+}
 
 function setPrintStatus(status) {
-  ifPrint = !!status;
+  ifPrint = !!status
 }
 
 function setLogLevel(level) {
-  logLevel = parseInt(level, 10);
+  logLevel = parseInt(level, 10)
 }
 
 function printLog(content, type) {
   if (!ifPrint) {
-    return;
+    return
   }
 
-  const timeString = util.formatDate(new Date(), 'YYYY-MM-DD hh:mm:ss');
+  const timeString = util.formatDate(new Date(), 'YYYY-MM-DD hh:mm:ss')
   switch (type) {
     case LogLevelMap.tip: {
       if (logLevel > 0) {
-        return;
+        return
       }
-      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content));
-      break;
+      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content))
+      break
     }
 
     case LogLevelMap.system_error: {
       if (logLevel > 1) {
-        return;
+        return
       }
-      console.error(color.red(`[AnyProxy ERROR][${timeString}]: ` + content));
-      break;
+      console.error(color.red(`[AnyProxy ERROR][${timeString}]: ` + content))
+      break
     }
 
     case LogLevelMap.rule_error: {
       if (logLevel > 2) {
-        return;
+        return
       }
 
-      console.error(color.red(`[AnyProxy RULE_ERROR][${timeString}]: ` + content));
-      break;
+      console.error(
+        color.red(`[AnyProxy RULE_ERROR][${timeString}]: ` + content)
+      )
+      break
     }
 
     case LogLevelMap.warn: {
       if (logLevel > 3) {
-        return;
+        return
       }
 
-      console.error(color.yellow(`[AnyProxy WARN][${timeString}]: ` + content));
-      break;
+      console.error(color.yellow(`[AnyProxy WARN][${timeString}]: ` + content))
+      break
     }
 
     case LogLevelMap.debug: {
-      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content));
-      return;
+      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content))
+      return
     }
 
-    default : {
-      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content));
-      break;
+    default: {
+      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content))
+      break
     }
   }
 }
 
-const __exports = {};
+const __exports = {}
 
-__exports.printLog = printLog;
+__exports.printLog = printLog
 
-__exports.debug = (content) => {
-  printLog(content, LogLevelMap.debug);
-};
+__exports.debug = content => {
+  printLog(content, LogLevelMap.debug)
+}
 
-__exports.info = (content) => {
-  printLog(content, LogLevelMap.tip);
-};
+__exports.info = content => {
+  printLog(content, LogLevelMap.tip)
+}
 
-__exports.warn = (content) => {
-  printLog(content, LogLevelMap.warn);
-};
+__exports.warn = content => {
+  printLog(content, LogLevelMap.warn)
+}
 
-__exports.error = (content) => {
-  printLog(content, LogLevelMap.system_error);
-};
+__exports.error = content => {
+  printLog(content, LogLevelMap.system_error)
+}
 
-__exports.ruleError = (content) => {
-  printLog(content, LogLevelMap.rule_error);
-};
+__exports.ruleError = content => {
+  printLog(content, LogLevelMap.rule_error)
+}
 
-__exports.setPrintStatus = setPrintStatus;
-__exports.setLogLevel = setLogLevel;
-__exports.T_TIP = LogLevelMap.tip;
-__exports.T_ERR = LogLevelMap.system_error;
-__exports.T_RULE_ERROR = LogLevelMap.rule_error;
-__exports.T_WARN = LogLevelMap.warn;
-__exports.T_DEBUG = LogLevelMap.debug;
+__exports.setPrintStatus = setPrintStatus
+__exports.setLogLevel = setLogLevel
+__exports.T_TIP = LogLevelMap.tip
+__exports.T_ERR = LogLevelMap.system_error
+__exports.T_RULE_ERROR = LogLevelMap.rule_error
+__exports.T_WARN = LogLevelMap.warn
+__exports.T_DEBUG = LogLevelMap.debug
 
 export default __exports
