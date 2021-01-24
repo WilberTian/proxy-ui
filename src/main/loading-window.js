@@ -10,7 +10,14 @@ function createLoadingWindow () {
       width: 500,
       show: false,
       movable: false,
-      resizable: false
+      resizable: false,
+      backgroundColor: '#fff',
+      webPreferences: {
+        nodeIntegration: true,
+        webviewTag: true,
+        contextIsolation: false,
+        enableRemoteModule: true
+      }
     })
   )
 

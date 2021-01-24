@@ -23,7 +23,14 @@ function createProxySettingWindow () {
     useContentSize: true,
     show: false,
     parent: global.mainWindow,
-    modal: true
+    modal: true,
+    backgroundColor: '#fff',
+    webPreferences: {
+      nodeIntegration: true,
+      webviewTag: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
   })
 
   proxySettingWindow.loadURL(proxySettingURL)

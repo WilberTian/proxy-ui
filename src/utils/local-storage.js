@@ -1,4 +1,4 @@
-const getDataFromLocalStorage = (windowInstance, key) => {
+export const getDataFromLocalStorage = (windowInstance, key) => {
   return new Promise((resolve, reject) => {
     if (windowInstance) {
       windowInstance.webContents.executeJavaScript(`localStorage.getItem('${key}')`).then((value) => {
@@ -12,7 +12,7 @@ const getDataFromLocalStorage = (windowInstance, key) => {
   })
 }
 
-const setDataForLocalStorage = (windowInstance, key, value) => {
+export const setDataForLocalStorage = (windowInstance, key, value) => {
   return new Promise((resolve, reject) => {
     if (windowInstance) {
       windowInstance.webContents.executeJavaScript(`localStorage.setItem('${key}', '${value}')`).then(() => {
@@ -24,9 +24,4 @@ const setDataForLocalStorage = (windowInstance, key, value) => {
       reject(new Error('写入localstorage失败'))
     }
   })
-}
-
-export {
-  getDataFromLocalStorage,
-  setDataForLocalStorage
 }

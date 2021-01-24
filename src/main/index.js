@@ -59,7 +59,14 @@ function createWindow () {
     minWidth: MAINWIN_WIDTH,
     frame: false,
     useContentSize: true,
-    show: false
+    show: false,
+    backgroundColor: '#fff',
+    webPreferences: {
+      nodeIntegration: true,
+      webviewTag: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
   })
 
   global.mainWindow = mainWindow

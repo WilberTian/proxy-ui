@@ -20,7 +20,14 @@ function createVconsoleSettingWindow () {
     useContentSize: true,
     show: false,
     parent: global.mainWindow,
-    modal: true
+    modal: true,
+    backgroundColor: '#fff',
+    webPreferences: {
+      nodeIntegration: true,
+      webviewTag: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
   })
 
   vconsoleSettingWindow.loadURL(vconsoleSettingURL)

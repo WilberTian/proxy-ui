@@ -90,14 +90,6 @@ __exports.contentLength = function(filepath) {
 }
 
 /*
- * remove the cache before requiring, the path SHOULD BE RELATIVE TO UTIL.JS
- */
-__exports.freshRequire = function(modulePath) {
-  delete require.cache[require.resolve(modulePath)]
-  return require(modulePath)
-}
-
-/*
  * format the date string
  * @param date Date or timestamp
  * @param formatter YYYYMMDDHHmmss

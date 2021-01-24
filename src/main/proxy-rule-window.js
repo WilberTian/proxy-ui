@@ -18,7 +18,14 @@ function createProxyRuleWindow () {
     minWidth: WIN_WIDTH,
     frame: false,
     useContentSize: true,
-    show: false
+    show: false,
+    backgroundColor: '#fff',
+    webPreferences: {
+      nodeIntegration: true,
+      webviewTag: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
   })
 
   proxyRuleWindow.loadURL(proxyRuleURL)
