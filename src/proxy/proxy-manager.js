@@ -5,8 +5,8 @@ import {setDataForLocalStorage} from '../utils/local-storage'
 import ruleConfigSchema from './rule-config-schema'
 import getVconsoleRule from './get-vconsole-rule'
 import getWeinreRule from './get-weinre-rule'
-import AnyProxy from '../proxy-server-lib/proxy.js'
-import AnyProxyUtils from '../proxy-server-lib/lib/util.js'
+import ProxyUI from '../proxy-server-lib/proxy.js'
+import ProxyUIUtils from '../proxy-server-lib/lib/util.js'
 
 const fs = require('fs')
 const path = require('path')
@@ -336,11 +336,11 @@ const proxyRuleCreator = (ruleConfig, proxyConfig) => {
 }
 
 const proxyServerCreator = options => {
-  return proxyServer || new AnyProxy.ProxyServer(options)
+  return proxyServer || new ProxyUI.ProxyServer(options)
 }
 
 const generateRootCA = (successCb, errorCb) => {
-  AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
+  ProxyUI.utils.certMgr.generateRootCA((error, keyPath) => {
     if (!error) {
       successCb && successCb()
     } else {
@@ -364,13 +364,13 @@ const proxyServerManager = (action = 'start', options = {}) => {
           proxyServer.on('ready', () => {
             if (options.enableGlobalProxy) {
               if (options.forceProxyHttps) {
-                AnyProxy.utils.systemProxyMgr.enableGlobalProxy(
+                ProxyUI.utils.systemProxyMgr.enableGlobalProxy(
                   '127.0.0.1',
                   options.port,
                   'https'
                 )
               }
-              AnyProxy.utils.systemProxyMgr.enableGlobalProxy(
+              ProxyUI.utils.systemProxyMgr.enableGlobalProxy(
                 '127.0.0.1',
                 options.port,
                 'http'
@@ -420,7 +420,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
         }
         if (
           options.forceProxyHttps &&
-          !AnyProxy.utils.certMgr.ifRootCAFileExists()
+          !ProxyUI.utils.certMgr.ifRootCAFileExists()
         ) {
           generateRootCA(
             rootCA => {
@@ -449,8 +449,8 @@ const proxyServerManager = (action = 'start', options = {}) => {
         proxyServer.close()
         proxyServer = null
         proxyServerRecorder = null
-        AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
-        AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
+        ProxyUI.utils.systemProxyMgr.disableGlobalProxy('https')
+        ProxyUI.utils.systemProxyMgr.disableGlobalProxy()
         resolve({
           msg: '代理服务器关闭成功'
         })
@@ -461,7 +461,7 @@ const proxyServerManager = (action = 'start', options = {}) => {
 }
 
 const setBypassList = (bypassList) => {
-  const networkType = AnyProxy.utils.systemProxyMgr.getNetworkType()
+  const networkType = ProxyUI.utils.systemProxyMgr.getNetworkType()
   exec(`networksetup -setproxybypassdomains ${networkType} ${bypassList.length > 1 ? bypassList.join(' ') : '" "'}`)
 }
 
@@ -633,7 +633,7 @@ export default {
   },
   getRootCA: function () {
     const isWin = /^win/.test(process.platform)
-    const rootPath = AnyProxyUtils.getAnyProxyPath('certificates')
+    const rootPath = ProxyUIUtils.getProxyUIPath('certificates')
     if (!rootPath) return
     if (isWin) {
       exec('start .', { cwd: rootPath })
@@ -651,8 +651,8 @@ export default {
     }
   },
   clearGlobalProxyConfig () {
-    AnyProxy.utils.systemProxyMgr.disableGlobalProxy('https')
-    AnyProxy.utils.systemProxyMgr.disableGlobalProxy()
+    ProxyUI.utils.systemProxyMgr.disableGlobalProxy('https')
+    ProxyUI.utils.systemProxyMgr.disableGlobalProxy()
   },
   getRuleConfigSchema () {
     return ruleConfigSchema

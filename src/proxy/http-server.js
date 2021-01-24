@@ -4,7 +4,7 @@ const http = require('http')
 const fs = require('fs')
 const log = require('electron-log')
 
-const certPath = AnyProxyUtils.getAnyProxyPath('certificates') + '/rootCA.crt' || ''
+const certPath = AnyProxyUtils.getProxyUIPath('certificates') + '/rootCA.crt' || ''
 
 const readFile = (response, filePath, header = {}) => {
   response.writeHead(200, header)

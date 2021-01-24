@@ -1,11 +1,11 @@
 import logUtil from './log'
 /**
-* manage the websocket server
-*
-*/
-const ws = require('ws');
+ * manage the websocket server
+ *
+ */
+const ws = require('ws')
 
-const WsServer = ws.Server;
+const WsServer = ws.Server
 
 /**
 * get a new websocket server based on the server
@@ -16,26 +16,26 @@ const WsServer = ws.Server;
 function getWsServer(config) {
   const wss = new WsServer({
     server: config.server
-  });
+  })
 
-  wss.on('connection', config.connHandler);
+  wss.on('connection', config.connHandler)
 
-  wss.on('headers', (headers) => {
-    headers.push('x-anyproxy-websocket:true');
-  });
+  wss.on('headers', headers => {
+    headers.push('x-anyproxy-websocket:true')
+  })
 
   wss.on('error', e => {
-    logUtil.error(`error in websocket proxy: ${e.message},\r\n ${e.stack}`);
+    logUtil.error(`error in websocket proxy: ${e.message},\r\n ${e.stack}`)
     console.error('error happened in proxy websocket:', e)
-  });
+  })
 
   wss.on('close', e => {
-    console.error('==> closing the ws server');
-  });
+    console.error('==> closing the ws server')
+  })
 
-  return wss;
+  return wss
 }
 
 export default {
   getWsServer
-};
+}

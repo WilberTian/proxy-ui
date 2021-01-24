@@ -31,7 +31,7 @@ function printLog(content, type) {
       if (logLevel > 0) {
         return
       }
-      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content))
+      console.log(color.cyan(`[ProxyUI Log][${timeString}]: ` + content))
       break
     }
 
@@ -39,7 +39,7 @@ function printLog(content, type) {
       if (logLevel > 1) {
         return
       }
-      console.error(color.red(`[AnyProxy ERROR][${timeString}]: ` + content))
+      console.error(color.red(`[ProxyUI ERROR][${timeString}]: ` + content))
       break
     }
 
@@ -49,7 +49,7 @@ function printLog(content, type) {
       }
 
       console.error(
-        color.red(`[AnyProxy RULE_ERROR][${timeString}]: ` + content)
+        color.red(`[ProxyUI RULE_ERROR][${timeString}]: ` + content)
       )
       break
     }
@@ -59,17 +59,17 @@ function printLog(content, type) {
         return
       }
 
-      console.error(color.yellow(`[AnyProxy WARN][${timeString}]: ` + content))
+      console.error(color.yellow(`[ProxyUI WARN][${timeString}]: ` + content))
       break
     }
 
     case LogLevelMap.debug: {
-      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content))
+      console.log(color.cyan(`[ProxyUI Log][${timeString}]: ` + content))
       return
     }
 
     default: {
-      console.log(color.cyan(`[AnyProxy Log][${timeString}]: ` + content))
+      console.log(color.cyan(`[ProxyUI Log][${timeString}]: ` + content))
       break
     }
   }

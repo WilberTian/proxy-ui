@@ -1,30 +1,32 @@
-'use strict';
+/* eslint-disable import/no-webpack-loader-syntax */
+'use strict'
 
 /*
-* handle all request error here,
-*
-*/
+ * handle all request error here,
+ *
+ */
 const error502PugFn = require('pug-loader!../resource/502.pug')
 const certPugFn = require('pug-loader!../resource/cert_error.pug')
 
 /**
-* get error content for certification issues
-*/
+ * get error content for certification issues
+ */
 function getCertErrorContent(error, fullUrl) {
-  let content;
-  const title = 'The connection is not private. ';
-  let explain = 'There are error with the certfication of the site.';
+  let content
+  const title = 'The connection is not private. '
+  let explain = 'There are error with the certfication of the site.'
   switch (error.code) {
     case 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY': {
-      explain = 'The certfication of the site you are visiting is not issued by a known agency, '
-        + 'It usually happenes when the cert is a self-signed one.</br>'
-        + 'If you know and trust the site, you can run AnyProxy with option <strong>-ignore-unauthorized-ssl</strong> to continue.'
+      explain =
+        'The certfication of the site you are visiting is not issued by a known agency, ' +
+        'It usually happenes when the cert is a self-signed one.</br>' +
+        'If you know and trust the site, you can run ProxyUI with option <strong>-ignore-unauthorized-ssl</strong> to continue.'
 
-      break;
+      break
     }
     default: {
       explain = ''
-      break;
+      break
     }
   }
 
@@ -33,51 +35,51 @@ function getCertErrorContent(error, fullUrl) {
       title: title,
       explain: explain,
       code: error.code
-    });
+    })
   } catch (parseErro) {
-    content = error.stack;
+    content = error.stack
   }
 
-  return content;
+  return content
 }
 
 /*
-* get the default error content
-*/
+ * get the default error content
+ */
 function getDefaultErrorCotent(error, fullUrl) {
-  let content;
+  let content
 
   try {
     content = error502PugFn({
       error,
       url: fullUrl,
       errorStack: error.stack.split(/\n/)
-    });
+    })
   } catch (parseErro) {
-    content = error.stack;
+    content = error.stack
   }
 
-  return content;
+  return content
 }
 
 /*
-* get mapped error content for each error
-*/
-const getErrorContent = function (error, fullUrl) {
-  let content = '';
-  error = error || {};
+ * get mapped error content for each error
+ */
+const getErrorContent = function(error, fullUrl) {
+  let content = ''
+  error = error || {}
   switch (error.code) {
     case 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY': {
-      content = getCertErrorContent(error, fullUrl);
-      break;
+      content = getCertErrorContent(error, fullUrl)
+      break
     }
     default: {
-      content = getDefaultErrorCotent(error, fullUrl);
-      break;
+      content = getDefaultErrorCotent(error, fullUrl)
+      break
     }
   }
 
-  return content;
+  return content
 }
 
 export default {

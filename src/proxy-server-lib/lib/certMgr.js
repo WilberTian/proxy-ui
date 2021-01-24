@@ -2,23 +2,22 @@ import util from './util'
 import logUtil from './log'
 
 const EasyCert = require('node-easy-cert')
-const co = require('co')
 const os = require('os')
 const inquirer = require('inquirer')
 
 const options = {
-  rootDirPath: util.getAnyProxyPath('certificates'),
+  rootDirPath: util.getProxyUIPath('certificates'),
   inMemory: false,
   defaultCertAttrs: [
     { name: 'countryName', value: 'CN' },
-    { name: 'organizationName', value: 'AnyProxy' },
+    { name: 'organizationName', value: 'ProxyUI' },
     { shortName: 'ST', value: 'SH' },
-    { shortName: 'OU', value: 'AnyProxy SSL Proxy' }
+    { shortName: 'OU', value: 'ProxyUI SSL Proxy' }
   ]
 }
 
 const easyCert = new EasyCert(options)
-const crtMgr = util.merge({}, easyCert)
+const crtMgr = Object.assign({}, easyCert)
 
 // rename function
 crtMgr.ifRootCAFileExists = easyCert.isRootCAFileExists
@@ -29,7 +28,7 @@ crtMgr.generateRootCA = function(cb) {
   // set default common name of the cert
   function doGenerate(overwrite) {
     const rootOptions = {
-      commonName: 'AnyProxy',
+      commonName: 'ProxyUI',
       overwrite: !!overwrite
     }
 
@@ -39,22 +38,20 @@ crtMgr.generateRootCA = function(cb) {
   }
 }
 
-crtMgr.getCAStatus = function*() {
-  return co(function*() {
-    const result = {
-      exist: false
+crtMgr.getCAStatus = function() {
+  const result = {
+    exist: false
+  }
+  const ifExist = easyCert.isRootCAFileExists()
+  if (!ifExist) {
+    return result
+  } else {
+    result.exist = true
+    if (!/^win/.test(process.platform)) {
+      result.trusted = easyCert.ifRootCATrusted()
     }
-    const ifExist = easyCert.isRootCAFileExists()
-    if (!ifExist) {
-      return result
-    } else {
-      result.exist = true
-      if (!/^win/.test(process.platform)) {
-        result.trusted = yield easyCert.ifRootCATrusted
-      }
-      return result
-    }
-  })
+    return result
+  }
 }
 
 /**
@@ -90,13 +87,11 @@ crtMgr.trustRootCA = function*() {
       } else {
         console.error(result)
         logUtil.info('Failed to trust the root CA, please trust it manually')
-        util.guideToHomePage()
       }
     } else {
       logUtil.info(
         'Please trust the root CA manually so https interception works'
       )
-      util.guideToHomePage()
     }
   }
 

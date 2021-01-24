@@ -228,7 +228,7 @@ function getWsReqInfo(wsReq) {
   const isEncript = wsReq.connection && wsReq.connection.encrypted
   /**
    * construct the request headers based on original connection,
-   * but delete the `sec-websocket-*` headers as they are already consumed by AnyProxy
+   * but delete the `sec-websocket-*` headers as they are already consumed by ProxyUI
    */
   const getNoWsHeaders = () => {
     const originHeaders = Object.assign({}, headers)
@@ -653,7 +653,7 @@ function getConnectReqHandler(userRule, recorder, httpsServerMgr) {
                   shouldIntercept = false // websocket, do not intercept
 
                   // if there is '/do-not-proxy' in the request, do not intercept the websocket
-                  // to avoid AnyProxy itself be proxied
+                  // to avoid ProxyUI itself be proxied
                   if (
                     reqHandlerCtx.wsIntercept &&
                     chunkString.indexOf('GET /do-not-proxy') !== 0
@@ -719,12 +719,10 @@ function getConnectReqHandler(userRule, recorder, httpsServerMgr) {
           // for ws request, redirect them to local ws server
           return interceptWsRequest ? localHttpServer : originServer
         } else {
-          return httpsServerMgr
-            .getSharedHttpsServer(host)
-            .then(serverInfo => ({
-              host: serverInfo.host,
-              port: serverInfo.port
-            }))
+          return httpsServerMgr.getSharedHttpsServer(host).then(serverInfo => ({
+            host: serverInfo.host,
+            port: serverInfo.port
+          }))
         }
       })
       .then(serverInfo => {
@@ -796,7 +794,7 @@ function getWsHandler(userRule, recorder, wsClient, wsReq) {
   try {
     let resourceInfoId = -1
     const resourceInfo = {
-      wsMessages: [] // all ws messages go through AnyProxy
+      wsMessages: [] // all ws messages go through ProxyUI
     }
     const clientMsgQueue = []
     const serverInfo = getWsReqInfo(wsReq)
@@ -960,7 +958,7 @@ class RequestHandler {
    * @param {object} config
    * @param {boolean} config.forceProxyHttps proxy all https requests
    * @param {boolean} config.dangerouslyIgnoreUnauthorized
-     @param {number} config.httpServerPort  the http port AnyProxy do the proxy
+     @param {number} config.httpServerPort  the http port ProxyUI do the proxy
    * @param {object} rule
    * @param {Recorder} recorder
    *
@@ -987,7 +985,7 @@ class RequestHandler {
 
     this.httpServerPort = config.httpServerPort
     const defaultRule = require('./rule_default')
-    const userRule = util.merge(defaultRule, rule)
+    const userRule = Object.assign(defaultRule, rule)
 
     reqHandlerCtx.userRequestHandler = getUserReqHandler.apply(reqHandlerCtx, [
       userRule,

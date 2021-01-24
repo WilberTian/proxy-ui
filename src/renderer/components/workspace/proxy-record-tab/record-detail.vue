@@ -1,8 +1,8 @@
 <template>
   <div class="record-detail" v-loading="loading">
     <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
-      <el-button size="mini" @click="resendRequestHandler">重发请求</el-button>
-      <el-button size="mini" @click="addRequestHandler">录制请求</el-button>
+      <el-button type="default" size="mini" @click="resendRequestHandler">重发请求</el-button>
+      <el-button type="default" size="mini" @click="addRequestHandler">录制请求</el-button>
       <el-tooltip class="item" effect="dark" content="将请求信息记录下来，在“已录制请求”界面中，可以重新发送请求" placement="bottom">
         <i class="el-icon-info"></i>
       </el-tooltip>
@@ -116,21 +116,24 @@ export default {
 </script>
 
 <style scoped>
+.record-detail {
+  position: relative;
+}
 .record-detail, .record-detail-tab {
   height: 100%;
   width: 100%;
 }
 .request-record-btn {
   position: absolute;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 40px;
+  width: 200px;
+  margin-right: 20px;
   z-index: 100;
-  top: 42px;
-  right: 24px;
-  background: #999;
-  padding: 4px 20px;
-  border-radius: 4px;
-}
-.request-record-btn > button {
-  border: none;
+  top: 0;
+  right: 0;
 }
 .data-wrapper {
   height: 100%;

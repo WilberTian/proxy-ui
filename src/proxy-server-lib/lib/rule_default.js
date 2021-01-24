@@ -1,8 +1,7 @@
-'use strict';
+'use strict'
 
 export default {
-
-  summary: 'the default rule for AnyProxy',
+  summary: 'the default rule for ProxyUI',
 
   /**
    *
@@ -18,9 +17,8 @@ export default {
    * @returns
    */
   *beforeSendRequest(requestDetail) {
-    return null;
+    return null
   },
-
 
   /**
    *
@@ -29,9 +27,8 @@ export default {
    * @param {object} responseDetail
    */
   *beforeSendResponse(requestDetail, responseDetail) {
-    return null;
+    return null
   },
-
 
   /**
    * default to return null
@@ -41,7 +38,7 @@ export default {
    * @returns
    */
   *beforeDealHttpsRequest(requestDetail) {
-    return null;
+    return null
   },
 
   /**
@@ -52,9 +49,8 @@ export default {
    * @returns
    */
   *onError(requestDetail, error) {
-    return null;
+    return null
   },
-
 
   /**
    *
@@ -64,9 +60,8 @@ export default {
    * @returns
    */
   *onConnectError(requestDetail, error) {
-    return null;
+    return null
   },
-
 
   /**
    *
@@ -76,6 +71,6 @@ export default {
    * @returns
    */
   *onClientSocketError(requestDetail, error) {
-    return null;
-  },
-};
+    return null
+  }
+}

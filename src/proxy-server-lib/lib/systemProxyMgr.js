@@ -1,23 +1,24 @@
 'use strict'
 
-const child_process = require('child_process');
+// eslint-disable-next-line camelcase
+const child_process = require('child_process')
 
-const networkTypes = ['Ethernet', 'Thunderbolt Ethernet', 'Wi-Fi'];
+const networkTypes = ['Ethernet', 'Thunderbolt Ethernet', 'Wi-Fi']
 
 function execSync(cmd) {
-  let stdout,
-    status = 0;
+  let stdout
+  let status = 0
   try {
-    stdout = child_process.execSync(cmd);
+    stdout = child_process.execSync(cmd)
   } catch (err) {
-    stdout = err.stdout;
-    status = err.status;
+    stdout = err.stdout
+    status = err.status
   }
 
   return {
     stdout: stdout.toString(),
     status
-  };
+  }
 }
 
 /**
@@ -51,71 +52,55 @@ function execSync(cmd) {
  * ------------------------------------------------------------------------
  */
 
-const macProxyManager = {};
+const macProxyManager = {}
 
 macProxyManager.getNetworkType = () => {
   for (let i = 0; i < networkTypes.length; i++) {
-    const type = networkTypes[i],
-      result = execSync('networksetup -getwebproxy ' + type);
+    const type = networkTypes[i]
+    const result = execSync('networksetup -getwebproxy ' + type)
 
     if (result.status === 0) {
-      macProxyManager.networkType = type;
-      return type;
+      macProxyManager.networkType = type
+      return type
     }
   }
 
-  throw new Error('Unknown network type');
-};
-
+  throw new Error('Unknown network type')
+}
 
 macProxyManager.enableGlobalProxy = (ip, port, proxyType) => {
   if (!ip || !port) {
-    console.log('failed to set global proxy server.\n ip and port are required.');
-    return;
+    console.log(
+      'failed to set global proxy server.\n ip and port are required.'
+    )
+    return
   }
 
-  proxyType = proxyType || 'http';
+  proxyType = proxyType || 'http'
 
-  const networkType = macProxyManager.networkType || macProxyManager.getNetworkType();
+  const networkType =
+    macProxyManager.networkType || macProxyManager.getNetworkType()
 
-  return /^http$/i.test(proxyType) ?
+  return /^http$/i.test(proxyType)
+    ? execSync(`networksetup -setwebproxy ${networkType} ${ip} ${port} && networksetup -setproxybypassdomains ${networkType} 127.0.0.1 localhost`) // set http proxy
+    : execSync(`networksetup -setsecurewebproxy ${networkType} ${ip} ${port} && networksetup -setproxybypassdomains ${networkType} 127.0.0.1 localhost`) // set https proxy
+}
 
-    // set http proxy
-    execSync(
-      'networksetup -setwebproxy ${networkType} ${ip} ${port} && networksetup -setproxybypassdomains ${networkType} 127.0.0.1 localhost'
-        .replace(/\${networkType}/g, networkType)
-        .replace('${ip}', ip)
-        .replace('${port}', port)) :
-
-    // set https proxy
-    execSync('networksetup -setsecurewebproxy ${networkType} ${ip} ${port} && networksetup -setproxybypassdomains ${networkType} 127.0.0.1 localhost'
-      .replace(/\${networkType}/g, networkType)
-      .replace('${ip}', ip)
-      .replace('${port}', port));
-};
-
-macProxyManager.disableGlobalProxy = (proxyType) => {
-  proxyType = proxyType || 'http';
-  const networkType = macProxyManager.networkType || macProxyManager.getNetworkType();
-  return /^http$/i.test(proxyType) ?
-
-    // set http proxy
-    execSync(
-      'networksetup -setwebproxystate ${networkType} off'
-        .replace('${networkType}', networkType)) :
-
-    // set https proxy
-    execSync(
-      'networksetup -setsecurewebproxystate ${networkType} off'
-        .replace('${networkType}', networkType));
-};
+macProxyManager.disableGlobalProxy = proxyType => {
+  proxyType = proxyType || 'http'
+  const networkType =
+    macProxyManager.networkType || macProxyManager.getNetworkType()
+  return /^http$/i.test(proxyType)
+    ? execSync(`networksetup -setwebproxystate ${networkType} off`) // set http proxy
+    : execSync(`networksetup -setsecurewebproxystate ${networkType} off`) // set https proxy
+}
 
 macProxyManager.getProxyState = () => {
-  const networkType = macProxyManager.networkType || macProxyManager.getNetworkType();
-  const result = execSync('networksetup -getwebproxy ${networkType}'.replace('${networkType}', networkType));
+  const networkType = macProxyManager.networkType || macProxyManager.getNetworkType()
+  const result = execSync(`networksetup -getwebproxy ${networkType}`)
 
-  return result;
-};
+  return result
+}
 
 /**
  * ------------------------------------------------------------------------
@@ -125,28 +110,31 @@ macProxyManager.getProxyState = () => {
  * ------------------------------------------------------------------------
  */
 
-const winProxyManager = {};
+const winProxyManager = {}
 
 winProxyManager.enableGlobalProxy = (ip, port) => {
   if (!ip && !port) {
-    console.log('failed to set global proxy server.\n ip and port are required.');
-    return;
+    console.log(
+      'failed to set global proxy server.\n ip and port are required.'
+    )
+    return
   }
 
   return execSync(
     // set proxy
-    'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d ${ip}:${port} /f & '
-      .replace('${ip}', ip)
-      .replace('${port}', port) +
+    `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d ${ip}:${port} /f & reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f`
+  )
+}
 
-    // enable proxy
-    'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f');
-};
-
-winProxyManager.disableGlobalProxy = () => execSync('reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f');
+winProxyManager.disableGlobalProxy = () =>
+  execSync(
+    'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f'
+  )
 
 winProxyManager.getProxyState = () => ''
 
 winProxyManager.getNetworkType = () => ''
 
-export default /^win/.test(process.platform) ? winProxyManager : macProxyManager;
+export default (/^win/.test(process.platform)
+  ? winProxyManager
+  : macProxyManager)
