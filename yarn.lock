@@ -2215,6 +2215,11 @@ clone@^1.0.2:
   version "1.0.4"
   resolved "https://r.cnpmjs.org/clone/download/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
 
+clone@^2.1.1:
+  version "2.1.2"
+  resolved "https://r.cnpmjs.org/clone/download/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
+  integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://r.cnpmjs.org/co/download/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -2336,10 +2341,6 @@ commander@^2.2.0, commander@^2.9.0:
   version "2.20.3"
   resolved "http://r.cnpmjs.org/commander/download/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
 
-commander@~2.11.0:
-  version "2.11.0"
-  resolved "http://r.cnpmjs.org/commander/download/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
-
 commander@~2.19.0:
   version "2.19.0"
   resolved "https://r.cnpmjs.org/commander/download/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
@@ -2382,16 +2383,6 @@ concat-stream@^1.5.0, concat-stream@^1.6.0, concat-stream@^1.6.2:
     inherits "^2.0.3"
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
-
-conf@^2.0.0:
-  version "2.2.0"
-  resolved "https://r.cnpmjs.org/conf/download/conf-2.2.0.tgz#ee282efafc1450b61e205372041ad7d866802d9a"
-  dependencies:
-    dot-prop "^4.1.0"
-    env-paths "^1.0.0"
-    make-dir "^1.0.0"
-    pkg-up "^2.0.0"
-    write-file-atomic "^2.3.0"
 
 config-chain@^1.1.11:
   version "1.1.12"
@@ -2478,6 +2469,13 @@ cookie-signature@1.0.6:
 cookie@0.4.0:
   version "0.4.0"
   resolved "https://r.cnpmjs.org/cookie/download/cookie-0.4.0.tgz#beb437e7022b3b6d49019d088665303ebe9c14ba"
+
+copy-anything@^2.0.1:
+  version "2.0.3"
+  resolved "https://r.cnpmjs.org/copy-anything/download/copy-anything-2.0.3.tgz#842407ba02466b0df844819bbe3baebbe5d45d87"
+  integrity sha1-hCQHugJGaw34RIGbvjuuu+XUXYc=
+  dependencies:
+    is-what "^3.12.0"
 
 copy-concurrently@^1.0.0:
   version "1.0.5"
@@ -2818,10 +2816,6 @@ deepmerge@^1.2.0:
   version "1.5.2"
   resolved "https://r.cnpmjs.org/deepmerge/download/deepmerge-1.5.2.tgz#10499d868844cdad4fee0842df8c7f6f0c95a753"
 
-deepmerge@^2.1.1:
-  version "2.2.1"
-  resolved "https://r.cnpmjs.org/deepmerge/download/deepmerge-2.2.1.tgz#5d3ff22a01c00f645405a2fbc17d0778a1801170"
-
 default-gateway@^4.2.0:
   version "4.2.0"
   resolved "https://r.cnpmjs.org/default-gateway/download/default-gateway-4.2.0.tgz#167104c7500c2115f6dd69b0a536bb8ed720552b"
@@ -3044,12 +3038,6 @@ dot-case@^2.1.0:
   dependencies:
     no-case "^2.2.0"
 
-dot-prop@^4.1.0:
-  version "4.2.0"
-  resolved "https://r.cnpmjs.org/dot-prop/download/dot-prop-4.2.0.tgz#1f19e0c2e1aa0e32797c49799f2837ac6af69c57"
-  dependencies:
-    is-obj "^1.0.0"
-
 dot-prop@^5.2.0:
   version "5.3.0"
   resolved "https://r.cnpmjs.org/dot-prop/download/dot-prop-5.3.0.tgz#90ccce708cd9cd82cc4dc8c3ddd9abdd55b20e88"
@@ -3163,12 +3151,6 @@ electron-publish@22.9.1:
     lazy-val "^1.0.4"
     mime "^2.4.6"
 
-electron-store@^2.0.0:
-  version "2.0.0"
-  resolved "https://r.cnpmjs.org/electron-store/download/electron-store-2.0.0.tgz#1035cca2a95409d1f54c7466606345852450d64a"
-  dependencies:
-    conf "^2.0.0"
-
 electron-to-chromium@^1.2.7, electron-to-chromium@^1.3.47:
   version "1.3.135"
   resolved "https://r.cnpmjs.org/electron-to-chromium/download/electron-to-chromium-1.3.135.tgz#f5799b95f2bcd8de17cde47d63392d83a4477041"
@@ -3238,13 +3220,16 @@ entities@^1.1.1:
   version "1.1.2"
   resolved "https://r.cnpmjs.org/entities/download/entities-1.1.2.tgz#bdfa735299664dfafd34529ed4f8522a275fea56"
 
-env-paths@^1.0.0:
-  version "1.0.0"
-  resolved "https://r.cnpmjs.org/env-paths/download/env-paths-1.0.0.tgz#4168133b42bb05c38a35b1ae4397c8298ab369e0"
-
 env-paths@^2.2.0:
   version "2.2.0"
   resolved "https://r.cnpmjs.org/env-paths/download/env-paths-2.2.0.tgz#cdca557dc009152917d6166e2febe1f039685e43"
+
+errno@^0.1.1:
+  version "0.1.8"
+  resolved "https://r.cnpmjs.org/errno/download/errno-0.1.8.tgz#8bb3e9c7d463be4976ff888f76b4809ebc2e811f"
+  integrity sha1-i7Ppx9Rjvkl2/4iPdrSAnrwugR8=
+  dependencies:
+    prr "~1.0.1"
 
 errno@^0.1.3, errno@~0.1.7:
   version "0.1.7"
@@ -4513,6 +4498,11 @@ ignore@^3.3.3, ignore@^3.3.5, ignore@^3.3.6:
   version "3.3.10"
   resolved "https://r.cnpmjs.org/ignore/download/ignore-3.3.10.tgz#0a97fb876986e8081c631160f8f9f389157f0043"
 
+image-size@~0.5.0:
+  version "0.5.5"
+  resolved "https://r.cnpmjs.org/image-size/download/image-size-0.5.5.tgz#09dfd4ab9d20e29eb1c3e80b8990378df9e3cb9c"
+  integrity sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=
+
 immediate@~3.0.5:
   version "3.0.6"
   resolved "http://r.cnpmjs.org/immediate/download/immediate-3.0.6.tgz#9db1dbd0faf8de6fbe0f5dd5e56bb606280de69b"
@@ -4797,10 +4787,6 @@ is-number@^3.0.0:
   dependencies:
     kind-of "^3.0.2"
 
-is-obj@^1.0.0:
-  version "1.0.1"
-  resolved "https://r.cnpmjs.org/is-obj/download/is-obj-1.0.1.tgz#3e4729ac1f5fde025cd7d83a896dab9f4f67db0f"
-
 is-obj@^2.0.0:
   version "2.0.0"
   resolved "https://r.cnpmjs.org/is-obj/download/is-obj-2.0.0.tgz#473fb05d973705e3fd9620545018ca8e22ef4982"
@@ -4900,6 +4886,11 @@ is-upper-case@^1.1.0:
 is-utf8@^0.2.0:
   version "0.2.1"
   resolved "https://r.cnpmjs.org/is-utf8/download/is-utf8-0.2.1.tgz#4b0da1442104d1b336340e80797e865cf39f7d72"
+
+is-what@^3.12.0:
+  version "3.14.1"
+  resolved "https://r.cnpmjs.org/is-what/download/is-what-3.14.1.tgz#e1222f46ddda85dead0fd1c9df131760e77755c1"
+  integrity sha1-4SIvRt3ahd6tD9HJ3xMXYOd3VcE=
 
 is-windows@^1.0.0, is-windows@^1.0.1, is-windows@^1.0.2:
   version "1.0.2"
@@ -5155,6 +5146,32 @@ lcid@^2.0.0:
   resolved "https://r.cnpmjs.org/lcid/download/lcid-2.0.0.tgz#6ef5d2df60e52f82eb228a4c373e8d1f397253cf"
   dependencies:
     invert-kv "^2.0.0"
+
+less-loader@5:
+  version "5.0.0"
+  resolved "https://r.cnpmjs.org/less-loader/download/less-loader-5.0.0.tgz#498dde3a6c6c4f887458ee9ed3f086a12ad1b466"
+  integrity sha1-SY3eOmxsT4h0WO6e0/CGoSrRtGY=
+  dependencies:
+    clone "^2.1.1"
+    loader-utils "^1.1.0"
+    pify "^4.0.1"
+
+less@^4.1.1:
+  version "4.1.1"
+  resolved "https://r.cnpmjs.org/less/download/less-4.1.1.tgz#15bf253a9939791dc690888c3ff424f3e6c7edba"
+  integrity sha1-Fb8lOpk5eR3GkIiMP/Qk8+bH7bo=
+  dependencies:
+    copy-anything "^2.0.1"
+    parse-node-version "^1.0.1"
+    tslib "^1.10.0"
+  optionalDependencies:
+    errno "^0.1.1"
+    graceful-fs "^4.1.2"
+    image-size "~0.5.0"
+    make-dir "^2.1.0"
+    mime "^1.4.1"
+    needle "^2.5.2"
+    source-map "~0.6.0"
 
 levn@^0.3.0, levn@~0.3.0:
   version "0.3.0"
@@ -5470,7 +5487,7 @@ make-dir@^1.0.0:
   dependencies:
     pify "^3.0.0"
 
-make-dir@^2.0.0:
+make-dir@^2.0.0, make-dir@^2.1.0:
   version "2.1.0"
   resolved "https://r.cnpmjs.org/make-dir/download/make-dir-2.1.0.tgz#5f0310e18b8be898cc07009295a30ae41e91e6f5"
   dependencies:
@@ -5622,7 +5639,7 @@ mime-types@^2.1.12, mime-types@~2.1.17, mime-types@~2.1.19, mime-types@~2.1.24:
   dependencies:
     mime-db "1.40.0"
 
-mime@1.6.0:
+mime@1.6.0, mime@^1.4.1:
   version "1.6.0"
   resolved "https://r.cnpmjs.org/mime/download/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"
 
@@ -5829,6 +5846,15 @@ nedb@^1.8.0:
 needle@^2.2.1:
   version "2.4.0"
   resolved "https://r.cnpmjs.org/needle/download/needle-2.4.0.tgz#6833e74975c444642590e15a750288c5f939b57c"
+  dependencies:
+    debug "^3.2.6"
+    iconv-lite "^0.4.4"
+    sax "^1.2.4"
+
+needle@^2.5.2:
+  version "2.6.0"
+  resolved "https://r.cnpmjs.org/needle/download/needle-2.6.0.tgz#24dbb55f2509e2324b4a99d61f413982013ccdbe"
+  integrity sha1-JNu1XyUJ4jJLSpnWH0E5ggE8zb4=
   dependencies:
     debug "^3.2.6"
     iconv-lite "^0.4.4"
@@ -6307,6 +6333,11 @@ parse-json@^2.2.0:
   dependencies:
     error-ex "^1.2.0"
 
+parse-node-version@^1.0.1:
+  version "1.0.1"
+  resolved "https://r.cnpmjs.org/parse-node-version/download/parse-node-version-1.0.1.tgz#e2b5dbede00e7fa9bc363607f53327e8b073189b"
+  integrity sha1-4rXb7eAOf6m8NjYH9TMn6LBzGJs=
+
 parse-passwd@^1.0.0:
   version "1.0.0"
   resolved "https://r.cnpmjs.org/parse-passwd/download/parse-passwd-1.0.0.tgz#6d5b934a456993b23d37f40a382d6f1666a8e5c6"
@@ -6447,12 +6478,6 @@ pkg-dir@^3.0.0:
   resolved "https://r.cnpmjs.org/pkg-dir/download/pkg-dir-3.0.0.tgz#2749020f239ed990881b1f71210d51eb6523bea3"
   dependencies:
     find-up "^3.0.0"
-
-pkg-up@^2.0.0:
-  version "2.0.0"
-  resolved "https://r.cnpmjs.org/pkg-up/download/pkg-up-2.0.0.tgz#c819ac728059a461cab1c3889a2be3c49a004d7f"
-  dependencies:
-    find-up "^2.1.0"
 
 pluralize@^7.0.0:
   version "7.0.0"
@@ -8045,10 +8070,6 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
-svg-inline-react@^1.0.2:
-  version "1.0.3"
-  resolved "http://r.cnpmjs.org/svg-inline-react/download/svg-inline-react-1.0.3.tgz#68d15bf88f99f64daa52821ed5441612d8ad9041"
-
 svgo@^0.7.0:
   version "0.7.2"
   resolved "https://r.cnpmjs.org/svgo/download/svgo-0.7.2.tgz#9f5772413952135c6fefbf40afe6a4faa88b4bb5"
@@ -8291,6 +8312,11 @@ truncate-utf8-bytes@^1.0.0:
   resolved "https://r.cnpmjs.org/truncate-utf8-bytes/download/truncate-utf8-bytes-1.0.2.tgz#405923909592d56f78a5818434b0b78489ca5f2b"
   dependencies:
     utf8-byte-length "^1.0.1"
+
+tslib@^1.10.0:
+  version "1.14.1"
+  resolved "https://r.cnpmjs.org/tslib/download/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
+  integrity sha1-zy04vcNKE0vK8QkcQfZhni9nLQA=
 
 tslib@^1.9.0, tslib@^1.9.3:
   version "1.9.3"
@@ -8688,13 +8714,6 @@ vue@^2.5.16:
   version "2.6.10"
   resolved "https://r.cnpmjs.org/vue/download/vue-2.6.10.tgz#a72b1a42a4d82a721ea438d1b6bf55e66195c637"
 
-vuex-electron@^1.0.0:
-  version "1.0.3"
-  resolved "https://r.cnpmjs.org/vuex-electron/download/vuex-electron-1.0.3.tgz#c8ce0fd06ed9d3beb8881bce39bf76c9fcdc5611"
-  dependencies:
-    deepmerge "^2.1.1"
-    electron-store "^2.0.0"
-
 vuex@^3.0.1:
   version "3.1.1"
   resolved "https://r.cnpmjs.org/vuex/download/vuex-3.1.1.tgz#0c264bfe30cdbccf96ab9db3177d211828a5910e"
@@ -8842,10 +8861,6 @@ websocket-extensions@>=0.1.1:
   version "0.1.3"
   resolved "https://r.cnpmjs.org/websocket-extensions/download/websocket-extensions-0.1.3.tgz#5d2ff22977003ec687a4b87073dfbbac146ccf29"
 
-whatwg-fetch@^1.0.0:
-  version "1.1.1"
-  resolved "http://r.cnpmjs.org/whatwg-fetch/download/whatwg-fetch-1.1.1.tgz#ac3c9d39f320c6dce5339969d054ef43dd333319"
-
 whet.extend@~0.9.9:
   version "0.9.9"
   resolved "https://r.cnpmjs.org/whet.extend/download/whet.extend-0.9.9.tgz#f877d5bf648c97e5aa542fadc16d6a259b9c11a1"
@@ -8930,14 +8945,6 @@ wrap-ansi@^7.0.0:
 wrappy@1:
   version "1.0.2"
   resolved "https://r.cnpmjs.org/wrappy/download/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
-
-write-file-atomic@^2.3.0:
-  version "2.4.2"
-  resolved "https://r.cnpmjs.org/write-file-atomic/download/write-file-atomic-2.4.2.tgz#a7181706dfba17855d221140a9c06e15fcdd87b9"
-  dependencies:
-    graceful-fs "^4.1.11"
-    imurmurhash "^0.1.4"
-    signal-exit "^3.0.2"
 
 write-file-atomic@^3.0.0:
   version "3.0.3"

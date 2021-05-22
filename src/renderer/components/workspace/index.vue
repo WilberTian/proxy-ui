@@ -263,6 +263,7 @@ export default {
             item.guid = createGUID()
           })
           this.$store.commit('setRuleConfigs', ruleConfigs)
+          this.$proxyApi.writeRuleConfigs(ruleConfigs)
           this.importDialogVisible = false
           this.contentToImport = ''
         } else {
@@ -296,7 +297,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .workspace {
   flex: 1;
   overflow: auto;
@@ -348,5 +349,17 @@ export default {
   white-space: nowrap;
   border: 1px solid #fff;
   margin-left: 6px;
+}
+</style>
+<style lang="less">
+.workspace .workspace-tab-container {
+  > .el-tabs__content {
+    padding: 0 !important;
+    height: calc(100% - 40px) !important;
+
+    .el-tab-pane {
+      height: 100%;
+    }
+  }
 }
 </style>

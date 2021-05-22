@@ -234,7 +234,7 @@
 import WindowBtnGroup from '../common/window-btn-group'
 import createGUID from '@/utils/uuidv4'
 import { defaultRuleConfigs } from '@/configs/constants'
-import HttpHeaderEditor from './http-header-editor'
+import HttpHeaderEditor from '../common/http-header-editor'
 import CodeMirror from 'codemirror/lib/codemirror.js'
 import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/lib/codemirror.css'
@@ -414,8 +414,8 @@ export default {
     selectResponseFile () {
       this.$dialog.showOpenDialog({
         properties: ['openFile']
-      }, (filePaths) => {
-        const responseFilePath = filePaths[0]
+      }).then((result) => {
+        const responseFilePath = result && result.filePaths && result.filePaths[0]
         if (responseFilePath) {
           this.ruleConfigData.bodyPath = responseFilePath
         }

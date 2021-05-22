@@ -54,13 +54,6 @@ body {
   margin: 0 !important;
   user-select: none;
 }
-.el-tabs__content {
-  padding: 0 !important;
-  height: calc(100% - 40px) !important;
-}
-.el-tabs__content .el-tab-pane {
-  height: 100%;
-}
 .el-tabs__item:focus.is-active.is-focus:not(:active) {
   box-shadow: none !important;
 }

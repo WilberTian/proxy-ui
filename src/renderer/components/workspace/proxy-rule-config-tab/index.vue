@@ -16,6 +16,7 @@
       />
       <div class="no-config-rule-msg" v-if="filteredRuleConfigs.length === 0">没有规则！</div>
     </div>
+    <el-button class="add-rule-btn" type="primary" size="small" icon="el-icon-plus" @click="showProxyRuleSetting" circle></el-button>
   </div>
 </template>
 
@@ -104,6 +105,9 @@ export default {
         })
         this.$proxyApi.updateRuleConfigs(ruleConfigs)
       }
+    },
+    showProxyRuleSetting () {
+      this.$ipcRenderer.send('show-proxy-rule-window')
     }
   },
   components: {
@@ -118,19 +122,24 @@ export default {
   height: 100%;
   overflow: auto;
 }
+.add-rule-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 34px;
+}
 .rule-config .rule-config-list-wrapper {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 .rule-config .rule-config-list-wrapper .rule-config-filter {
-  padding: 6px;
-  margin: 6px;
-  box-shadow: 0px 0px 2px 2px #ddd;
+  padding: 8px;
+  margin: 8px;
+  box-shadow: 0px 0px 2px 2px #eee;
   user-select: none;
 }
 .rule-config .rule-config-list-wrapper .grouped-rule-config-list {
-  margin: 6px;
+  margin: 8px;
 }
 .no-config-rule-msg {
   padding: 12px;

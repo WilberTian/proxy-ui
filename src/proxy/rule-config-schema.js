@@ -112,8 +112,7 @@ const ruleConfigSchema = {
         additionalProperties: false
       }
     ]
-  },
-  uniqueItems: true
+  }
 }
 
 export default ruleConfigSchema

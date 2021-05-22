@@ -4,13 +4,15 @@ const fs = require('fs')
 const path = require('path')
 const log = require('electron-log')
 const request = require('request')
+const zlib = require('zlib')
+const brotliTorb = require('brotli')
 
 const REQUEST_INFO_LIST_FILE = 'request-info-list.json'
 
 const userDataPath = app.getPath('userData')
 
 export default {
-  readRequestList: function () {
+  readRequestList: function() {
     try {
       const requestList = fs.readFileSync(
         path.resolve(userDataPath, REQUEST_INFO_LIST_FILE),
@@ -29,7 +31,7 @@ export default {
       return []
     }
   },
-  writeRequestList: function (requestList) {
+  writeRequestList: function(requestList) {
     try {
       fs.writeFileSync(
         path.resolve(userDataPath, REQUEST_INFO_LIST_FILE),
@@ -42,12 +44,16 @@ export default {
       return false
     }
   },
-  processRequest: function (requestInfo, proxyConfig, withProxy = false) {
+  processRequest: function(requestInfo, proxyConfig, withProxy = false) {
     return new Promise((resolve, reject) => {
       const proxy = `http://127.0.0.1:${proxyConfig.port}`
       const requestParams = {
         url: `${requestInfo.protocol}://${requestInfo.host}${requestInfo.path}`,
-        method: requestInfo.method
+        method: requestInfo.method,
+        headers: requestInfo.reqHeader || {},
+        body: requestInfo.reqBody,
+        encoding: null,
+        timeout: 20000
       }
 
       if (withProxy) {
@@ -55,14 +61,37 @@ export default {
         requestParams.strictSSL = false
       }
 
-      request(requestParams, function (error, response, body) {
+      request(requestParams, function(error, response, body) {
         if (error) {
           reject(error)
         } else {
+          const resHeaders = response.headers
+          const contentEncoding =
+            resHeaders['content-encoding'] || resHeaders['Content-Encoding']
+          const ifGzipped = /gzip/i.test(contentEncoding)
+          const isDeflated = /deflate/i.test(contentEncoding)
+          const isBrotlied = /br/i.test(contentEncoding)
+
+          let responseBody = ''
+          try {
+            if (ifGzipped && body) {
+              responseBody = zlib.gunzipSync(body).toString()
+            } else if (isDeflated && body) {
+              responseBody = zlib.inflateSync(body).toString()
+            } else if (isBrotlied && body) {
+              const uint8Arr = brotliTorb.decompress(body)
+              responseBody = String.fromCharCode.apply(null, uint8Arr)
+            } else {
+              responseBody = body.toString()
+            }
+          } catch (e) {
+            responseBody = `${e.message}`
+          }
+
           resolve({
             headers: response.headers,
             status: response.statusCode,
-            data: body
+            data: responseBody
           })
         }
       })

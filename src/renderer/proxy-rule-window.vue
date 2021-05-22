@@ -38,4 +38,8 @@ body {
 .CodeMirror-cursor {
   height: 20px;
 }
+.el-tabs__content {
+  padding: 0 !important;
+  height: calc(100% - 40px) !important;
+}
 </style>

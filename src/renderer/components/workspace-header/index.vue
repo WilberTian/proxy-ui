@@ -5,7 +5,7 @@
     </div>
     <div class="header-toolbar">
       <div class="tool-icon-wrapper" v-if="!proxyServerStatus">
-        <div class="icon-wrapper" title="启动代理" @click.prevent.stop="startProxyServer">
+        <div class="icon-wrapper" title="启动代理" @click.prevent.stop="startProxyServer" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -16,7 +16,7 @@
         </div>
       </div>
       <div class="tool-icon-wrapper" v-if="proxyServerStatus">
-        <div class="icon-wrapper" title="停止代理" @click.prevent.stop="stopProxyServer">
+        <div class="icon-wrapper" title="停止代理" @click.prevent.stop="stopProxyServer" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -25,7 +25,7 @@
             width="16" height="16" color="red"
           ></svgicon>
         </div>
-        <div class="icon-wrapper" title="重启代理" @click.prevent.stop="restartProxyServer">
+        <div class="icon-wrapper" title="重启代理" @click.prevent.stop="restartProxyServer" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -36,7 +36,7 @@
         </div>
       </div>
       <div class="tool-icon-wrapper">
-        <div class="icon-wrapper" title="代理设置" @click.prevent.stop="showProxySetting">
+        <div class="icon-wrapper" title="代理设置" @click.prevent.stop="showProxySetting" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -45,7 +45,7 @@
             width="16" height="16" color="#666"
           ></svgicon>
         </div>
-        <div class="icon-wrapper" title="新建代理规则" @click.prevent.stop="showProxyRuleSetting">
+        <!-- <div class="icon-wrapper" title="新建代理规则" @click.prevent.stop="showProxyRuleSetting" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -53,8 +53,8 @@
             icon="filter"
             width="14" height="14" color="#666"
           ></svgicon>
-        </div>
-        <div class="icon-wrapper" title="vconsole 设置" @click.prevent.stop="showVconsoleSetting">
+        </div> -->
+        <div class="icon-wrapper" title="vconsole 设置" @click.prevent.stop="showVconsoleSetting" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -63,7 +63,7 @@
             width="16" height="16" color="#666"
           ></svgicon>
         </div>
-        <div class="icon-wrapper" title="weinre 设置" @click.prevent.stop="showWeinreSetting">
+        <div class="icon-wrapper" title="weinre 设置" @click.prevent.stop="showWeinreSetting" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
             v-if="isOnline"
@@ -265,8 +265,8 @@ export default {
 .workspace-header {
   display: flex;
   align-items: center;
-  height: 48px;
-  line-height: 48px;
+  height: 44px;
+  line-height: 44px;
   background: -webkit-linear-gradient(top, #eee, #bbb);
   -webkit-app-region: drag;
 }

@@ -29,6 +29,7 @@
                 @input="(val) => { handleHeaderItemChange(idx, {
                   key: val
                 }) }"
+                size="mini"
               ></el-autocomplete>
             </div>
             <div class="row-item col5">
@@ -38,6 +39,7 @@
                 @input="(val) => { handleHeaderItemChange(idx, {
                   value: val
                 }) }"
+                size="mini"
               ></el-input>
             </div>
             <div class="row-item col1">
@@ -50,7 +52,7 @@
     <el-tab-pane label="JSON">
       <el-input
         type="textarea"
-        :rows="4"
+        :autosize="{ minRows: 4, maxRows: 10 }"
         :value="formatedHttpHeader"
         @input="(val) => {
           formatedHttpHeader = val
@@ -166,8 +168,13 @@ export default {
 }
 </script>
 <style scoped>
-.table-header {
+.table-wrapper {
+  margin: 8px;
   background-color: #efefef;
+}
+.table-header {
+  height: 30px;
+  line-height: 30px;
   font-size: 14px;
   font-weight: bold;
   color: #333;
@@ -201,5 +208,8 @@ export default {
 <style>
 .http-header-editor i {
   font-weight: bold;
+}
+.http-header-editor textarea {
+  border: none;
 }
 </style>

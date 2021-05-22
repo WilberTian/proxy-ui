@@ -47,7 +47,7 @@ export default {
           } catch (e) {
             return this.bodyData.body
           }
-        } else if (!this.bodyData.isRequest) {
+        } else if (contentType && !this.bodyData.isRequest) {
           this.showRawHTML = true
           return `<a href="${this.bodyData.url}">${this.bodyData.url}</a>`
         } else {
