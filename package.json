@@ -80,7 +80,7 @@
     "classnames": "^2.2.5",
     "clipboard-js": "^0.3.3",
     "co": "^4.6.0",
-    "codemirror": "^5.47.0",
+    "codemirror": "^5.58.2",
     "colorful": "^2.1.0",
     "component-emitter": "^1.2.1",
     "compression": "^1.4.4",
