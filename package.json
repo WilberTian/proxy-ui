@@ -99,7 +99,7 @@
     "moment": "^2.15.1",
     "nedb": "^1.8.0",
     "node-easy-cert": "^1.0.0",
-    "pug": "^2.0.0-beta6",
+    "pug": "^3.0.1",
     "qrcode-npm": "0.0.3",
     "request": "^2.74.0",
     "stream-throttle": "^0.1.3",
