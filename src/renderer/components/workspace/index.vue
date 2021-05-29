@@ -1,9 +1,6 @@
 <template>
   <div class="workspace" v-loading.fullscreen="loading">
     <el-tabs class="workspace-tab-container" v-model="activeTab" type="border-card">
-      <el-tab-pane label="网络数据" name="proxy-server-record" v-if="proxyServerStatus">
-        <proxy-server-record />
-      </el-tab-pane>
       <el-tab-pane label="代理配置信息" name="proxy-config-info">
         <div class="proxy-config-info-wrapper">
           <div class="proxy-config-info">
@@ -52,6 +49,9 @@
       </el-tab-pane>
       <el-tab-pane label="代理规则配置" name="proxy-rule-config">
         <proxy-rule-config />
+      </el-tab-pane>
+      <el-tab-pane label="网络数据" name="proxy-server-record" v-if="proxyServerStatus">
+        <proxy-server-record />
       </el-tab-pane>
       <el-tab-pane name="proxy-rule-data" v-if="proxyServerStatus">
         <span slot="label" style="display: flex; align-items: center;">

@@ -182,7 +182,7 @@ export default {
   data: function() {
     return {
       isCursorMove: false,
-      requestListContainerWidth: 320,
+      requestListContainerWidth: 280,
       requestList: [],
       selectedRequestIdx: -1,
       selectedRequest: null,
@@ -383,25 +383,30 @@ export default {
       border-bottom: 1px solid #d7d7d7;
       height: 54px;
       align-items: center;
-      cursor: pointer;
+      overflow: hidden;
+      border-right: 4px solid transparent;
 
       .request-method {
         line-height: 54px;
         min-width: 54px;
         text-align: center;
         font-weight: bold;
-        background: #efefef;
+        background: #409EFF;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
       }
       .request-url {
         flex: 1;
         padding: 0 4px;
-        font-size: 14px;
+        font-size: 12px;
         line-height: 18px;
         word-break: break-all;
+        cursor: pointer;
       }
     }
     .request-item.selected {
-      border-right: 4px solid #3a8ee6;
+      border-right: 4px solid #409EFF;
       background: aliceblue;
     }
   }

@@ -1,23 +1,5 @@
 <template>
   <div class="proxy-rule-data">
-    <div class="request-info-wrapper" v-if="false">
-      <div class="request-info-item">
-        <div class="request-number">
-          N/A
-        </div>
-        <div class="request-info">
-          生效规则
-        </div>
-      </div>
-      <div class="request-info-item">
-        <div class="request-number">
-          {{hitCount}}
-        </div>
-        <div class="request-info">
-          命中数
-        </div>
-      </div>
-    </div>
     <div class="data-wrapper" v-if="Object.keys(effectiveRules).length > 0">
       <el-collapse accordion>
         <el-collapse-item v-for="guid in Object.keys(effectiveRules)"
@@ -97,34 +79,6 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-.request-info-wrapper {
-  display: flex;
-  justify-content: space-evenly;
-  padding: 4px;
-}
-.request-info-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  box-shadow: 0px 0px 4px 0px #c0c4cc;
-  margin-bottom: 12px;
-  user-select: none;
-}
-.request-info-item .request-number {
-  font-size: 22px;
-  padding: 2px;
-  font-weight: bold;
-  color: #3a8ee6;
-}
-.request-info-item .request-info {
-  font-size: 12px;
-  font-weight: bold;
-  color: #444;
 }
 .data-wrapper {
   flex: 1;

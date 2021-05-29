@@ -50,6 +50,14 @@ export default {
                 return false
               }
             }
+            if ('keyword' in this.filterData) {
+              const keyword = this.filterData.keyword
+
+              const ruleSearch = `${ruleConfig.pattern} ${ruleConfig.name} ${ruleConfig.description}`
+              if (!ruleSearch.includes(keyword)) {
+                return false
+              }
+            }
           }
           return true
         })

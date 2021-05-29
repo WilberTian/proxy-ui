@@ -41,6 +41,14 @@
             </span>
           </div>
         </div>
+        <div class="filter-item">
+          <div class="filter-item-label">
+            关键字
+          </div>
+          <div class="filter-item-content">
+            <el-input class="keyword-input" size="mini" v-model="keyword" placeholder="请输入搜索关键字" @input="handleKeywordChange"></el-input>
+          </div>
+        </div>
         <!-- <div style="float: right; margin-right: 16px;">
           <el-button size="mini" @click="enableSelectedRules" round>开启选中</el-button>
           <el-button size="mini" @click="disableSelectedRules" round>禁用选中</el-button>
@@ -50,6 +58,8 @@
   </div>
 </template>
 <script>
+const throttle = require('lodash.throttle')
+
 export default {
   props: {
     filterData: {
@@ -64,8 +74,14 @@ export default {
       showFilterItem: true,
       selectedType: (this.filterData && this.filterData.selectedType) || 'all',
       enableStatus: (this.filterData !== null) ? this.filterData.enableStatus : -1,
-      selectedTags: (this.filterData && this.filterData.selectedTags) || []
+      selectedTags: (this.filterData && this.filterData.selectedTags) || [],
+      keyword: ''
     }
+  },
+  mounted () {
+    this.handleKeywordChange = throttle(() => {
+      this.emitFilterChange()
+    }, 500)
   },
   methods: {
     changeSelectedType (type) {
@@ -96,6 +112,7 @@ export default {
       if (this.selectedTags.length > 0) {
         filterData.selectedTags = this.selectedTags
       }
+      filterData.keyword = this.keyword
 
       this.$emit('filterChange', filterData)
     },
@@ -147,6 +164,9 @@ export default {
   padding: 0 8px;
   margin-right: 8px;
   cursor: pointer;
+}
+.filter-item .filter-item-content .keyword-input {
+  width: 480px;
 }
 .filter-item .filter-item-content .tag-item.selected {
   color: #fff;

@@ -140,3 +140,16 @@ export default {
   overflow-y: auto;
 }
 </style>
+<style lang="less">
+.record-detail-tab {
+  > .el-tabs__content {
+    padding: 0 !important;
+    height: calc(100% - 40px) !important;
+
+    .el-tab-pane {
+      height: 100%;
+      overflow: auto;
+    }
+  }
+}
+</style>
