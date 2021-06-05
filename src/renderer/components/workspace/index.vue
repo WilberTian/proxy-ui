@@ -302,63 +302,69 @@ export default {
   flex: 1;
   overflow: auto;
   display: flex;
-}
-.workspace .workspace-tab-container {
-  flex: 1;
-  overflow: hidden;
-  border: none;
-}
 
-.workspace .proxy-config-info-wrapper {
-  width: 100%;
-  height: 100%;
-}
-.workspace .proxy-config-info-wrapper .proxy-config-info {
-  margin: 12px;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
-}
-.workspace .proxy-config-info-wrapper .proxy-config-info .proxy-config-item {
-  display: flex; 
-  font-size: 14px;
-  border-bottom: 1px solid #e8e8e8;
-}
-.workspace .proxy-config-info-wrapper .proxy-config-info .proxy-config-item:last-child {
-  border-bottom: none;
-}
-.workspace .proxy-config-info-wrapper .proxy-config-info .proxy-config-item .label {
-  width: 160px;
-  padding: 8px; 
-  font-weight: bold;
-  border-right: 1px solid #e8e8e8;
-}
-.workspace .proxy-config-info-wrapper .proxy-config-info .proxy-config-item .content {
-  flex: 1;
-  padding: 8px; 
-}
-.proxy-server-log-number, .hitted-rule-count, .request-list-count {
-  background-color: #66b1ff;
-  border-radius: 10px;
-  color: #fff;
-  display: inline-block;
-  font-size: 12px;
-  height: 16px;
-  line-height: 16px;
-  padding: 0 6px;
-  text-align: center;
-  white-space: nowrap;
-  border: 1px solid #fff;
-  margin-left: 6px;
+  .workspace-tab-container {
+    flex: 1;
+    overflow: hidden;
+    border: none;
+
+    .proxy-config-info-wrapper {
+      width: 100%;
+      height: 100%;
+
+      .proxy-config-info {
+        margin: 12px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+
+        .proxy-config-item {
+          display: flex; 
+          font-size: 14px;
+          border-bottom: 1px solid #e8e8e8;
+          .label {
+            width: 160px;
+            padding: 8px; 
+            font-weight: bold;
+            border-right: 1px solid #e8e8e8;
+          }
+          .content {
+            flex: 1;
+            padding: 8px; 
+          }
+        }
+        .proxy-config-item:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+
+    .proxy-server-log-number, .hitted-rule-count, .request-list-count {
+      background-color: #66b1ff;
+      border-radius: 10px;
+      color: #fff;
+      display: inline-block;
+      font-size: 12px;
+      height: 16px;
+      line-height: 16px;
+      padding: 0 6px;
+      text-align: center;
+      white-space: nowrap;
+      border: 1px solid #fff;
+      margin-left: 6px;
+    }
+  }
 }
 </style>
 <style lang="less">
-.workspace .workspace-tab-container {
-  > .el-tabs__content {
-    padding: 0 !important;
-    height: calc(100% - 40px) !important;
+.workspace {
+  .workspace-tab-container {
+    > .el-tabs__content {
+      padding: 0 !important;
+      height: calc(100% - 40px) !important;
 
-    .el-tab-pane {
-      height: 100%;
+      .el-tab-pane {
+        height: 100%;
+      }
     }
   }
 }

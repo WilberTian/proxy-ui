@@ -1,40 +1,64 @@
 <template>
   <div class="record-detail" v-loading="loading">
-    <div class="request-record-btn" v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)">
-      <el-button type="default" size="mini" @click="resendRequestHandler">重发请求</el-button>
-      <el-button type="default" size="mini" @click="addRequestHandler">录制请求</el-button>
-      <el-tooltip class="item" effect="dark" content="将请求信息记录下来，在“已录制请求”界面中，可以重新发送请求" placement="bottom">
+    <div
+      class="request-record-btn"
+      v-if="['POST', 'PUT', 'GET', 'DELETE'].includes(recordDetail.method)"
+    >
+      <el-button type="default" size="mini" @click="resendRequestHandler"
+        >重发请求</el-button
+      >
+      <el-button type="default" size="mini" @click="addRequestHandler"
+        >录制请求</el-button
+      >
+      <el-tooltip
+        class="item"
+        effect="dark"
+        content="将请求信息记录下来，在“已录制请求”界面中，可以重新发送请求"
+        placement="bottom"
+      >
         <i class="el-icon-info"></i>
       </el-tooltip>
     </div>
     <el-tabs class="record-detail-tab" v-model="selectedTab">
       <el-tab-pane label="请求数据" name="request">
         <div class="data-wrapper">
-          <kv-viewer title="通用" :kvData="{
-            Method: recordDetail.method,
-            Url: recordDetail.url
-          }" />
+          <kv-viewer
+            title="通用"
+            :kvData="{
+              Method: recordDetail.method,
+              Url: recordDetail.url
+            }"
+          />
           <kv-viewer title="请求头" :kvData="recordDetail.reqHeader || {}" />
-          <http-body-viewer title="请求体" :bodyData="{
-            url: recordDetail.url,
-            isRequest: true,
-            headers: recordDetail.reqHeader,
-            body: recordDetail.reqBody
-          }" />
+          <http-body-viewer
+            title="请求体"
+            :bodyData="{
+              url: recordDetail.url,
+              isRequest: true,
+              headers: recordDetail.reqHeader,
+              body: recordDetail.reqBody
+            }"
+          />
         </div>
       </el-tab-pane>
       <el-tab-pane label="响应数据" name="response">
         <div class="data-wrapper">
-          <kv-viewer title="通用" :kvData="{
-            Status: recordDetail.statusCode
-          }" />
+          <kv-viewer
+            title="通用"
+            :kvData="{
+              Status: recordDetail.statusCode
+            }"
+          />
           <kv-viewer title="响应头" :kvData="recordDetail.resHeader || {}" />
-          <http-body-viewer title="响应体" :bodyData="{
-            url: recordDetail.url,
-            isRequest: false,
-            headers: recordDetail.resHeader,
-            body: responseBody && responseBody.content
-          }" />
+          <http-body-viewer
+            title="响应体"
+            :bodyData="{
+              url: recordDetail.url,
+              isRequest: false,
+              headers: recordDetail.resHeader,
+              body: responseBody && responseBody.content
+            }"
+          />
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -53,7 +77,7 @@ export default {
       type: Number
     }
   },
-  data: function () {
+  data: function() {
     return {
       selectedTab: 'request',
       loading: true,
@@ -63,33 +87,39 @@ export default {
     }
   },
   watch: {
-    id (val) {
+    id(val) {
       this.loading = true
       this.getRecordDetail(val)
     }
   },
-  mounted () {
+  mounted() {
     this.getRecordDetail(this.id)
   },
   methods: {
-    getRecordDetail (recordId) {
+    getRecordDetail(recordId) {
       const self = this
-      this.$proxyApi.getRecordById(recordId).then((record) => {
-        self.recordDetail = record
-        self.loading = false
-      }, (err) => {
-        self.loading = false
-        self.$message.error(err.message)
-      })
-      this.$proxyApi.getRecordBody(recordId).then((body) => {
-        self.responseBody = body
-        self.loading = false
-      }, () => {
-        self.responseBody = ''
-        self.loading = false
-      })
+      this.$proxyApi.getRecordById(recordId).then(
+        record => {
+          self.recordDetail = record
+          self.loading = false
+        },
+        err => {
+          self.loading = false
+          self.$message.error(err.message)
+        }
+      )
+      this.$proxyApi.getRecordBody(recordId).then(
+        body => {
+          self.responseBody = body
+          self.loading = false
+        },
+        () => {
+          self.responseBody = ''
+          self.loading = false
+        }
+      )
     },
-    addRequestHandler () {
+    addRequestHandler() {
       eventBus.$emit(events.ADD_REQUEST, {
         protocol: this.recordDetail.protocol,
         host: this.recordDetail.host,
@@ -99,10 +129,14 @@ export default {
         reqBody: this.recordDetail.reqBody
       })
     },
-    async resendRequestHandler () {
+    async resendRequestHandler() {
       try {
         const proxyConfig = await this.$proxyApi.readProxyConfig()
-        await this.$proxyApi.processRequest(this.recordDetail, proxyConfig, true)
+        await this.$proxyApi.processRequest(
+          this.recordDetail,
+          proxyConfig,
+          true
+        )
       } catch (e) {
         alert(e.message)
       }
@@ -115,40 +149,42 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .record-detail {
   position: relative;
-}
-.record-detail, .record-detail-tab {
-  height: 100%;
-  width: 100%;
-}
-.request-record-btn {
-  position: absolute;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 40px;
-  width: 200px;
-  margin-right: 20px;
-  z-index: 100;
-  top: 0;
-  right: 0;
-}
-.data-wrapper {
-  height: 100%;
-  overflow-y: auto;
+  .record-detail-tab {
+    height: 100%;
+    width: 100%;
+    .data-wrapper {
+      height: 100%;
+      overflow-y: auto;
+    }
+  }
+  .request-record-btn {
+    position: absolute;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 40px;
+    width: 200px;
+    margin-right: 20px;
+    z-index: 100;
+    top: 0;
+    right: 0;
+  }
 }
 </style>
 <style lang="less">
-.record-detail-tab {
-  > .el-tabs__content {
-    padding: 0 !important;
-    height: calc(100% - 40px) !important;
+.record-detail {
+  .record-detail-tab {
+    > .el-tabs__content {
+      padding: 0 !important;
+      height: calc(100% - 40px) !important;
 
-    .el-tab-pane {
-      height: 100%;
-      overflow: auto;
+      .el-tab-pane {
+        height: 100%;
+        overflow: auto;
+      }
     }
   }
 }

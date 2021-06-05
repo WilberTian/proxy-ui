@@ -45,15 +45,6 @@
             width="16" height="16" color="#666"
           ></svgicon>
         </div>
-        <!-- <div class="icon-wrapper" title="新建代理规则" @click.prevent.stop="showProxyRuleSetting" @dblclick.prevent.stop="()=>{}">
-          <svgicon
-            slot="reference"
-            v-if="isOnline"
-            class="filter-icon"
-            icon="filter"
-            width="14" height="14" color="#666"
-          ></svgicon>
-        </div> -->
         <div class="icon-wrapper" title="vconsole 设置" @click.prevent.stop="showVconsoleSetting" @dblclick.prevent.stop="()=>{}">
           <svgicon
             slot="reference"
@@ -261,7 +252,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .workspace-header {
   display: flex;
   align-items: center;
@@ -269,71 +260,64 @@ export default {
   line-height: 44px;
   background: -webkit-linear-gradient(top, #eee, #bbb);
   -webkit-app-region: drag;
-}
-.workspace-header .logo-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 6px;
-  margin: 0 10px;
-  user-select: none;
-}
-.workspace-header .logo-wrapper .logo {
-  width: 20px;
-  height: 20px;
-}
-.workspace-header .header-toolbar {
-  flex: 1;
-  justify-content: flex-end;
-  display: inline-flex;
-}
-.tool-icon-wrapper {
-  background-color: #fff;
-  border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 40px;
-  overflow: hidden;
-  -webkit-app-region: no-drag;
-}
-.icon-wrapper {
-  height: 28px;
-  line-height: 32px;
-  padding: 0 12px;
-  cursor: pointer;
-}
-.icon-wrapper:active {
-  background-color: #efefef;
-}
-.icon-wrapper:not(:last-child) {
-  border-right: 1px solid #efefef;
-}
-.restart-icon {
-  margin: -2px;
-}
-.weinre-icon {
-  margin: 2px;
-}
-.filter-icon {
-  margin: 1px;
-}
-.window-btn-group {
-  margin: 0 12px;
-}
-.operation-btn {
-  height: 26px;
-  line-height: 26px;
-  padding: 2px 12px;
-  margin: 0 12px;
-  background: #fff;
-  color: #666;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  user-select: none;
+
+  .logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 6px;
+    margin: 0 10px;
+    user-select: none;
+
+    .logo {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .header-toolbar {
+    flex: 1;
+    justify-content: flex-end;
+    display: inline-flex;
+
+    .tool-icon-wrapper {
+      background-color: #fff;
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 40px;
+      overflow: hidden;
+      -webkit-app-region: no-drag;
+
+      .icon-wrapper {
+        height: 28px;
+        line-height: 32px;
+        padding: 0 12px;
+        cursor: pointer;
+      }
+      .icon-wrapper:active {
+        background-color: #efefef;
+      }
+      .icon-wrapper:not(:last-child) {
+        border-right: 1px solid #efefef;
+      }
+      .restart-icon {
+        margin: -2px;
+      }
+      .weinre-icon {
+        margin: 2px;
+      }
+      .filter-icon {
+        margin: 1px;
+      }
+    }
+  }
+
+  .window-btn-group {
+    margin: 0 12px;
+  }
 }
 </style>

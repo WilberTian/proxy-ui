@@ -1,6 +1,6 @@
 <template>
   <div class="record-data-wrapper">
-    <div class="record-tree" :style="{width: `${treeContainerWidth}px`}">
+    <div class="record-tree" :style="{ width: `${treeContainerWidth}px` }">
       <el-tree
         empty-text="当前没有网络数据！"
         :data="recordTreeData"
@@ -11,44 +11,56 @@
         @node-collapse="nodeCollapseHandler"
         @node-click="nodeClickHandler"
         :render-content="renderRecordNode"
-      ></el-tree>     
+      ></el-tree>
     </div>
-    <div :class="{'dividor': true, 'active': isCursorMove}" @mousedown.stop.prevent="handleCursorDown"></div>
+    <div
+      :class="{ dividor: true, active: isCursorMove }"
+      @mousedown.stop.prevent="handleCursorDown"
+    ></div>
     <div class="record-detail-wrapper">
       <record-detail v-if="selectedRecordId !== -1" :id="selectedRecordId" />
-      <div
-        class="no-selected-record"
-        v-if="selectedRecordId === -1"
-      >
+      <div class="no-selected-record" v-if="selectedRecordId === -1">
         没有选中网络数据！
       </div>
     </div>
     <context-menu id="host-context-menu" ref="hostCtxMenu">
       <li
         v-if="selectedHostStatus.isHttps"
-        :class="{'checked': selectedHostStatus.enableHttps}"
-        @click="(e) => {
-          if (selectedHostStatus.enableHttps) {
-            this.disableHttps4Host(e, selectedHostStatus.host)
-          } else {
-            this.enableHttps4Host(e, selectedHostStatus.host)
+        :class="{ checked: selectedHostStatus.enableHttps }"
+        @click="
+          e => {
+            if (selectedHostStatus.enableHttps) {
+              this.disableHttps4Host(e, selectedHostStatus.host)
+            } else {
+              this.enableHttps4Host(e, selectedHostStatus.host)
+            }
           }
-        }"
+        "
       >
         开启HTTPS
       </li>
       <li
-        :class="{'checked': selectedHostStatus.disableCache}"
-        @click="(e) => {
-          if (selectedHostStatus.disableCache) {
-            this.restCache4Host(e, selectedHostStatus.host)
-          } else {
-            this.disableCache4Host(e, selectedHostStatus.host)
+        :class="{ checked: selectedHostStatus.disableCache }"
+        @click="
+          e => {
+            if (selectedHostStatus.disableCache) {
+              this.restCache4Host(e, selectedHostStatus.host)
+            } else {
+              this.disableCache4Host(e, selectedHostStatus.host)
+            }
           }
-        }"
-      >禁用缓存</li>
-      <li @click.stop.prevent="deleteRecordsByHost(selectedHostStatus.host)">删除该记录</li>
-      <li @click.stop.prevent="deleteRecordsByHost(selectedHostStatus.host, true)">删除其他记录</li>
+        "
+      >
+        禁用缓存
+      </li>
+      <li @click.stop.prevent="deleteRecordsByHost(selectedHostStatus.host)">
+        删除该记录
+      </li>
+      <li
+        @click.stop.prevent="deleteRecordsByHost(selectedHostStatus.host, true)"
+      >
+        删除其他记录
+      </li>
     </context-menu>
   </div>
 </template>
@@ -64,25 +76,25 @@ export default {
     },
     hostsWithHttps: {
       type: Array,
-      default: function () {
+      default: function() {
         return []
       }
     },
     hostsDisabledCache: {
       type: Array,
-      default: function () {
+      default: function() {
         return []
       }
     },
     recordTreeData: {
       type: Array,
-      default: function () {
+      default: function() {
         return []
       }
     },
     updatedHosts: {
       type: Array,
-      default: function () {
+      default: function() {
         return []
       }
     },
@@ -91,7 +103,7 @@ export default {
       default: () => {}
     }
   },
-  data: function () {
+  data: function() {
     return {
       isCursorMove: false,
       treeContainerWidth: 240,
@@ -106,80 +118,99 @@ export default {
     }
   },
   watch: {
-    recordTreeData: function (val) {
+    recordTreeData: function(val) {
       if (val.length === 0) {
         this.expendedKeys = []
       }
     }
   },
-  created () {
+  created() {
     this.mouseOffX = 0
   },
   methods: {
-    handleCursorDown (e) {
+    handleCursorDown(e) {
       this.isCursorMove = true
       this.mouseX = e.pageX || e.clientX + document.documentElement.scrollLeft
       this.lastMouseX = this.mouseX
-      document.documentElement.addEventListener('mousemove', this.handleCursorMove, true)
-      document.documentElement.addEventListener('mouseup', this.handleCursorUp, true)
+      document.documentElement.addEventListener(
+        'mousemove',
+        this.handleCursorMove,
+        true
+      )
+      document.documentElement.addEventListener(
+        'mouseup',
+        this.handleCursorUp,
+        true
+      )
     },
-    handleCursorMove (e) {
+    handleCursorMove(e) {
       this.mouseX = e.pageX || e.clientX + document.documentElement.scrollLeft
       let diffX = this.mouseX - this.lastMouseX
       this.mouseOffX = 0
 
       this.lastMouseX = this.mouseX
       if (this.isCursorMove) {
-        if ((this.treeContainerWidth + diffX) >= 100 && (this.treeContainerWidth + diffX) <= 600) {
+        if (
+          this.treeContainerWidth + diffX >= 100 &&
+          this.treeContainerWidth + diffX <= 600
+        ) {
           this.treeContainerWidth += diffX
         }
       }
     },
-    handleCursorUp () {
+    handleCursorUp() {
       this.isCursorMove = false
-      document.documentElement.removeEventListener('mousemove', this.handleCursorMove, true)
-      document.documentElement.removeEventListener('mouseup', this.handleCursorUp, true)
+      document.documentElement.removeEventListener(
+        'mousemove',
+        this.handleCursorMove,
+        true
+      )
+      document.documentElement.removeEventListener(
+        'mouseup',
+        this.handleCursorUp,
+        true
+      )
     },
-    enableHttps4Host (e, host) {
+    enableHttps4Host(e, host) {
       e.preventDefault()
       e.stopPropagation()
       this.$proxyApi.enableHttps4Host(host)
     },
-    disableHttps4Host (e, host) {
+    disableHttps4Host(e, host) {
       e.preventDefault()
       e.stopPropagation()
       this.$proxyApi.disableHttps4Host(host)
     },
-    disableCache4Host (e, host) {
+    disableCache4Host(e, host) {
       e.preventDefault()
       e.stopPropagation()
       this.$proxyApi.disableCache4Host(host)
     },
-    restCache4Host (e, host) {
+    restCache4Host(e, host) {
       e.preventDefault()
       e.stopPropagation()
       this.$proxyApi.restCache4Host(host)
     },
-    nodeExpandHandler (node) {
+    nodeExpandHandler(node) {
       if (!this.expendedKeys.includes(node.key)) {
         this.expendedKeys.push(node.key)
       }
     },
-    nodeCollapseHandler (node) {
+    nodeCollapseHandler(node) {
       if (this.expendedKeys.includes(node.key)) {
         this.expendedKeys = this.expendedKeys.filter(key => {
           return key !== node.key
         })
       }
     },
-    nodeClickHandler (node) {
+    nodeClickHandler(node) {
       if ('id' in node) {
         this.selectedRecordId = node.id
       } else {
         this.selectedRecordId = -1
       }
     },
-    renderRecordNode (h, { node, data, store }) {
+    renderRecordNode(h, { node, data, store }) {
       const self = this
       let selectedHostStatus = {
         isHttps: false,
@@ -198,7 +229,7 @@ export default {
           if (this.hostsWithHttps.includes(data.host)) {
             iconConfig.class = ['tree-node-icon', 'el-icon-unlock']
             iconConfig.on = {
-              click: (e) => {
+              click: e => {
                 self.disableHttps4Host(e, data.host)
               }
             }
@@ -207,7 +238,7 @@ export default {
           } else {
             iconConfig.class = ['tree-node-icon', 'el-icon-lock']
             iconConfig.on = {
-              click: (e) => {
+              click: e => {
                 self.enableHttps4Host(e, data.host)
               }
             }
@@ -238,7 +269,7 @@ export default {
         selectedHostStatus.host = data.host
 
         nodeConfig.on = {
-          contextmenu: (e) => {
+          contextmenu: e => {
             e.preventDefault()
 
             this.selectedHostStatus = selectedHostStatus
@@ -251,12 +282,16 @@ export default {
 
       return h('div', nodeConfig, [
         h('i', iconConfig),
-        h('div', {
-          class: ['tree-node-label'],
-          attrs: {
-            title: node.label
-          }
-        }, node.label)
+        h(
+          'div',
+          {
+            class: ['tree-node-label'],
+            attrs: {
+              title: node.label
+            }
+          },
+          node.label
+        )
       ])
     }
   },
@@ -266,109 +301,118 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style lang="less" scoped>
 .record-data-wrapper {
   flex: 1;
   display: flex;
   overflow: hidden;
-}
-.record-tree {
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  font-size: 12px;
-}
-.dividor {
-  position: relative;
-  width: 6px;
-  height: 100%;
-  background: transparent;
-  cursor: col-resize;
-}
-.dividor::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 2px;
-  bottom: 0;
-  width: 2px;
-  background: #ddd;
-}
-.dividor.active::after {
-  background: #3a8ee6;
-}
-.dividor:hover::after {
-  background: #3a8ee6;
-}
-.record-detail-wrapper {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-.proxy-server-record .no-selected-record {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: #999;
+  .record-tree {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 12px;
+  }
+  .dividor {
+    position: relative;
+    width: 6px;
+    height: 100%;
+    background: transparent;
+    cursor: col-resize;
+  }
+  .dividor::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 2px;
+    bottom: 0;
+    width: 2px;
+    background: #ddd;
+  }
+  .dividor.active::after {
+    background: #3a8ee6;
+  }
+  .dividor:hover::after {
+    background: #3a8ee6;
+  }
+  .record-detail-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    .no-selected-record {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #999;
+    }
+  }
 }
 </style>
-<style>
-.record-tree .el-tree-node__expand-icon {
-  color: #444;
+<style lang="less">
+.record-tree {
+  .el-tree-node__expand-icon {
+    color: #444;
+  }
+  .el-tree-node__expand-icon.is-leaf {
+    color: transparent;
+  }
+  .record-tree-node {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    line-height: 26px;
+    color: #333;
+    user-select: none;
+    .tree-node-label {
+      flex: 1;
+    }
+    .tree-node-icon {
+      font-size: 14px;
+      margin-right: 4px;
+    }
+    .tree-node-icon.el-icon-link {
+      color: rgb(103, 194, 58);
+    }
+    .tree-node-icon.el-icon-lock {
+      color: #999;
+    }
+    .tree-node-icon.el-icon-lock:hover {
+      color: rgb(103, 194, 58);
+      font-weight: bold;
+    }
+    .tree-node-icon.el-icon-unlock {
+      color: rgb(103, 194, 58);
+    }
+    .tree-node-icon.el-icon-document {
+      color: #666;
+    }
+    .tree-node-icon.el-icon-folder-opened {
+      color: #067af5;
+    }
+  }
+  .record-tree-node.node-highlight {
+    animation: nodeHighlight 2s;
+  }
 }
-.record-tree .el-tree-node__expand-icon.is-leaf {
-  color: transparent;
-}
-.record-tree .record-tree-node {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  line-height: 26px;
-  color: #333;
-  user-select: none;
-}
-.record-tree .record-tree-node.node-highlight {
-  animation: nodeHighlight 2s;
-}
+
 @keyframes nodeHighlight {
-  from {background: #ebeef5;}
-  to {background: #fff;}
-}
-.record-tree .record-tree-node .tree-node-label {
-  flex: 1;
-}
-.record-tree .record-tree-node .tree-node-icon {
-  font-size: 14px;
-  margin-right: 4px;
-}
-.record-tree .record-tree-node .tree-node-icon.el-icon-link {
-  color: rgb(103, 194, 58);
-}
-.record-tree .record-tree-node .tree-node-icon.el-icon-lock {
-  color: #999;
-}
-.record-tree .record-tree-node .tree-node-icon.el-icon-lock:hover {
-  color: rgb(103, 194, 58);
-  font-weight: bold;
-}
-.record-tree .record-tree-node .tree-node-icon.el-icon-unlock {
-  color: rgb(103, 194, 58);
-}
-.record-tree .record-tree-node .tree-node-icon.el-icon-document {
-  color: #666;
-}
-.record-tree .record-tree-node .tree-node-icon.el-icon-folder-opened {
-  color: #067af5;
+  from {
+    background: #ebeef5;
+  }
+  to {
+    background: #fff;
+  }
 }
 
 .ctx-menu {
   min-width: auto;
 }
-.ctx-menu li.disabled, .ctx-menu li.disabled:focus, .ctx-menu li.disabled:hover {
-    color: #818a91;
+.ctx-menu li.disabled,
+.ctx-menu li.disabled:focus,
+.ctx-menu li.disabled:hover {
+  color: #818a91;
 }
 .ctx-menu li {
   position: relative;
@@ -381,7 +425,8 @@ export default {
   cursor: pointer;
   white-space: nowrap;
 }
-.ctx-menu li:focus, .ctx-menu li:hover {
+.ctx-menu li:focus,
+.ctx-menu li:hover {
   color: #2b2d2f;
   text-decoration: none;
   background-color: #f5f5f5;

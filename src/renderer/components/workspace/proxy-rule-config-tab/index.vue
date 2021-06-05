@@ -14,9 +14,18 @@
         :ruleConfigs="filteredRuleConfigs"
         @editRuleConfig="handleEditRuleConfig"
       />
-      <div class="no-config-rule-msg" v-if="filteredRuleConfigs.length === 0">没有规则！</div>
+      <div class="no-config-rule-msg" v-if="filteredRuleConfigs.length === 0">
+        没有规则！
+      </div>
     </div>
-    <el-button class="add-rule-btn" type="primary" size="small" icon="el-icon-plus" @click="showProxyRuleSetting" circle></el-button>
+    <el-button
+      class="add-rule-btn"
+      type="primary"
+      size="small"
+      icon="el-icon-plus"
+      @click="showProxyRuleSetting"
+      circle
+    ></el-button>
   </div>
 </template>
 
@@ -31,19 +40,28 @@ export default {
       ruleConfigs: 'getRuleConfigs',
       ruleEditMode: 'getRuleEditMode'
     }),
-    filteredRuleConfigs () {
+    filteredRuleConfigs() {
       let result = []
       if (this.ruleConfigs.length > 0) {
-        result = this.ruleConfigs.filter((ruleConfig) => {
+        result = this.ruleConfigs.filter(ruleConfig => {
           if (this.filterData) {
-            if ('selectedType' in this.filterData && this.filterData.selectedType !== ruleConfig.type) {
+            if (
+              'selectedType' in this.filterData &&
+              this.filterData.selectedType !== ruleConfig.type
+            ) {
               return false
             }
-            if ('enableStatus' in this.filterData && !!this.filterData.enableStatus !== ruleConfig.enabled) {
+            if (
+              'enableStatus' in this.filterData &&
+              !!this.filterData.enableStatus !== ruleConfig.enabled
+            ) {
               return false
             }
-            if ('selectedTags' in this.filterData && this.filterData.selectedTags.length > 0) {
-              const hasTags = this.filterData.selectedTags.filter((v) => {
+            if (
+              'selectedTags' in this.filterData &&
+              this.filterData.selectedTags.length > 0
+            ) {
+              const hasTags = this.filterData.selectedTags.filter(v => {
                 return ruleConfig.tags.indexOf(v) !== -1
               })
               if (hasTags.length === 0) {
@@ -53,7 +71,9 @@ export default {
             if ('keyword' in this.filterData) {
               const keyword = this.filterData.keyword
 
-              const ruleSearch = `${ruleConfig.pattern} ${ruleConfig.name} ${ruleConfig.description}`
+              const ruleSearch = `${ruleConfig.pattern} ${ruleConfig.name} ${
+                ruleConfig.description
+              }`
               if (!ruleSearch.includes(keyword)) {
                 return false
               }
@@ -64,11 +84,11 @@ export default {
       }
       return result
     },
-    tags () {
+    tags() {
       let tags = []
       if (this.ruleConfigs.length > 0) {
         let temp = []
-        this.ruleConfigs.forEach((ruleConfig) => {
+        this.ruleConfigs.forEach(ruleConfig => {
           Array.prototype.push.apply(temp, ruleConfig.tags)
         })
         tags = Array.from(new Set(temp))
@@ -76,36 +96,42 @@ export default {
       return tags
     }
   },
-  data () {
+  data() {
     return {
       selectedRuleConfig: null,
       operation: null,
       filterData: null
     }
   },
-  mounted () {
+  mounted() {
     this.proxyRuleConfigUpdateHandler = () => {
       const ruleConfigs = this.$proxyApi.readRuleConfigs()
       this.$store.commit('setRuleConfigs', ruleConfigs)
     }
-    this.$ipcRenderer.on('proxy-rule-config-updated', this.proxyRuleConfigUpdateHandler)
+    this.$ipcRenderer.on(
+      'proxy-rule-config-updated',
+      this.proxyRuleConfigUpdateHandler
+    )
     this.proxyRuleConfigUpdateHandler()
   },
-  beforeDestroy () {
-    this.$ipcRenderer.removeListener('proxy-rule-config-updated', this.proxyRuleConfigUpdateHandler)
+  beforeDestroy() {
+    this.$ipcRenderer.removeListener(
+      'proxy-rule-config-updated',
+      this.proxyRuleConfigUpdateHandler
+    )
   },
   methods: {
-    handleFilterChange (filterData) {
+    handleFilterChange(filterData) {
       this.filterData = filterData
     },
-    handleEditRuleConfig (selectedRuleConfig) {
+    handleEditRuleConfig(selectedRuleConfig) {
       this.selectedRuleConfig = selectedRuleConfig
       this.$ipcRenderer.send('show-proxy-rule-window', this.selectedRuleConfig)
     },
-    toggleSelectedRules (isEnabled) {
+    toggleSelectedRules(isEnabled) {
       if (this.filteredRuleConfigs.length > 0) {
         const filteredRuleConfigs = [...this.filteredRuleConfigs]
-        const ruleConfigs = filteredRuleConfigs.map((ruleConfig) => {
+        const ruleConfigs = filteredRuleConfigs.map(ruleConfig => {
           return {
             ...ruleConfig,
             enabled: isEnabled
@@ -114,7 +140,7 @@ export default {
         this.$proxyApi.updateRuleConfigs(ruleConfigs)
       }
     },
-    showProxyRuleSetting () {
+    showProxyRuleSetting() {
       this.$ipcRenderer.send('show-proxy-rule-window')
     }
   },
@@ -125,31 +151,31 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .rule-config {
   height: 100%;
   overflow: auto;
-}
-.add-rule-btn {
-  position: fixed;
-  right: 20px;
-  bottom: 34px;
-}
-.rule-config .rule-config-list-wrapper {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.rule-config .rule-config-list-wrapper .rule-config-filter {
-  padding: 8px;
-  margin: 8px;
-  box-shadow: 0px 0px 2px 2px #eee;
-  user-select: none;
-}
-.rule-config .rule-config-list-wrapper .grouped-rule-config-list {
-  margin: 8px;
-}
-.no-config-rule-msg {
-  padding: 12px;
+  .rule-config-list-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    .rule-config-filter {
+      padding: 8px;
+      margin: 8px;
+      box-shadow: 0px 0px 2px 2px #eee;
+      user-select: none;
+    }
+    .grouped-rule-config-list {
+      margin: 8px;
+    }
+    .no-config-rule-msg {
+      padding: 12px;
+    }
+  }
+  .add-rule-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 34px;
+  }
 }
 </style>

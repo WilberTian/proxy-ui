@@ -10,13 +10,22 @@
             值
           </div>
           <div class="header-item col1">
-            <el-button type="primary" size="mini" icon="el-icon-plus" circle @click="addHeaderItem"></el-button>
+            <el-button
+              type="primary"
+              size="mini"
+              icon="el-icon-plus"
+              circle
+              @click="addHeaderItem"
+            ></el-button>
           </div>
         </div>
         <div class="table-msg" v-if="typeof httpHeader === 'string'">
           非法的JSON
         </div>
-        <div class="table-msg" v-else-if="typeof httpHeader === 'object' && rows.length === 0">
+        <div
+          class="table-msg"
+          v-else-if="typeof httpHeader === 'object' && rows.length === 0"
+        >
           没有配置项！
         </div>
         <div v-else>
@@ -26,9 +35,13 @@
                 class="autocomplete-input"
                 :value="row.key"
                 :fetch-suggestions="queryHttpHeaderKeys"
-                @input="(val) => { handleHeaderItemChange(idx, {
-                  key: val
-                }) }"
+                @input="
+                  val => {
+                    handleHeaderItemChange(idx, {
+                      key: val
+                    })
+                  }
+                "
                 size="mini"
               ></el-autocomplete>
             </div>
@@ -36,14 +49,24 @@
               <el-input
                 :value="row.value"
                 :disabled="row.key === ''"
-                @input="(val) => { handleHeaderItemChange(idx, {
-                  value: val
-                }) }"
+                @input="
+                  val => {
+                    handleHeaderItemChange(idx, {
+                      value: val
+                    })
+                  }
+                "
                 size="mini"
               ></el-input>
             </div>
             <div class="row-item col1">
-              <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="deleteHeaderItem(idx)"></el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                icon="el-icon-delete"
+                circle
+                @click="deleteHeaderItem(idx)"
+              ></el-button>
             </div>
           </div>
         </div>
@@ -54,9 +77,11 @@
         type="textarea"
         :autosize="{ minRows: 4, maxRows: 10 }"
         :value="formatedHttpHeader"
-        @input="(val) => {
-          formatedHttpHeader = val
-        }"
+        @input="
+          val => {
+            formatedHttpHeader = val
+          }
+        "
         @blur="headerTextChange"
         @keydown.native="handleTabClick"
       ></el-input>
@@ -73,7 +98,7 @@ export default {
       type: Object | String
     }
   },
-  data () {
+  data() {
     return {
       rows: [],
       formatedHttpHeader: ''
@@ -83,12 +108,12 @@ export default {
     httpHeader: {
       deep: true,
       immediate: true,
-      handler (val) {
+      handler(val) {
         if (val && typeof val === 'object') {
           this.formatedHttpHeader = JSON.stringify(val, null, 4)
           const keys = Object.keys(val)
           if (keys.length > 0) {
-            this.rows = keys.map((key) => {
+            this.rows = keys.map(key => {
               return {
                 key,
                 value: val[key]
@@ -102,11 +127,13 @@ export default {
     }
   },
   methods: {
-    queryHttpHeaderKeys (queryString, cb) {
-      const results = queryString ? httpHeaderKeys.filter((headerKey) => {
-        return headerKey.toLowerCase().indexOf(queryString.toLowerCase()) > -1
-      }) : []
-      const options = results.map((result) => {
+    queryHttpHeaderKeys(queryString, cb) {
+      const results = queryString
+        ? httpHeaderKeys.filter(headerKey => {
+          return headerKey.toLowerCase().indexOf(queryString.toLowerCase()) > -1
+        })
+        : []
+      const options = results.map(result => {
         return {
           key: result,
           value: result
@@ -114,23 +141,23 @@ export default {
       })
       cb(options)
     },
-    handleHeaderItemChange (idx, item) {
+    handleHeaderItemChange(idx, item) {
       this.$set(this.rows, idx, Object.assign({}, this.rows[idx], item))
       this.triggerChangeEvent()
     },
-    addHeaderItem () {
+    addHeaderItem() {
       this.rows.push({
         key: '',
         value: ''
       })
     },
-    deleteHeaderItem (idx) {
+    deleteHeaderItem(idx) {
       this.rows.splice(idx, 1)
       this.triggerChangeEvent()
     },
-    triggerChangeEvent () {
+    triggerChangeEvent() {
       const headerObj = {}
-      this.rows.forEach((row) => {
+      this.rows.forEach(row => {
         if (row.key !== '') {
           headerObj[row.key] = row.value
         }
@@ -138,7 +165,7 @@ export default {
 
       this.$emit('change', headerObj)
     },
-    headerTextChange (e) {
+    headerTextChange(e) {
       const val = e.target.value
       let result
       try {
@@ -148,7 +175,7 @@ export default {
       }
       this.$emit('change', result)
     },
-    handleTabClick (e) {
+    handleTabClick(e) {
       if (e.keyCode === 9) {
         e.preventDefault()
         e.stopPropagation()
@@ -157,8 +184,14 @@ export default {
         const end = e.target.selectionEnd
         let selected = window.getSelection().toString()
         selected = indent + selected.replace(/\n/g, '\n' + indent)
-        e.target.value = e.target.value.substring(0, start) + selected + e.target.value.substring(end)
-        e.target.setSelectionRange(start + indent.length, start + selected.length)
+        e.target.value =
+          e.target.value.substring(0, start) +
+          selected +
+          e.target.value.substring(end)
+        e.target.setSelectionRange(
+          start + indent.length,
+          start + selected.length
+        )
         this.$nextTick(() => {
           this.formatedHttpHeader = e.target.value
         })
@@ -167,42 +200,46 @@ export default {
   }
 }
 </script>
-<style scoped>
-.table-wrapper {
-  margin: 8px;
-  background-color: #efefef;
-}
-.table-header {
-  height: 30px;
-  line-height: 30px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
-}
-.table-header, .table-row {
-  display: flex;
-  padding: 4px;
-}
-.header-item, .row-item {
-  margin: 0 4px;
-}
-.table-msg {
-  padding: 12px 10px;
-}
-.col1 {
-  width: 10%;
-}
-.col2 {
-  width: 20%;
-}
-.col4 {
-  width: 40%;
-}
-.col5 {
-  width: 50%;
-}
-.autocomplete-input {
-  width: 100%;
+<style lang="less" scoped>
+.http-header-editor {
+  .table-wrapper {
+    margin: 8px;
+    background-color: #efefef;
+    .table-header {
+      height: 30px;
+      line-height: 30px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+    .table-header,
+    .table-row {
+      display: flex;
+      padding: 4px;
+      .col1 {
+        width: 10%;
+      }
+      .col2 {
+        width: 20%;
+      }
+      .col4 {
+        width: 40%;
+      }
+      .col5 {
+        width: 50%;
+      }
+    }
+    .header-item,
+    .row-item {
+      margin: 0 4px;
+      .autocomplete-input {
+        width: 100%;
+      }
+    }
+    .table-msg {
+      padding: 12px 10px;
+    }
+  }
 }
 </style>
 <style>

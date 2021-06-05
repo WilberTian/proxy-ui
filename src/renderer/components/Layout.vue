@@ -19,14 +19,15 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style lang="less" scoped>
 .workspace-container {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-.workspace-container .workspace {
-  flex: 1;
+  
+  .workspace {
+    flex: 1;
+  }
 }
 </style>

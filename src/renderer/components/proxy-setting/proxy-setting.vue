@@ -14,55 +14,42 @@
       label-width="120px"
       size="mini"
     >
-      <el-form-item
-        label="代理服务器端口"
-        prop="port"
-      >
+      <el-form-item label="代理服务器端口" prop="port">
         <el-input v-model.number="proxyConfigData.port"></el-input>
       </el-form-item>
-      <el-form-item
-        label="开启HTTPS"
-        prop="forceProxyHttps"
-      >
+      <el-form-item label="开启HTTPS" prop="forceProxyHttps">
         <el-radio-group v-model="proxyConfigData.forceProxyHttps">
           <el-radio :label="true">开启</el-radio>
           <el-radio :label="false">不开启</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item
-        label="网络速度"
-        prop="throttle"
-      >
+      <el-form-item label="网络速度" prop="throttle">
         <el-select v-model="proxyConfigData.throttle" placeholder="请选择">
           <el-option
             v-for="item in networkSpeed"
             :key="item.value"
             :label="item.label"
-            :value="item.value">
+            :value="item.value"
+          >
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item
-        label="开启全局代理"
-        prop="enableGlobalProxy"
-      >
+      <el-form-item label="开启全局代理" prop="enableGlobalProxy">
         <el-radio-group v-model="proxyConfigData.enableGlobalProxy">
           <el-radio :label="true">开启</el-radio>
           <el-radio :label="false">不开启</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item
-        label="黑名单"
-        prop="bypassList"
-      >
+      <el-form-item label="黑名单" prop="bypassList">
         <el-tag
           size="medium"
           :key="tag"
           v-for="tag in proxyConfigData.bypassList"
           closable
           :disable-transitions="false"
-          @close="handleItemRemove(tag)">
-          {{tag}}
+          @close="handleItemRemove(tag)"
+        >
+          {{ tag }}
         </el-tag>
         <el-input
           class="input-new-tag"
@@ -74,13 +61,18 @@
           @blur="handleTagInputConfirm"
         >
         </el-input>
-        <el-button v-else class="button-new-tag" icon="el-icon-plus" @click="showTagInput">添加</el-button>
+        <el-button
+          v-else
+          class="button-new-tag"
+          icon="el-icon-plus"
+          @click="showTagInput"
+          >添加</el-button
+        >
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          @click="submitForm('proxyConfigForm')"
-        >保存</el-button>
+        <el-button type="primary" @click="submitForm('proxyConfigForm')"
+          >保存</el-button
+        >
         <el-button @click="resetForm('proxyConfigForm')">重置</el-button>
         <el-button @click="cancelForm">取消</el-button>
       </el-form-item>
@@ -93,11 +85,11 @@ import WindowBtnGroup from '../common/window-btn-group'
 import { networkSpeed } from '@/configs/constants'
 
 export default {
-  beforeCreate () {
+  beforeCreate() {
     this.networkSpeed = networkSpeed
     this.proxyConfig = this.$proxyApi.readProxyConfig()
   },
-  data () {
+  data() {
     const isValidPort = (rule, value, callback) => {
       if (!value) {
         return callback(new Error('请填写代理服务器端口'))
@@ -132,20 +124,16 @@ export default {
     return {
       proxyConfigData: JSON.parse(JSON.stringify(this.proxyConfig)),
       validators: {
-        port: [
-          { validator: isValidPort, trigger: 'blur' }
-        ],
-        throttle: [
-          { validator: isValidThrottle, trigger: 'blur' }
-        ]
+        port: [{ validator: isValidPort, trigger: 'blur' }],
+        throttle: [{ validator: isValidThrottle, trigger: 'blur' }]
       },
       tagInputVisible: false,
       tagInputValue: ''
     }
   },
   methods: {
-    submitForm (formName) {
-      this.$refs[formName].validate((valid) => {
+    submitForm(formName) {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           const proxyServerStatus = this.$proxyApi.getPoxyServerStatus()
           if (proxyServerStatus) {
@@ -171,22 +159,25 @@ export default {
         }
       })
     },
-    resetForm (formName) {
+    resetForm(formName) {
       this.$refs[formName].resetFields()
     },
-    cancelForm () {
+    cancelForm() {
       this.handleClose()
     },
-    handleItemRemove (tag) {
-      this.proxyConfigData.bypassList.splice(this.proxyConfigData.bypassList.indexOf(tag), 1)
+    handleItemRemove(tag) {
+      this.proxyConfigData.bypassList.splice(
+        this.proxyConfigData.bypassList.indexOf(tag),
+        1
+      )
     },
-    showTagInput () {
+    showTagInput() {
       this.tagInputVisible = true
       this.$nextTick(_ => {
         this.$refs.saveTagInput.$refs.input.focus()
       })
     },
-    handleTagInputConfirm () {
+    handleTagInputConfirm() {
       let tagInputValue = this.tagInputValue
       if (tagInputValue) {
         this.proxyConfigData.bypassList.push(tagInputValue)
@@ -194,7 +185,7 @@ export default {
       this.tagInputVisible = false
       this.tagInputValue = ''
     },
-    handleClose () {
+    handleClose() {
       this.$ipcRenderer.send('proxy-setting-close')
     }
   },
@@ -204,45 +195,45 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .proxy-setting {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-}
-.proxy-setting-header {
-  display: flex;
-  align-items: center;
-  height: 24px;
-  min-height: 24px;
-  padding: 0 8px;
-  background: -webkit-linear-gradient(top, #eee, #bbb);
-}
-.proxy-setting-header .header-content {
-  flex: 1;
-  font-size: 12px;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-}
-.proxy-config-form {
-  padding: 16px;
-  flex: 1;
-  overflow-y: auto;
-}
-.el-tag {
-  margin-right: 8px;
-  margin-bottom: 8px;
-}
-.button-new-tag {
-  height: 28px;
-  vertical-align: middle;
-  font-size: 12px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.input-new-tag {
-  width: 90px;
+  .proxy-setting-header {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    min-height: 24px;
+    padding: 0 8px;
+    background: -webkit-linear-gradient(top, #eee, #bbb);
+    .header-content {
+      flex: 1;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+  }
+  .proxy-config-form {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    .el-tag {
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .button-new-tag {
+      height: 28px;
+      vertical-align: middle;
+      font-size: 12px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .input-new-tag {
+      width: 90px;
+    }
+  }
 }
 </style>

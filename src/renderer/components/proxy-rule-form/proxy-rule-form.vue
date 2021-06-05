@@ -2,7 +2,7 @@
   <div class="proxy-rule">
     <div class="proxy-rule-header">
       <div class="header-content">
-        {{operation === 'create' ? '新建代理规则' : '编辑代理规则'}}
+        {{ operation === 'create' ? '新建代理规则' : '编辑代理规则' }}
       </div>
       <window-btn-group @close="handleClose" disableMinimize disableMaximize />
     </div>
@@ -14,31 +14,44 @@
       label-width="120px"
       size="mini"
     >
-      <el-form-item
-        v-if="operation === 'create'"
-        label="规则类型"
-        prop="type"
-      >
+      <el-form-item v-if="operation === 'create'" label="规则类型" prop="type">
         <el-radio-group v-model="ruleConfigType" @change="selectRuleConfigType">
           <el-radio label="mock">
-            {{'mock' | ruleTypeConvertor}}
-            <el-tooltip class="item" effect="dark" content="请求不会发送到服务器，代理服务器直接返回Mock数据作为响应" placement="bottom">
+            {{ 'mock' | ruleTypeConvertor }}
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="请求不会发送到服务器，代理服务器直接返回Mock数据作为响应"
+              placement="bottom"
+            >
               <i class="el-icon-info"></i>
             </el-tooltip>
           </el-radio>
           <el-radio label="response">
-            {{'response' | ruleTypeConvertor}}
-            <el-tooltip class="item" effect="dark" content="请求发送到服务器，代理服务器收到响应数据后进行处理，然后返回" placement="bottom">
+            {{ 'response' | ruleTypeConvertor }}
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="请求发送到服务器，代理服务器收到响应数据后进行处理，然后返回"
+              placement="bottom"
+            >
               <i class="el-icon-info"></i>
             </el-tooltip>
           </el-radio>
           <el-radio label="request">
-            {{'request' | ruleTypeConvertor}}
-            <el-tooltip class="item" effect="dark" content="修改请求数据，并发送的服务器" placement="bottom">
+            {{ 'request' | ruleTypeConvertor }}
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="修改请求数据，并发送的服务器"
+              placement="bottom"
+            >
               <i class="el-icon-info"></i>
             </el-tooltip>
           </el-radio>
-          <el-radio label="customize">{{'customize' | ruleTypeConvertor}}</el-radio>
+          <el-radio label="customize">{{
+            'customize' | ruleTypeConvertor
+          }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item
@@ -47,10 +60,7 @@
         prop="matcher"
       >
         <div class="url-pattern-wrapper">
-          <el-select
-            style
-            v-model="ruleConfigData.matcher"
-          >
+          <el-select style v-model="ruleConfigData.matcher">
             <el-option
               v-for="matcher in matchers"
               :key="matcher"
@@ -58,20 +68,34 @@
               :value="matcher"
             ></el-option>
           </el-select>
-          <el-input v-model="ruleConfigData.pattern" placeholder="请输入匹配内容"></el-input>
+          <el-input
+            v-model="ruleConfigData.pattern"
+            placeholder="请输入匹配内容"
+          ></el-input>
         </div>
       </el-form-item>
       <el-form-item
-        v-if="ruleConfigData.type === 'request' && ruleConfigData.type !== 'customize'"
+        v-if="
+          ruleConfigData.type === 'request' &&
+            ruleConfigData.type !== 'customize'
+        "
         label="请求头"
         prop="header"
       >
-        <http-header-editor :httpHeader="ruleConfigData.header" @change="(val) => {
-          ruleConfigData.header = val
-        }"/>
+        <http-header-editor
+          :httpHeader="ruleConfigData.header"
+          @change="
+            val => {
+              ruleConfigData.header = val
+            }
+          "
+        />
       </el-form-item>
       <el-form-item
-        v-if="ruleConfigData.type === 'request' && ruleConfigData.type !== 'customize'"
+        v-if="
+          ruleConfigData.type === 'request' &&
+            ruleConfigData.type !== 'customize'
+        "
         label="请求内容"
         prop="body"
       >
@@ -82,23 +106,40 @@
         ></el-input>
       </el-form-item>
       <el-form-item
-        v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.type !== 'customize'"
+        v-if="
+          (ruleConfigData.type === 'mock' ||
+            ruleConfigData.type === 'response') &&
+            ruleConfigData.type !== 'customize'
+        "
         label="HTTP状态码"
         prop="response.statusCode"
       >
         <el-input v-model="ruleConfigData.response.statusCode"></el-input>
       </el-form-item>
       <el-form-item
-        v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.type !== 'customize'"
+        v-if="
+          (ruleConfigData.type === 'mock' ||
+            ruleConfigData.type === 'response') &&
+            ruleConfigData.type !== 'customize'
+        "
         label="响应头"
         prop="response.header"
       >
-        <http-header-editor :httpHeader="ruleConfigData.response.header" @change="(val) => {
-          ruleConfigData.response.header = val
-        }"/>
+        <http-header-editor
+          :httpHeader="ruleConfigData.response.header"
+          @change="
+            val => {
+              ruleConfigData.response.header = val
+            }
+          "
+        />
       </el-form-item>
       <el-form-item
-        v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.type !== 'customize'"
+        v-if="
+          (ruleConfigData.type === 'mock' ||
+            ruleConfigData.type === 'response') &&
+            ruleConfigData.type !== 'customize'
+        "
         label="响应内容类型"
         prop="bodyType"
       >
@@ -108,7 +149,12 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item
-        v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'string' && ruleConfigData.type !== 'customize'"
+        v-if="
+          (ruleConfigData.type === 'mock' ||
+            ruleConfigData.type === 'response') &&
+            ruleConfigData.bodyType === 'string' &&
+            ruleConfigData.type !== 'customize'
+        "
         label="响应内容"
         prop="bodyContent"
       >
@@ -119,13 +165,26 @@
         ></el-input>
       </el-form-item>
       <el-form-item
-        v-if="(ruleConfigData.type === 'mock' || ruleConfigData.type === 'response') && ruleConfigData.bodyType === 'file' && ruleConfigData.type !== 'customize'"
+        v-if="
+          (ruleConfigData.type === 'mock' ||
+            ruleConfigData.type === 'response') &&
+            ruleConfigData.bodyType === 'file' &&
+            ruleConfigData.type !== 'customize'
+        "
         label="响应内容"
         prop="bodyPath"
       >
         <div style="display: flex;">
-          <el-input v-model="ruleConfigData.bodyPath" placeholder="输入文件路径，或者点击按钮选择文件"></el-input>
-          <el-tooltip class="item" effect="dark" content="选择本地文件" placement="left">
+          <el-input
+            v-model="ruleConfigData.bodyPath"
+            placeholder="输入文件路径，或者点击按钮选择文件"
+          ></el-input>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="选择本地文件"
+            placement="left"
+          >
             <el-button
               class="choose-file-btn"
               @click="selectResponseFile"
@@ -150,7 +209,10 @@
         prop="description"
         placeholder="自定义规则描述"
       >
-        <el-input type="textarea" v-model="ruleConfigData.description"></el-input>
+        <el-input
+          type="textarea"
+          v-model="ruleConfigData.description"
+        ></el-input>
       </el-form-item>
       <el-form-item
         v-if="ruleConfigData.type === 'customize'"
@@ -159,19 +221,30 @@
       >
         <span slot="label">
           自定义规则
-          <el-tooltip class="item" effect="dark" content="代理规则代码中可以使用 logger.info('***') 或者 logger.error('***') 来打印日志" placement="right">
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="代理规则代码中可以使用 logger.info('***') 或者 logger.error('***') 来打印日志"
+            placement="right"
+          >
             <i class="el-icon-info"></i>
           </el-tooltip>
         </span>
-        <textarea class="customize-rule-editor" ref="customize-rule-editor"></textarea>
-        <el-button class="show-sample-rule-btn" size="mini" type="primary" @click="showSampleRule" round>
+        <textarea
+          class="customize-rule-editor"
+          ref="customize-rule-editor"
+        ></textarea>
+        <el-button
+          class="show-sample-rule-btn"
+          size="mini"
+          type="primary"
+          @click="showSampleRule"
+          round
+        >
           <i class="el-icon-collection"></i> 查看样例规则
         </el-button>
       </el-form-item>
-      <el-form-item
-        label="标签"
-        prop="tags"
-      >
+      <el-form-item label="标签" prop="tags">
         <el-tag
           :key="tag"
           v-for="tag in ruleConfigData.tags"
@@ -179,7 +252,7 @@
           :disable-transitions="false"
           @close="handleRemoveTag(tag)"
         >
-          {{tag}}
+          {{ tag }}
         </el-tag>
         <el-input
           class="input-new-tag"
@@ -196,13 +269,13 @@
           class="button-new-tag"
           size="small"
           @click="showTagInput"
-        >+ 标签</el-button>
+          >+ 标签</el-button
+        >
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          @click="submitForm('ruleConfigForm')"
-        >{{this.operation === 'create' ? '立即创建' : '修改'}}</el-button>
+        <el-button type="primary" @click="submitForm('ruleConfigForm')">{{
+          this.operation === 'create' ? '立即创建' : '修改'
+        }}</el-button>
         <el-button @click="resetForm('ruleConfigForm')">重置</el-button>
         <el-button @click="cancelForm">取消</el-button>
       </el-form-item>
@@ -217,14 +290,26 @@
       <div v-if="!sampleRules">没有规则样例！</div>
       <div v-if="sampleRules">
         <el-tabs v-model="activeSampleRuleIdx">
-          <el-tab-pane v-for="(rule, idx) in sampleRules" :label="rule.sampleName" :key="idx" :name="idx.toString()">
-            <pre class="sample-rule-preview" v-highlightjs><code class="javascript">{{rule.sampleContent}}</code></pre>
+          <el-tab-pane
+            v-for="(rule, idx) in sampleRules"
+            :label="rule.sampleName"
+            :key="idx"
+            :name="idx.toString()"
+          >
+            <pre
+              class="sample-rule-preview"
+              v-highlightjs
+            ><code class="javascript">{{rule.sampleContent}}</code></pre>
           </el-tab-pane>
         </el-tabs>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" size="small" @click="useCurrentSampleRule">使用当前样例</el-button>
-        <el-button size="small" @click="sampleRuleDialogVisible = false">取消</el-button>
+        <el-button type="primary" size="small" @click="useCurrentSampleRule"
+          >使用当前样例</el-button
+        >
+        <el-button size="small" @click="sampleRuleDialogVisible = false"
+          >取消</el-button
+        >
       </span>
     </el-dialog>
   </div>
@@ -243,10 +328,10 @@ import 'codemirror/theme/monokai.css'
 import 'codemirror/addon/selection/active-line.js'
 
 export default {
-  beforeCreate () {
+  beforeCreate() {
     this.matchers = this.$proxyApi.getMatchers()
   },
-  mounted () {
+  mounted() {
     const selectedRuleConfig = this.$gDataStore.selectedRuleConfig
     if (selectedRuleConfig) {
       this.operation = 'edit'
@@ -256,12 +341,14 @@ export default {
       this.renderRuleEditor(this.ruleConfigType)
     } else {
       this.operation = 'create'
-      const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
+      const clonedDefaultRuleConfigs = JSON.parse(
+        JSON.stringify(defaultRuleConfigs)
+      )
       this.ruleConfigType = 'mock'
       this.ruleConfigData = clonedDefaultRuleConfigs['mock']
     }
   },
-  data () {
+  data() {
     const isValidJSON = (rule, value, callback) => {
       try {
         if (typeof value === 'string' && value.trim() === '') {
@@ -294,7 +381,9 @@ export default {
 
     let ruleConfigData
     let ruleConfigType = 'mock'
-    const clonedDefaultRuleConfigs = JSON.parse(JSON.stringify(defaultRuleConfigs))
+    const clonedDefaultRuleConfigs = JSON.parse(
+      JSON.stringify(defaultRuleConfigs)
+    )
     ruleConfigData = clonedDefaultRuleConfigs[ruleConfigType]
 
     return {
@@ -317,15 +406,11 @@ export default {
         customizeRule: [
           { required: true, message: '请输入自定义规则', trigger: 'blur' }
         ],
-        header: [
-          { validator: isValidJSON, trigger: 'blur' }
-        ],
+        header: [{ validator: isValidJSON, trigger: 'blur' }],
         'response.statusCode': [
           { required: true, validator: isValidHTTPCode, trigger: 'blur' }
         ],
-        'response.header': [
-          { validator: isValidJSON, trigger: 'blur' }
-        ]
+        'response.header': [{ validator: isValidJSON, trigger: 'blur' }]
       },
       tagInputVisible: false,
       tagInputValue: '',
@@ -335,23 +420,26 @@ export default {
     }
   },
   methods: {
-    selectRuleConfigType (type) {
+    selectRuleConfigType(type) {
       this.ruleConfigData = defaultRuleConfigs[type]
       this.renderRuleEditor(type)
     },
-    renderRuleEditor (type) {
+    renderRuleEditor(type) {
       this.$nextTick(() => {
         if (type === 'customize') {
           if (!this.customizeRuleEditor) {
-            this.customizeRuleEditor = CodeMirror.fromTextArea(this.$refs['customize-rule-editor'], {
-              tabSize: 2,
-              mode: 'text/javascript',
-              theme: 'monokai',
-              lineNumbers: true,
-              line: true,
-              styleActiveLine: true
-            })
-            this.customizeRuleEditor.on('change', (cm) => {
+            this.customizeRuleEditor = CodeMirror.fromTextArea(
+              this.$refs['customize-rule-editor'],
+              {
+                tabSize: 2,
+                mode: 'text/javascript',
+                theme: 'monokai',
+                lineNumbers: true,
+                line: true,
+                styleActiveLine: true
+              }
+            )
+            this.customizeRuleEditor.on('change', cm => {
               this.ruleConfigData.customizeRule = cm.getValue()
             })
           }
@@ -365,8 +453,8 @@ export default {
         }
       })
     },
-    submitForm (formName) {
-      this.$refs[formName].validate((valid) => {
+    submitForm(formName) {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           this.submitRuleConfig(this.ruleConfigData)
           this.handleClose()
@@ -375,13 +463,13 @@ export default {
         }
       })
     },
-    resetForm (formName) {
+    resetForm(formName) {
       this.$refs[formName].resetFields()
     },
-    cancelForm () {
+    cancelForm() {
       this.handleClose()
     },
-    submitRuleConfig (ruleConfig) {
+    submitRuleConfig(ruleConfig) {
       let _ruleConfig = ruleConfig
 
       if ('guid' in ruleConfig) {
@@ -396,7 +484,7 @@ export default {
 
       this.handleClose()
     },
-    strToJSON (val) {
+    strToJSON(val) {
       let result
       try {
         result = JSON.parse(val)
@@ -405,35 +493,38 @@ export default {
       }
       return result
     },
-    JSONtoStr (val) {
+    JSONtoStr(val) {
       if (typeof val === 'string') {
         return val
       }
       return JSON.stringify(val, null, 4)
     },
-    selectResponseFile () {
-      this.$dialog.showOpenDialog({
-        properties: ['openFile']
-      }).then((result) => {
-        const responseFilePath = result && result.filePaths && result.filePaths[0]
-        if (responseFilePath) {
-          this.ruleConfigData.bodyPath = responseFilePath
-        }
-      })
+    selectResponseFile() {
+      this.$dialog
+        .showOpenDialog({
+          properties: ['openFile']
+        })
+        .then(result => {
+          const responseFilePath =
+            result && result.filePaths && result.filePaths[0]
+          if (responseFilePath) {
+            this.ruleConfigData.bodyPath = responseFilePath
+          }
+        })
     },
-    handleRemoveTag (tag) {
+    handleRemoveTag(tag) {
       const found = this.ruleConfigData.tags.indexOf(tag)
       if (found > -1) {
         this.ruleConfigData.tags.splice(found, 1)
       }
     },
-    showTagInput () {
+    showTagInput() {
       this.tagInputVisible = true
       this.$nextTick(_ => {
         this.$refs.saveTagInput.$refs.input.focus()
       })
     },
-    handleTagConfirm () {
+    handleTagConfirm() {
       if (this.tagInputValue) {
         if (this.ruleConfigData.tags.indexOf(this.tagInputValue) === -1) {
           this.ruleConfigData.tags.push(this.tagInputValue)
@@ -447,16 +538,16 @@ export default {
       this.tagInputVisible = false
       this.tagInputValue = ''
     },
-    showSampleRule () {
+    showSampleRule() {
       this.sampleRuleDialogVisible = true
       this.sampleRules = this.$proxyApi.getSampleRules()
     },
-    useCurrentSampleRule () {
+    useCurrentSampleRule() {
       this.sampleRuleDialogVisible = false
       const currentSampleRule = this.sampleRules[this.activeSampleRuleIdx]
       this.customizeRuleEditor.setValue(currentSampleRule.sampleContent)
     },
-    handleClose () {
+    handleClose() {
       this.$ipcRenderer.send('proxy-rule-form-close')
     }
   },
@@ -467,66 +558,67 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .proxy-rule {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-}
-.proxy-rule-header {
-  display: flex;
-  align-items: center;
-  height: 24px;
-  min-height: 24px;
-  padding: 0 8px;
-  -webkit-app-region: drag;
-  background: -webkit-linear-gradient(top, #eee, #bbb);
-}
-.proxy-rule-header .header-content {
-  flex: 1;
-  font-size: 12px;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-}
-.proxy-rule-form {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 8px;
-}
-.url-pattern-wrapper {
-  display: flex;
-}
-.url-pattern-wrapper .el-select {
-  width: 120px;
-  margin-right: 12px;
-}
-.url-pattern-wrapper .el-input {
-  flex: 1;
-}
-.el-tag {
-  margin-right: 8px;
-  font-weight: bold;
-}
-.button-new-tag {
-  height: 32px;
-  line-height: 30px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.input-new-tag {
-  width: 90px;
-  vertical-align: bottom;
-}
-.show-sample-rule-btn {
-  margin: 8px 0;
-}
-.sample-rule-preview {
-  line-height: 20px;
-}
-.choose-file-btn {
-  margin-left: 12px;
-  font-weight: bold;
+  .proxy-rule-header {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    min-height: 24px;
+    padding: 0 8px;
+    -webkit-app-region: drag;
+    background: -webkit-linear-gradient(top, #eee, #bbb);
+    .header-content {
+      flex: 1;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+  }
+
+  .proxy-rule-form {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 8px;
+    .url-pattern-wrapper {
+      display: flex;
+      .el-select {
+        width: 120px;
+        margin-right: 12px;
+      }
+      .el-input {
+        flex: 1;
+      }
+    }
+    .el-tag {
+      margin-right: 8px;
+      font-weight: bold;
+    }
+    .button-new-tag {
+      height: 32px;
+      line-height: 30px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .input-new-tag {
+      width: 90px;
+      vertical-align: bottom;
+    }
+    .show-sample-rule-btn {
+      margin: 8px 0;
+    }
+    .sample-rule-preview {
+      line-height: 20px;
+    }
+    .choose-file-btn {
+      margin-left: 12px;
+      font-weight: bold;
+    }
+  }
 }
 </style>

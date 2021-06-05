@@ -39,7 +39,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .el-icon-view {
   position: relative;
   cursor: pointer;

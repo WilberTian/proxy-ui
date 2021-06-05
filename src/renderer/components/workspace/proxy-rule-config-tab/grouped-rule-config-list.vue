@@ -1,15 +1,42 @@
 <template>
   <div class="grouped-rule-config-list">
     <div v-for="(tagItem, idx) in tagList" :key="idx">
-      <div :class="{'rule-config-list-group': true}" v-if="groupedRuleConfigList[tagItem.tag] && groupedRuleConfigList[tagItem.tag].length > 0">
-        <div :class="{'group-header': true}" @click="toggleRuleConfigList(tagItem.tag)">
+      <div
+        :class="{ 'rule-config-list-group': true }"
+        v-if="
+          groupedRuleConfigList[tagItem.tag] &&
+            groupedRuleConfigList[tagItem.tag].length > 0
+        "
+      >
+        <div
+          :class="{ 'group-header': true }"
+          @click="toggleRuleConfigList(tagItem.tag)"
+        >
           <div class="tag-name">
-            {{tagItem.tag}} （{{groupedRuleConfigList[tagItem.tag].length}}条）
+            {{ tagItem.tag }} （{{
+              groupedRuleConfigList[tagItem.tag].length
+            }}条）
           </div>
           <div class="tag-btns">
-            <el-button v-show="!tagItem.folded" size="mini" @click.stop="toggleRulesByTag(tagItem.tag, true)" round>开启全部</el-button>
-            <el-button v-show="!tagItem.folded" size="mini" @click.stop="toggleRulesByTag(tagItem.tag, false)" round>禁用全部</el-button>
-            <i :class="tagItem.folded ? 'el-icon-arrow-right' : 'el-icon-arrow-down'" />
+            <el-button
+              v-show="!tagItem.folded"
+              size="mini"
+              @click.stop="toggleRulesByTag(tagItem.tag, true)"
+              round
+              >开启全部</el-button
+            >
+            <el-button
+              v-show="!tagItem.folded"
+              size="mini"
+              @click.stop="toggleRulesByTag(tagItem.tag, false)"
+              round
+              >禁用全部</el-button
+            >
+            <i
+              :class="
+                tagItem.folded ? 'el-icon-arrow-right' : 'el-icon-arrow-down'
+              "
+            />
           </div>
         </div>
         <transition name="slide-fade">
@@ -32,7 +59,7 @@ export default {
   props: {
     tags: {
       type: Array,
-      default: function () {
+      default: function() {
         return []
       }
     },
@@ -40,15 +67,15 @@ export default {
       type: Array
     }
   },
-  data () {
+  data() {
     return {
       tagList: []
     }
   },
   watch: {
     tags: {
-      handler (val) {
-        const tagList = val.map((tag) => {
+      handler(val) {
+        const tagList = val.map(tag => {
           return {
             tag,
             folded: !!window.localStorage.getItem(`tag-${tag}`)
@@ -65,17 +92,17 @@ export default {
     }
   },
   computed: {
-    groupedRuleConfigList () {
+    groupedRuleConfigList() {
       const groupedRuleConfigList = {}
-      this.tagList.forEach((tagItem) => {
-        const result = this.ruleConfigs.filter((ruleConfig) => {
+      this.tagList.forEach(tagItem => {
+        const result = this.ruleConfigs.filter(ruleConfig => {
           return ruleConfig.tags.indexOf(tagItem.tag) !== -1
         })
         if (result.length > 0) {
           groupedRuleConfigList[tagItem.tag] = result
         }
       })
-      const notTaggedList = this.ruleConfigs.filter((ruleConfig) => {
+      const notTaggedList = this.ruleConfigs.filter(ruleConfig => {
         return ruleConfig.tags.length === 0
       })
       if (notTaggedList.length > 0) {
@@ -86,12 +113,12 @@ export default {
     }
   },
   methods: {
-    handleEditRuleConfig (selectedRuleConfig) {
+    handleEditRuleConfig(selectedRuleConfig) {
       this.$emit('editRuleConfig', selectedRuleConfig)
     },
-    toggleRulesByTag (tag, status) {
+    toggleRulesByTag(tag, status) {
       const taggedList = this.groupedRuleConfigList[tag]
-      const ruleConfigs = taggedList.map((ruleConfig) => {
+      const ruleConfigs = taggedList.map(ruleConfig => {
         return {
           ...ruleConfig,
           enabled: status
@@ -99,12 +126,14 @@ export default {
       })
       this.$proxyApi.updateRuleConfigs(ruleConfigs)
     },
-    toggleRuleConfigList (tag) {
-      const foundIdx = this.tagList.findIndex((tagItem) => {
+    toggleRuleConfigList(tag) {
+      const foundIdx = this.tagList.findIndex(tagItem => {
         return tagItem.tag === tag
       })
       const currentStatus = this.tagList[foundIdx].folded
-      currentStatus ? window.localStorage.removeItem(`tag-${tag}`) : window.localStorage.setItem(`tag-${tag}`, '1')
+      currentStatus
+        ? window.localStorage.removeItem(`tag-${tag}`)
+        : window.localStorage.setItem(`tag-${tag}`, '1')
       const updatedItem = {
         tag,
         folded: !!window.localStorage.getItem(`tag-${tag}`)
@@ -118,39 +147,39 @@ export default {
 }
 </script>
 
-<style scoped>
-.rule-config-list-group {
-  border: 1px solid #efefef;
-  margin-bottom: 6px;
-}
-.rule-config-list {
-  padding-bottom: 16px;
-}
-.group-header {
-  display: flex;
-  align-items: center;
-  height: 32px;
-  cursor: pointer;
-  background-color: #f2f6fc;
-}
-.group-header .tag-name {
-  flex: 1;
-  display: inline-block;
-  color: #333;
-  opacity: .8;
-  font-weight: bold;
-  padding: 0 8px;
-}
-.group-header .tag-btns i {
-  margin: 0 8px;
-}
-.slide-fade-enter-active {
-  transition: all .2s ease-in;
-}
-.slide-fade-leave-active {
-  transition: all .1s ease-in;
-}
-.slide-fade-enter, .slide-fade-leave-active {
-  opacity: 0;
+<style lang="less" scoped>
+.grouped-rule-config-list {
+  .rule-config-list-group {
+    border: 1px solid #efefef;
+    margin-bottom: 6px;
+    .group-header {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      cursor: pointer;
+      background-color: #f2f6fc;
+      .tag-name {
+        flex: 1;
+        display: inline-block;
+        color: #333;
+        opacity: 0.8;
+        font-weight: bold;
+        padding: 0 8px;
+      }
+      .tag-btns i {
+        margin: 0 8px;
+      }
+    }
+    .slide-fade-enter-active {
+      transition: all 0.2s ease-in;
+    }
+    .slide-fade-leave-active {
+      transition: all 0.1s ease-in;
+    }
+    .slide-fade-enter,
+    .slide-fade-leave-active {
+      opacity: 0;
+    }
+  }
 }
 </style>

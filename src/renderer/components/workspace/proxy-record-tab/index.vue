@@ -10,12 +10,24 @@
         </el-radio-button>
       </el-radio-group>
       <div class="clear-record-btn">
-        <el-button type="danger" size="mini" icon="el-icon-delete" :disabled="recordCount === 0" @click="clearRecords"></el-button>
+        <el-button
+          type="danger"
+          size="mini"
+          icon="el-icon-delete"
+          :disabled="recordCount === 0"
+          @click="clearRecords"
+        ></el-button>
       </div>
       <div class="block-placeholder" />
       <div class="record-filter">
-        <el-input size="mini" style="width: 200px; margin-right: 16px;" v-model="filterKeyword" />
-        <el-button size="mini" type="primary" @click="processFilterHandler">查询</el-button>
+        <el-input
+          size="mini"
+          style="width: 200px; margin-right: 16px;"
+          v-model="filterKeyword"
+        />
+        <el-button size="mini" type="primary" @click="processFilterHandler"
+          >查询</el-button
+        >
         <el-button size="mini" @click="resetFilterHandler">重置</el-button>
       </div>
     </div>
@@ -44,13 +56,13 @@ import events from '@/configs/events'
 import eventBus from '@/utils/event-bus'
 import TreeRecordView from './tree-record-view'
 import ListRecordView from './list-record-view'
-import {insertTree} from './record-tree'
+import { insertTree } from './record-tree'
 import showNotification from '@/utils/show-notification'
 
 const throttle = require('lodash.throttle')
 
 export default {
-  data: function () {
+  data: function() {
     return {
       filterKeyword: '',
       displayMode: 'tree',
@@ -66,7 +78,7 @@ export default {
       recordCount: 'getRecordCount'
     })
   },
-  mounted () {
+  mounted() {
     this.recordClearHandler()
 
     this.treeRecordDataUpdater = throttle(() => {
@@ -101,7 +113,7 @@ export default {
     this.$ipcRenderer.on('record-append', this.recordAppendHandler)
     this.$ipcRenderer.on('record-update', this.recordUpdateHandler)
 
-    this.filterRecordHandler = (filterKeyword) => {
+    this.filterRecordHandler = filterKeyword => {
       this.filterKeyword = filterKeyword
     }
     eventBus.$on(events.FILTER_RECORD, this.filterRecordHandler)
@@ -115,50 +127,71 @@ export default {
     this.hostsDisabledCacheUpdated = () => {
       this.hostsDisabledCache = this.$proxyApi.getHostsDisabledCache()
     }
-    this.$ipcRenderer.on('disable-cache-updated', this.hostsDisabledCacheUpdated)
+    this.$ipcRenderer.on(
+      'disable-cache-updated',
+      this.hostsDisabledCacheUpdated
+    )
     this.hostsDisabledCacheUpdated()
 
     this.$ipcRenderer.on('proxy-server-status-updated', this.recordClearHandler)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     this.recordClearHandler()
     eventBus.$off(events.FILTER_RECORD, this.filterRecordHandler)
     this.$ipcRenderer.removeListener('record-append', this.recordAppendHandler)
     this.$ipcRenderer.removeListener('record-update', this.recordUpdateHandler)
-    this.$ipcRenderer.removeListener('https-host-updated', this.httpsHostUpdated)
-    this.$ipcRenderer.removeListener('disable-cache-updated', this.hostsDisabledCacheUpdated)
-    this.$ipcRenderer.removeListener('proxy-server-status-updated', this.recordClearHandler)
+    this.$ipcRenderer.removeListener(
+      'https-host-updated',
+      this.httpsHostUpdated
+    )
+    this.$ipcRenderer.removeListener(
+      'disable-cache-updated',
+      this.hostsDisabledCacheUpdated
+    )
+    this.$ipcRenderer.removeListener(
+      'proxy-server-status-updated',
+      this.recordClearHandler
+    )
   },
   methods: {
-    clearRecords () {
-      this.$proxyApi.clearRecords().then((num) => {
-        showNotification('提示', {
-          body: `${num}条记录被删除！`,
-          tag: 'simple-notification'
-        },
-        4000)
+    clearRecords() {
+      this.$proxyApi.clearRecords().then(
+        num => {
+          showNotification(
+            '提示',
+            {
+              body: `${num}条记录被删除！`,
+              tag: 'simple-notification'
+            },
+            4000
+          )
 
-        this.recordClearHandler()
-      }, (err) => {
-        showNotification('错误信息', {
-          body: err,
-          tag: 'simple-notification'
+          this.recordClearHandler()
         },
-        4000)
-      })
+        err => {
+          showNotification(
+            '错误信息',
+            {
+              body: err,
+              tag: 'simple-notification'
+            },
+            4000
+          )
+        }
+      )
     },
-    processFilterHandler () {
+    processFilterHandler() {
       eventBus.$emit(events.FILTER_RECORD, this.filterKeyword)
     },
-    resetFilterHandler () {
+    resetFilterHandler() {
       this.filterKeyword = ''
       eventBus.$emit(events.FILTER_RECORD, '')
     },
-    updateRecordCount (count) {
+    updateRecordCount(count) {
       this.$store.commit('setRecordCount', count)
       this.$proxyApi.setTrayTitle(count === 0 ? '' : `${count}`)
     },
-    recordClearHandler () {
+    recordClearHandler() {
       this.noneReactiveRecordTreeData = {
         label: 'root',
         children: [],
@@ -171,19 +204,25 @@ export default {
       this.selectedRecordId = -1
       this.updateRecordCount(0)
     },
-    deleteRecordsByHost (host, isOpposite = false) {
-      this.noneReactiveRecordTreeData.children = this.noneReactiveRecordTreeData.children.filter((item) => {
-        return isOpposite ? item.host === host : item.host !== host
-      })
-      this.noneReactiveRecordTreeData.leaves = this.noneReactiveRecordTreeData.leaves.filter((item) => {
-        return isOpposite ? item.host === host : item.host !== host
-      })
-      this.noneReactiveRecordTreeData.updatedHosts = this.noneReactiveRecordTreeData.updatedHosts.filter((item) => {
-        return isOpposite ? item.host === host : item.host !== host
-      })
+    deleteRecordsByHost(host, isOpposite = false) {
+      this.noneReactiveRecordTreeData.children = this.noneReactiveRecordTreeData.children.filter(
+        item => {
+          return isOpposite ? item.host === host : item.host !== host
+        }
+      )
+      this.noneReactiveRecordTreeData.leaves = this.noneReactiveRecordTreeData.leaves.filter(
+        item => {
+          return isOpposite ? item.host === host : item.host !== host
+        }
+      )
+      this.noneReactiveRecordTreeData.updatedHosts = this.noneReactiveRecordTreeData.updatedHosts.filter(
+        item => {
+          return isOpposite ? item.host === host : item.host !== host
+        }
+      )
       this.treeRecordDataUpdater()
     },
-    deleteRecordsById (recordId, isOpposite = false) {
+    deleteRecordsById(recordId, isOpposite = false) {
       //
     }
   },
@@ -194,27 +233,27 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .proxy-server-record {
   height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-.record-status-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 16px;
-  height: 40px;
-  box-shadow: 0 0 2px rgba(0,0,0,0.2);
-  background-color: #fafafa;
-  z-index: 1;
-}
-.clear-record-btn {
-  margin-left: 28px;
-}
-.block-placeholder {
-  flex: 1;
+  .record-status-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    height: 40px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+    background-color: #fafafa;
+    z-index: 1;
+    .clear-record-btn {
+      margin-left: 28px;
+    }
+    .block-placeholder {
+      flex: 1;
+    }
+  }
 }
 </style>
